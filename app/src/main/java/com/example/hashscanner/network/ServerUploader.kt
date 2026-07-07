@@ -5,7 +5,6 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
-import org.json.JSONArray
 import org.json.JSONObject
 
 class ServerUploader(
@@ -16,71 +15,63 @@ class ServerUploader(
 
     private val client = OkHttpClient()
 
-    fun upload(
+    suspend fun upload(
 
-        apps: List<SuspiciousApp>
+        app: SuspiciousApp
 
     ): Boolean {
 
         return try {
 
-            val array = JSONArray()
+            val json = JSONObject().apply {
 
-            apps.forEach {
+                put("appName", app.appName)
 
-                val obj = JSONObject()
+                put("packageName", app.packageName)
 
-                obj.put("appName", it.appName)
+                put("sha256", app.sha256)
 
-                obj.put("packageName", it.packageName)
+                put("riskScore", app.riskScore)
 
-                obj.put("sha256", it.sha256)
+                put("riskLevel", app.riskLevel)
 
-                obj.put("riskScore", it.riskScore)
+                put("reason", app.reason)
 
-                obj.put("riskLevel", it.riskLevel)
+                put("reportDate", app.reportDate)
 
-                obj.put("reason", it.reason)
+                put("recommendUpload", app.recommendUpload)
 
-                obj.put("reportDate", it.reportDate)
-
-                array.put(obj)
+                put("recommendation", app.recommendation)
 
             }
 
-            val body = JSONObject()
+            val body = json.toString().toRequestBody(
 
-            body.put("apps", array)
+                "application/json".toMediaType()
 
-            val requestBody =
+            )
 
-                body.toString()
+            val request = Request.Builder()
 
-                    .toRequestBody(
+                .url(serverUrl)
 
-                        "application/json".toMediaType()
+                .post(body)
 
-                    )
+                .build()
 
-            val request =
+            client.newCall(request)
 
-                Request.Builder()
+                .execute()
 
-                    .url(serverUrl)
+                .use { response ->
 
-                    .post(requestBody)
+                    response.isSuccessful
 
-                    .build()
-
-            val response =
-
-                client.newCall(request)
-
-                    .execute()
-
-            response.isSuccessful
+                }
 
         } catch (e: Exception) {
+
+            e.printStackTrace()
 
             false
 

@@ -51,6 +51,7 @@ data class AppInfo(
     val certificateValidFrom: Long,
 
     val certificateValidTo: Long,
+
     val installer: String,
 
     val firstInstallTime: Long,
@@ -67,6 +68,8 @@ data class AppInfo(
 
     val isEnabled: Boolean,
 
+    // ---------- Risk ----------
+
     val riskScore: Int,
 
     val riskLevel: String,
@@ -75,11 +78,22 @@ data class AppInfo(
 
     val riskReasons: String,
 
+    // ---------- Recommendation ----------
+
+    val recommendUpload: Boolean,
+
+    val recommendation: String,
+
+    // ---------- VirusTotal ----------
+
     val vtChecked: Boolean,
 
     val vtResult: String,
 
+    // ---------- Scan ----------
+
     val scanDate: String,
 
     val scanTime: String
+
 )

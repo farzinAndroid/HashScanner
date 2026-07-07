@@ -6,11 +6,15 @@ import android.content.pm.PackageInfo
 
 data class RiskResult(
 
-    val score:Int,
+    val score: Int,
 
-    val level:String,
+    val level: String,
 
-    val reasons:String
+    val reasons: String,
+
+    val recommendUpload: Boolean,
+
+    val recommendation: String
 
 )
 
@@ -22,7 +26,7 @@ class RiskAnalyzer {
 
         app: ApplicationInfo,
 
-        installer:String
+        installer: String
 
     ): RiskResult {
 
@@ -34,7 +38,7 @@ class RiskAnalyzer {
 
             score += 15
 
-            reasons.add("Debuggable App")
+            reasons.add("Debuggable Application")
 
         }
 
@@ -44,9 +48,7 @@ class RiskAnalyzer {
 
         }
 
-        if (
-            installer == "Unknown"
-        ) {
+        if (installer == "Unknown") {
 
             score += 20
 
@@ -56,69 +58,69 @@ class RiskAnalyzer {
 
         pkg.requestedPermissions?.forEach {
 
-            when(it){
+            when (it) {
 
-                Manifest.permission.SYSTEM_ALERT_WINDOW ->{
+                Manifest.permission.SYSTEM_ALERT_WINDOW -> {
 
-                    score+=20
+                    score += 20
 
                     reasons.add("Overlay Permission")
 
                 }
 
-                Manifest.permission.REQUEST_INSTALL_PACKAGES ->{
+                Manifest.permission.REQUEST_INSTALL_PACKAGES -> {
 
-                    score+=20
+                    score += 20
 
                     reasons.add("Can Install APK")
 
                 }
 
-                Manifest.permission.BIND_ACCESSIBILITY_SERVICE ->{
+                Manifest.permission.BIND_ACCESSIBILITY_SERVICE -> {
 
-                    score+=25
+                    score += 25
 
                     reasons.add("Accessibility Service")
 
                 }
 
-                Manifest.permission.RECORD_AUDIO ->{
+                Manifest.permission.RECORD_AUDIO -> {
 
-                    score+=5
+                    score += 5
 
-                    reasons.add("Microphone")
-
-                }
-
-                Manifest.permission.CAMERA ->{
-
-                    score+=5
-
-                    reasons.add("Camera")
+                    reasons.add("Microphone Access")
 
                 }
 
-                Manifest.permission.READ_SMS ->{
+                Manifest.permission.CAMERA -> {
 
-                    score+=15
+                    score += 5
+
+                    reasons.add("Camera Access")
+
+                }
+
+                Manifest.permission.READ_SMS -> {
+
+                    score += 15
 
                     reasons.add("Read SMS")
 
                 }
 
-                Manifest.permission.SEND_SMS ->{
+                Manifest.permission.SEND_SMS -> {
 
-                    score+=15
+                    score += 15
 
                     reasons.add("Send SMS")
 
                 }
 
-                Manifest.permission.RECEIVE_BOOT_COMPLETED ->{
+                Manifest.permission.RECEIVE_BOOT_COMPLETED -> {
 
-                    score+=10
+                    score += 10
 
-                    reasons.add("Auto Start")
+                    reasons.add("Starts Automatically")
 
                 }
 
@@ -126,32 +128,51 @@ class RiskAnalyzer {
 
         }
 
-        if(score>100)
-            score=100
+        if (score > 100) {
 
-        val level=
+            score = 100
 
-            when{
+        }
 
-                score>=80->"CRITICAL"
+        val level = when {
 
-                score>=60->"HIGH"
+            score >= 80 -> "CRITICAL"
 
-                score>=40->"MEDIUM"
+            score >= 60 -> "HIGH"
 
-                score>=20->"LOW"
+            score >= 40 -> "MEDIUM"
 
-                else->"SAFE"
+            score >= 20 -> "LOW"
 
-            }
+            else -> "SAFE"
+
+        }
+
+        val recommendUpload = score >= 60
+
+        val recommendation = when {
+
+            score >= 80 -> "This application has a very high risk score. It is strongly recommended to upload the APK for advanced malware analysis."
+
+            score >= 60 -> "This application appears suspicious. Uploading the APK for further security analysis is recommended."
+
+            score >= 40 -> "Some suspicious indicators were detected. Monitor this application carefully."
+
+            else -> "No significant security risk detected."
+
+        }
 
         return RiskResult(
 
-            score,
+            score = score,
 
-            level,
+            level = level,
 
-            reasons.joinToString(",")
+            reasons = reasons.joinToString(", "),
+
+            recommendUpload = recommendUpload,
+
+            recommendation = recommendation
 
         )
 

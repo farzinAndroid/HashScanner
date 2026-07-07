@@ -34,9 +34,27 @@ class PackageScanner(
         val permissionDao = db.permissionDao()
         val suspiciousDao = db.suspiciousDao()
 
-        val packages = pm.getInstalledPackages(
-            PackageManager.GET_PERMISSIONS
-        )
+        val packages =
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+
+                pm.getInstalledPackages(
+
+                    PackageManager.PackageInfoFlags.of(
+                        PackageManager.GET_PERMISSIONS.toLong()
+                    )
+
+                )
+
+            } else {
+
+                @Suppress("DEPRECATION")
+
+                pm.getInstalledPackages(
+                    PackageManager.GET_PERMISSIONS
+                )
+
+            }
 
         for (pkg in packages) {
 
@@ -224,6 +242,10 @@ class PackageScanner(
 
             riskReasons = result.reasons,
 
+            recommendUpload = result.recommendUpload,
+
+            recommendation = result.recommendation,
+
             vtChecked = false,
 
             vtResult = "",
@@ -303,9 +325,17 @@ class PackageScanner(
 
                     reason = result.reasons,
 
+                    reportDate = LocalDate.now().toString(),
+
                     sentToServer = false,
 
-                    reportDate = LocalDate.now().toString()
+                    apkUploaded = false,
+
+                    uploadDate = "",
+
+                    recommendUpload = result.recommendUpload,
+
+                    recommendation = result.recommendation
 
                 )
 

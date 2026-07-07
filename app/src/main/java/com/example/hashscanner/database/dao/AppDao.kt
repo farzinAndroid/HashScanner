@@ -35,6 +35,12 @@ interface AppDao {
     @Query("SELECT * FROM apps WHERE sha256=:hash LIMIT 1")
     suspend fun getBySha256(hash: String): AppInfo?
 
+    @Query("SELECT * FROM apps WHERE md5=:md5 LIMIT 1")
+    suspend fun getByMd5(md5: String): AppInfo?
+
+    @Query("SELECT * FROM apps WHERE sha1=:sha1 LIMIT 1")
+    suspend fun getBySha1(sha1: String): AppInfo?
+
     @Query("SELECT COUNT(*) FROM apps")
     suspend fun count(): Int
 
@@ -55,6 +61,63 @@ interface AppDao {
 
     @Query("SELECT * FROM apps WHERE riskLevel='CRITICAL'")
     suspend fun getCriticalApps(): List<AppInfo>
+
+    @Query("SELECT * FROM apps ORDER BY riskScore DESC")
+    suspend fun getAppsByRisk(): List<AppInfo>
+
+    @Query("SELECT * FROM apps ORDER BY firstInstallTime DESC")
+    suspend fun getNewestApps(): List<AppInfo>
+
+    @Query("SELECT * FROM apps ORDER BY lastUpdateTime DESC")
+    suspend fun getRecentlyUpdatedApps(): List<AppInfo>
+
+    @Query("SELECT * FROM apps WHERE installer=:installer")
+    suspend fun getAppsByInstaller(installer: String): List<AppInfo>
+
+    @Query("SELECT * FROM apps WHERE isDebuggable=1")
+    suspend fun getDebuggableApps(): List<AppInfo>
+
+    @Query("SELECT * FROM apps WHERE isEnabled=0")
+    suspend fun getDisabledApps(): List<AppInfo>
+
+    @Query("SELECT * FROM apps WHERE targetSdk<30")
+    suspend fun getOldTargetSdkApps(): List<AppInfo>
+
+    @Query("SELECT * FROM apps WHERE certificateSha256=:sha256")
+    suspend fun getByCertificateSha256(sha256: String): List<AppInfo>
+
+    @Query("SELECT * FROM apps WHERE packageName LIKE '%' || :keyword || '%' OR appName LIKE '%' || :keyword || '%'")
+    suspend fun search(keyword: String): List<AppInfo>
+
+    @Query("SELECT * FROM apps ORDER BY apkSize DESC")
+    suspend fun getLargestApps(): List<AppInfo>
+
+    @Query("SELECT * FROM apps ORDER BY apkSize ASC")
+    suspend fun getSmallestApps(): List<AppInfo>
+
+    // ---------- Upload Recommendation ----------
+
+    @Query("""
+        SELECT * FROM apps
+        WHERE recommendUpload = 1
+        ORDER BY riskScore DESC
+    """)
+    suspend fun getRecommendedForUpload(): List<AppInfo>
+
+    @Query("""
+        SELECT COUNT(*)
+        FROM apps
+        WHERE recommendUpload = 1
+    """)
+    suspend fun countRecommendedUploads(): Int
+
+    @Query("""
+        SELECT * FROM apps
+        WHERE recommendUpload = 1
+        AND suspicious = 1
+        ORDER BY riskScore DESC
+    """)
+    suspend fun getRecommendedSuspiciousApps(): List<AppInfo>
 
     // ---------- Statistics ----------
 
@@ -81,43 +144,5 @@ interface AppDao {
 
     @Query("SELECT COUNT(*) FROM apps WHERE riskLevel='CRITICAL'")
     suspend fun countCriticalApps(): Int
-
-    @Query("SELECT * FROM apps ORDER BY riskScore DESC")
-    suspend fun getAppsByRisk(): List<AppInfo>
-
-    @Query("SELECT * FROM apps ORDER BY firstInstallTime DESC")
-    suspend fun getNewestApps(): List<AppInfo>
-
-    @Query("SELECT * FROM apps ORDER BY lastUpdateTime DESC")
-    suspend fun getRecentlyUpdatedApps(): List<AppInfo>
-    @Query("SELECT * FROM apps WHERE md5=:md5 LIMIT 1")
-    suspend fun getByMd5(md5: String): AppInfo?
-
-    @Query("SELECT * FROM apps WHERE sha1=:sha1 LIMIT 1")
-    suspend fun getBySha1(sha1: String): AppInfo?
-
-    @Query("SELECT * FROM apps WHERE installer=:installer")
-    suspend fun getAppsByInstaller(installer: String): List<AppInfo>
-
-    @Query("SELECT * FROM apps WHERE isDebuggable=1")
-    suspend fun getDebuggableApps(): List<AppInfo>
-
-    @Query("SELECT * FROM apps WHERE isEnabled=0")
-    suspend fun getDisabledApps(): List<AppInfo>
-
-    @Query("SELECT * FROM apps WHERE targetSdk<30")
-    suspend fun getOldTargetSdkApps(): List<AppInfo>
-
-    @Query("SELECT * FROM apps WHERE certificateSha256=:sha256")
-    suspend fun getByCertificateSha256(sha256: String): List<AppInfo>
-
-    @Query("SELECT * FROM apps WHERE packageName LIKE '%' || :keyword || '%' OR appName LIKE '%' || :keyword || '%'")
-    suspend fun search(keyword: String): List<AppInfo>
-
-    @Query("SELECT * FROM apps ORDER BY apkSize DESC")
-    suspend fun getLargestApps(): List<AppInfo>
-
-    @Query("SELECT * FROM apps ORDER BY apkSize ASC")
-    suspend fun getSmallestApps(): List<AppInfo>
 
 }

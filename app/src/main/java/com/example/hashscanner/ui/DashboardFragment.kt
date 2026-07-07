@@ -8,8 +8,8 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import com.example.hashscanner.R
-import com.example.hashscanner.database.AppDatabase
+import com.example.apphashscanner.R
+import com.example.apphashscanner.database.AppDatabase
 import kotlinx.coroutines.launch
 
 class DashboardFragment : Fragment() {
@@ -46,7 +46,7 @@ class DashboardFragment : Fragment() {
         safeApps = view.findViewById(R.id.txtSafe)
         highRiskApps = view.findViewById(R.id.txtHigh)
 
-        db = AppDatabase.getDatabase(requireContext())
+        db = AppDatabaseProvider.getDatabase(requireContext())
 
         loadStatistics()
 

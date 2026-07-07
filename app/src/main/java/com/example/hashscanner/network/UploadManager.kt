@@ -1,6 +1,7 @@
 package com.example.hashscanner.network
 
 import com.example.hashscanner.database.AppDatabase
+import java.time.LocalDateTime
 
 class UploadManager(
 
@@ -16,20 +17,33 @@ class UploadManager(
 
         val list = dao.getNotSent()
 
-        if (list.isEmpty())
+        if (list.isEmpty()) {
             return
+        }
 
-        val ok = uploader.upload(list)
+        val uploadTime = LocalDateTime.now().toString()
 
-        if (ok) {
+        list.forEach { app ->
 
-            list.forEach {
+            try {
 
-                dao.markUploaded(
+                val success = uploader.upload(app)
 
-                    it.packageName
+                if (success) {
 
-                )
+                    dao.markUploaded(
+
+                        pkg = app.packageName,
+
+                        date = uploadTime
+
+                    )
+
+                }
+
+            } catch (e: Exception) {
+
+                e.printStackTrace()
 
             }
 

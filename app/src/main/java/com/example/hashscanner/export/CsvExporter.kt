@@ -44,8 +44,6 @@ class CsvExporter(
             "App Name,Package,Risk,Score,SHA256\n"
         )
 
-
-
         apps.forEach {
 
             builder.append(

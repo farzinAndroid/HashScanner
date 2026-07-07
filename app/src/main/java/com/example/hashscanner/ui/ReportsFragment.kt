@@ -15,12 +15,6 @@ import com.example.apphashscanner.export.ExportManager
 import com.example.apphashscanner.export.JsonExporter
 import com.example.apphashscanner.report.PdfGenerator
 import com.example.apphashscanner.report.TextReportWriter
-import com.example.hashscanner.R
-import com.example.hashscanner.database.AppDatabase
-import com.example.hashscanner.export.DatabaseExporter
-import com.example.hashscanner.export.JsonExporter
-import com.example.hashscanner.report.PdfGenerator
-import com.example.hashscanner.report.TextReportWriter
 import kotlinx.coroutines.launch
 
 class ReportsFragment : Fragment() {
@@ -85,7 +79,7 @@ class ReportsFragment : Fragment() {
 
         lifecycleScope.launch {
 
-            val db = AppDatabase.getDatabase(requireContext())
+            val db = AppDatabaseProvider.getDatabase(requireContext())
 
             PdfGenerator(
 
@@ -103,13 +97,13 @@ class ReportsFragment : Fragment() {
 
         lifecycleScope.launch {
 
-            val db = AppDatabase.getDatabase(requireContext())
+            val db = AppDatabaseProvider.getDatabase(requireContext())
 
             val apps = db.appDao().getAll()
 
-            val file = DatabaseExporter(requireContext()).exportDatabase()
+            val file = ExportManager(requireContext()).jsonFile()
 
-            JsonExporter().exportJson(
+            JsonExporter().export(
 
                 apps,
 

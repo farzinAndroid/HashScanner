@@ -9,8 +9,8 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.hashscanner.R
-import com.example.hashscanner.database.AppDatabase
+import com.example.apphashscanner.R
+import com.example.apphashscanner.database.AppDatabaseProvider
 import kotlinx.coroutines.launch
 
 class AppsFragment : Fragment() {
@@ -63,7 +63,7 @@ class AppsFragment : Fragment() {
 
             val db =
 
-                AppDatabase.getDatabase(
+                AppDatabaseProvider.getDatabase(
 
                     requireContext()
 
