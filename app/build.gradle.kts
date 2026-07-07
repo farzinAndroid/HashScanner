@@ -1,17 +1,14 @@
 plugins {
     alias(libs.plugins.android.application)
-    id("com.google.devtools.ksp")
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.hiltPlugin)
+    alias(libs.plugins.kotlin.compose)
 }
 
 android {
     namespace = "com.example.hashscanner"
-    compileSdk {
-        version = release(36) {
-            minorApiLevel = 1
-        }
-    }
-
-
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.example.hashscanner"
@@ -33,12 +30,12 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
     }
-
     buildFeatures{
         viewBinding = true
+        compose = true
     }
 }
 
@@ -52,32 +49,37 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
+    //compose
+    implementation(libs.bundles.composeBundle)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(platform(libs.androidx.compose.bom))
+    androidTestImplementation(platform(libs.androidx.compose.bom))
+    androidTestImplementation(libs.androidx.ui.test.junit4)
+    debugImplementation(libs.androidx.ui.tooling)
+    debugImplementation(libs.androidx.ui.test.manifest)
+
+    // hilt
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.android.compiler)
+
+    //hilt navigation
+    implementation(libs.androidx.hilt.navigation.compose)
+
     //Room database
-    implementation("androidx.room:room-runtime:2.8.4")
-    ksp("androidx.room:room-compiler:2.8.4")
-    implementation("androidx.room:room-ktx:2.8.4")
-    annotationProcessor("androidx.room:room-compiler:2.8.4")
+    implementation(libs.androidx.room.runtime)
+    ksp(libs.androidx.room.compiler)
+    implementation(libs.androidx.room.ktx)
 
 
-    implementation("com.google.code.gson:gson:2.11.0")
-    implementation("com.squareup.okhttp3:okhttp:4.12.0")
-    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+    //Gson
+    implementation(libs.gson)
+    //okhttp
+    implementation(libs.okhttp)
+    //interceptor
+    implementation(libs.okhttp3.logging.interceptor)
 
 
-    implementation("androidx.work:work-runtime-ktx:2.9.1")
-    implementation("commons-io:commons-io:2.16.1")
-    implementation("commons-codec:commons-codec:1.17.0")
-
-
-    implementation ("androidx.cardview:cardview:1.0.0")
-
-    implementation ("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
-
-    // Navigation
-    implementation ("androidx.navigation:navigation-fragment-ktx:2.8.0")
-    implementation ("androidx.navigation:navigation-ui-ktx:2.8.0")
-
-    // Glide
-    implementation ("com.github.bumptech.glide:glide:4.16.0")
-    ksp ("com.github.bumptech.glide:ksp:4.16.0")
+    implementation(libs.androidx.work.runtime.ktx)
+    implementation(libs.commons.io)
+    implementation(libs.commons.codec)
 }
