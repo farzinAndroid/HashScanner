@@ -1,5 +1,6 @@
 package com.example.hashscanner
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.os.Environment
 import androidx.activity.ComponentActivity
@@ -28,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.compose.rememberNavController
 import com.example.hashscanner.database.AppDatabase
 import com.example.hashscanner.export.CsvExporter
 import com.example.hashscanner.export.DatabaseExporter
@@ -36,6 +38,7 @@ import com.example.hashscanner.export.ZipExporter
 import com.example.hashscanner.model.ExportResult
 import com.example.hashscanner.report.PdfGenerator
 import com.example.hashscanner.scanner.PackageScanner
+import com.example.hashscanner.ui.navigation.NavGraph
 import com.example.hashscanner.ui.theme.HashScannerTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -52,6 +55,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             HashScannerTheme {
+                val navController = rememberNavController()
 
                 var status by remember {
                     mutableStateOf("Ready")
@@ -64,8 +68,13 @@ class MainActivity : ComponentActivity() {
                 }
                 db = AppDatabase.getDatabase(this@MainActivity)
 
+
+                @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Column(
+
+                    NavGraph(navController)
+
+                    /*Column(
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(innerPadding)
@@ -231,7 +240,7 @@ class MainActivity : ComponentActivity() {
                                 .fillMaxWidth()
                                 .verticalScroll(rememberScrollState())
                         )
-                    }
+                    }*/
                 }
             }
         }

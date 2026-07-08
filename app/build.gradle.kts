@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.hiltPlugin)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -78,6 +79,12 @@ dependencies {
     //interceptor
     implementation(libs.okhttp3.logging.interceptor)
 
+
+    // serialization
+    implementation(libs.kotlinx.serialization.json)
+
+    //navigation compose
+    implementation(libs.androidx.navigation.compose)
 
     implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.commons.io)
