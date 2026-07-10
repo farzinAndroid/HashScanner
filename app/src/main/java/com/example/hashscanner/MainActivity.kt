@@ -2,48 +2,24 @@ package com.example.hashscanner
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.os.Environment
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
-import com.example.hashscanner.database.AppDatabase
-import com.example.hashscanner.export.CsvExporter
-import com.example.hashscanner.export.DatabaseExporter
-import com.example.hashscanner.export.JsonExporter
-import com.example.hashscanner.export.ZipExporter
-import com.example.hashscanner.model.ExportResult
-import com.example.hashscanner.report.PdfGenerator
-import com.example.hashscanner.scanner.PackageScanner
-import com.example.hashscanner.ui.navigation.NavGraph
+import com.example.hashscanner.data.database.AppDatabase
+import com.example.hashscanner.navigation.NavGraph
+import com.example.hashscanner.ui.theme.BackgroundColor
 import com.example.hashscanner.ui.theme.HashScannerTheme
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.io.File
 
 
 class MainActivity : ComponentActivity() {
@@ -52,7 +28,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+//        enableEdgeToEdge()
         setContent {
             HashScannerTheme {
                 val navController = rememberNavController()
@@ -70,7 +46,13 @@ class MainActivity : ComponentActivity() {
 
 
                 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                Scaffold(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .navigationBarsPadding()
+                        .statusBarsPadding(),
+                    containerColor = MaterialTheme.colorScheme.BackgroundColor
+                ) { innerPadding ->
 
                     NavGraph(navController)
 

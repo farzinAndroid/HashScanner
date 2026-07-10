@@ -1,6 +1,6 @@
 package com.example.hashscanner.network
 
-import com.example.hashscanner.database.AppDatabase
+import com.example.hashscanner.data.database.AppDatabase
 import java.time.LocalDateTime
 
 class UploadManager(

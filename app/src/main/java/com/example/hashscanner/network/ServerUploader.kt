@@ -1,6 +1,6 @@
 package com.example.hashscanner.network
 
-import com.example.hashscanner.database.entity.SuspiciousApp
+import com.example.hashscanner.data.database.entity.SuspiciousApp
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
