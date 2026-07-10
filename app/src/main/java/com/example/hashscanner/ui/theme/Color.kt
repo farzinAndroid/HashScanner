@@ -30,7 +30,7 @@ val ColorScheme.TopBarColor: Color
 
 val ColorScheme.AccentPurpleColor: Color
     @Composable
-    get() = if (isSystemInDarkTheme()) Color(0xff9A66FF) else Color(0xff3D5AFE)
+    get() = if (isSystemInDarkTheme()) Color(0xFF0F2DF3) else Color(0xff3D5AFE)
 
 
 
@@ -45,9 +45,14 @@ val ColorScheme.PrimaryTextColor: Color
     get() = if (isSystemInDarkTheme()) Color(0xffFFFFFF) else Color(0xff000000)
 
 
+val ColorScheme.PrimaryTextColorReversed: Color
+    @Composable
+    get() = if (isSystemInDarkTheme()) Color(0xff000000) else Color(0xffFFFFFF)
+
+
 val ColorScheme.SubtleTextColor: Color
     @Composable
-    get() = if (isSystemInDarkTheme()) Color(0xffE0E0E0) else Color(0xff757575)
+    get() = if (isSystemInDarkTheme()) Color(0xffE0E0E0) else Color(0xFFCCC8C8)
 
 
 val ColorScheme.SuccessGreenColor: Color

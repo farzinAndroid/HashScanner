@@ -19,7 +19,11 @@ fun NavGraph(
     ) {
 
         composable<Screens.Landing> {
-            LandingPageScreen()
+            LandingPageScreen(
+                onButtonClick = {
+                    navController.navigate(Screens.Scan)
+                }
+            )
         }
 
         composable<Screens.Scan> {

@@ -1,20 +1,159 @@
 package com.example.hashscanner.ui.screens.landing
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import com.example.hashscanner.R
+import com.example.hashscanner.ui.theme.AccentPurpleColor
+import com.example.hashscanner.ui.theme.BackgroundColor
+import com.example.hashscanner.ui.theme.CardBackgroundColor
+import com.example.hashscanner.ui.theme.PrimaryTextColor
+import com.example.hashscanner.ui.theme.PrimaryTextColorReversed
+import com.example.hashscanner.ui.theme.SubtleTextColor
 import com.example.hashscanner.ui.theme.Typography
-import com.example.hashscanner.ui.theme.Vazirmatn
+import com.example.hashscanner.ui.theme.spacing
 
 @Composable
 fun LandingPageScreen(
-    modifier: Modifier = Modifier
+    onButtonClick:()-> Unit
 ) {
 
-    Text(
-        "سلام",
-        style = MaterialTheme.typography.headlineMedium,
-    )
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.AccentPurpleColor),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(0.4f),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Image(
+                painter = painterResource(R.drawable.shild),
+                contentDescription = "App Logo",
+                modifier = Modifier.size(100.dp),
+                contentScale = ContentScale.Fit
+            )
+
+            Spacer(modifier = Modifier.height(MaterialTheme.spacing.medium16))
+
+            Text(
+                text = stringResource(R.string.app_name),
+                style = Typography.headlineMedium,
+                color = Color.White
+            )
+
+            Spacer(modifier = Modifier.height(MaterialTheme.spacing.extraSmall4))
+
+            Text(
+                text = stringResource(R.string.landing_subtitle_security_scanner),
+                style = Typography.bodyMedium,
+                color = MaterialTheme.colorScheme.SubtleTextColor
+            )
+
+        }
+
+
+
+
+        Card(
+            modifier = Modifier
+                .fillMaxSize()
+                .weight(0.6f),
+            shape = RoundedCornerShape(
+                topStart = MaterialTheme.spacing.large32,
+                topEnd = MaterialTheme.spacing.large32
+            ),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.CardBackgroundColor
+            )
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(
+                        vertical = MaterialTheme.spacing.large32,
+                        horizontal = MaterialTheme.spacing.semiLarge24
+                    ),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.SpaceBetween
+            ) {
+
+
+                Image(
+                    painter = painterResource(R.drawable.shild_cyber),
+                    contentDescription = "Security Illustration",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 48.dp)
+                        .height(200.dp),
+                    contentScale = ContentScale.Fit
+                )
+
+
+                Column {
+                    Text(
+                        text = stringResource(R.string.landing_instruction_tap_to_start),
+                        style = Typography.bodyLarge,
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.PrimaryTextColor,
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                    )
+
+
+                    Spacer(modifier = Modifier.height(MaterialTheme.spacing.medium16))
+
+                    Button(
+                        onClick =onButtonClick,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(56.dp),
+                        shape = RoundedCornerShape(MaterialTheme.spacing.medium16),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.AccentPurpleColor,
+                            contentColor = Color.White
+                        )
+                    ) {
+                        Text(
+                            text = stringResource(R.string.button_start_scan),
+                            style = Typography.titleMedium,
+                        )
+                    }
+                }
+            }
+        }
+    }
 
 }

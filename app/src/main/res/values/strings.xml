@@ -1,3 +1,54 @@
 <resources>
-    <string name="app_name">HashScanner</string>
+    <string name="app_name">Hash Scanner</string>
+
+    <string name="landing_subtitle_security_scanner">اسکنر امنیت برنامه‌های اندروید</string>
+    <string name="landing_instruction_tap_to_start">برای شروع اسکن دکمه زیر را لمس کنید</string>
+    <string name="button_start_scan">شروع اسکن</string>
+
+    <string name="topbar_title_scan_apps">اسکن برنامه‌ها</string>
+    <string name="scan_progress_status_scanning_installed_apps">در حال اسکن برنامه‌های نصب شده&#8230;</string>
+    <string name="scan_label_currently_scanning_app">برنامه در حال اسکن:</string>
+    <string name="scan_statistic_total_apps_count">کل برنامه‌ها</string>
+    <string name="scan_statistic_scanned_apps_count">اسکن شده</string>
+    <string name="scan_statistic_suspicious_apps_count">مشکوک</string>
+    <string name="scan_statistic_remaining_apps_count">باقی‌مانده</string>
+    <string name="scan_warning_do_not_close_app">لطفا تا پایان اسکن برنامه را نبندید</string>
+
+    <string name="format_scan_progress_current_of_total">(%1$d از %2$d)</string>
+
+    <string name="topbar_title_scan_result">نتیجه اسکن</string>
+    <string name="result_header_scan_completed_successfully">اسکن با موفقیت انجام شد</string>
+    <string name="result_description_all_apps_checked">تمام برنامه‌ها با موفقیت بررسی شدند.</string>
+    <string name="result_item_total_apps_checked">تعداد کل برنامه‌ها</string>
+    <string name="result_item_suspicious_apps_found">برنامه‌های مشکوک</string>
+    <string name="result_item_reports_sent_to_server">گزارش‌ها به سرور ارسال شد</string>
+    <string name="result_item_report_files_created">فایل‌های گزارش ایجاد شد</string>
+    <string name="badge_status_success">موفق</string>
+    <string name="button_view_detailed_results">مشاهده نتایج</string>
+
+    <string name="topbar_title_suspicious_apps">برنامه‌های مشکوک</string>
+    <string name="badge_risk_level_high">خطر بالا</string>
+    <string name="badge_risk_level_medium">خطر متوسط</string>
+    <string name="badge_risk_level_low">خطر پایین</string>
+    <string name="label_item_risk_score">امتیاز خطر</string>
+    <string name="list_instruction_tap_app_for_details">برای مشاهده جزئیات بیشتر روی هر برنامه ضربه بزنید</string>
+
+    <string name="format_risk_score_value">امتیاز خطر: %1$d / 100</string>
+
+    <string name="topbar_title_app_details">جزئیات برنامه</string>
+    <string name="details_section_title_suspicion_reasons">دلایل مشکوک بودن</string>
+
+    <string name="details_reason_requests_device_admin">درخواست دسترسی ادمین دستگاه</string>
+    <string name="details_reason_accesses_sms">دسترسی به پیامک‌ها</string>
+    <string name="details_reason_sends_data_to_unknown_server">ارسال اطلاعات به سرور ناشناس</string>
+    <string name="details_reason_uses_secret_codes">استفاده از کدهای مخفی</string>
+
+    <string name="details_label_app_version">نسخه</string>
+    <string name="details_label_install_date">نصب شده در</string>
+    <string name="details_label_app_size">اندازه</string>
+    <string name="details_label_digital_signature_status">امضای دیجیتال</string>
+    <string name="details_value_signature_invalid">نامعتبر</string>
+
+    <string name="button_uninstall_app">حذف نصب</string>
+    <string name="button_send_apk_file">ارسال فایل APK</string>
 </resources>

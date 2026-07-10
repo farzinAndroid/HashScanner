@@ -5,26 +5,30 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.navigation.compose.rememberNavController
 import com.example.hashscanner.data.database.AppDatabase
 import com.example.hashscanner.navigation.NavGraph
 import com.example.hashscanner.ui.theme.BackgroundColor
 import com.example.hashscanner.ui.theme.HashScannerTheme
+import com.example.hashscanner.ui.ui_utils.ChangeStatusBarAndNavigationBarColor
 
 
 class MainActivity : ComponentActivity() {
 
-    private lateinit var db: AppDatabase
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,197 +37,194 @@ class MainActivity : ComponentActivity() {
             HashScannerTheme {
                 val navController = rememberNavController()
 
-                var status by remember {
-                    mutableStateOf("Ready")
-                }
-                var button by remember {
-                    mutableStateOf("Start Scan")
-                }
-                var isEnabled by remember {
-                    mutableStateOf(true)
-                }
-                db = AppDatabase.getDatabase(this@MainActivity)
 
+                ChangeStatusBarAndNavigationBarColor(
+                    context = this,
+                    isDarkMode = isSystemInDarkTheme()
+                )
 
-                @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
-                Scaffold(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .navigationBarsPadding()
-                        .statusBarsPadding(),
-                    containerColor = MaterialTheme.colorScheme.BackgroundColor
-                ) { innerPadding ->
-
-                    NavGraph(navController)
-
-                    /*Column(
+                CompositionLocalProvider(LocalLayoutDirection.provides(LayoutDirection.Rtl)){
+                    @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+                    Scaffold(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(innerPadding)
-                    ) {
+                            .navigationBarsPadding()
+                            .statusBarsPadding(),
+                        containerColor = MaterialTheme.colorScheme.BackgroundColor
+                    ) { innerPadding ->
 
+                        NavGraph(navController)
 
-                        Button(
+                        /*Column(
                             modifier = Modifier
-                                .fillMaxWidth()
-                                .height(40.dp),
-                            enabled = isEnabled,
-                            onClick = {
-                                isEnabled = false
-                                status = "Scanning installed applications... This may take a while."
+                                .fillMaxSize()
+                                .padding(innerPadding)
+                        ) {
 
-                                lifecycleScope.launch {
-                                    try {
-                                        // 1. Run the heavy lifting on the IO thread
-                                        val exports = withContext(Dispatchers.IO) {
 
-                                            val errors = mutableListOf<String>()
-                                            var pdfFile: File? = null
-                                            var jsonFile: File? = null
-                                            var csvFile: File? = null
-                                            var dbFile: File? = null
-                                            var zipFile: File? = null
+                            Button(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(40.dp),
+                                enabled = isEnabled,
+                                onClick = {
+                                    isEnabled = false
+                                    status = "Scanning installed applications... This may take a while."
 
-                                            // Run the Master Scanner
-                                            try {
-                                                val scanner = PackageScanner(this@MainActivity, db)
-                                                scanner.startScan()
-                                            } catch (e: Exception) {
-                                                errors.add("Scan failed: ${e.message}")
-                                            }
+                                    lifecycleScope.launch {
+                                        try {
+                                            // 1. Run the heavy lifting on the IO thread
+                                            val exports = withContext(Dispatchers.IO) {
 
-                                            // Run individual exporters, catching errors so one failure doesn't crash the rest
-                                            try {
-                                                pdfFile = PdfGenerator(
-                                                    this@MainActivity,
-                                                    db
-                                                ).generatePdf()
-                                            } catch (e: Exception) {
-                                                errors.add("PDF failed: ${e.message}")
-                                            }
+                                                val errors = mutableListOf<String>()
+                                                var pdfFile: File? = null
+                                                var jsonFile: File? = null
+                                                var csvFile: File? = null
+                                                var dbFile: File? = null
+                                                var zipFile: File? = null
 
-                                            try {
-                                                jsonFile =
-                                                    JsonExporter(this@MainActivity, db).exportJson()
-                                            } catch (e: Exception) {
-                                                errors.add("JSON failed: ${e.message}")
-                                            }
+                                                // Run the Master Scanner
+                                                try {
+                                                    val scanner = PackageScanner(this@MainActivity, db)
+                                                    scanner.startScan()
+                                                } catch (e: Exception) {
+                                                    errors.add("Scan failed: ${e.message}")
+                                                }
 
-                                            try {
-                                                csvFile =
-                                                    CsvExporter(this@MainActivity, db).exportCsv()
-                                            } catch (e: Exception) {
-                                                errors.add("CSV failed: ${e.message}")
-                                            }
+                                                // Run individual exporters, catching errors so one failure doesn't crash the rest
+                                                try {
+                                                    pdfFile = PdfGenerator(
+                                                        this@MainActivity,
+                                                        db
+                                                    ).generatePdf()
+                                                } catch (e: Exception) {
+                                                    errors.add("PDF failed: ${e.message}")
+                                                }
 
-                                            try {
-                                                dbFile =
-                                                    DatabaseExporter(this@MainActivity).exportDatabase()
-                                            } catch (e: Exception) {
-                                                errors.add("Database export failed: ${e.message}")
-                                            }
+                                                try {
+                                                    jsonFile =
+                                                        JsonExporter(this@MainActivity, db).exportJson()
+                                                } catch (e: Exception) {
+                                                    errors.add("JSON failed: ${e.message}")
+                                                }
 
-                                            // Bundle the successful files into a ZIP
-                                            try {
-                                                // listOfNotNull will safely ignore any files that failed to generate
-                                                val filesToZip = listOfNotNull(
+                                                try {
+                                                    csvFile =
+                                                        CsvExporter(this@MainActivity, db).exportCsv()
+                                                } catch (e: Exception) {
+                                                    errors.add("CSV failed: ${e.message}")
+                                                }
+
+                                                try {
+                                                    dbFile =
+                                                        DatabaseExporter(this@MainActivity).exportDatabase()
+                                                } catch (e: Exception) {
+                                                    errors.add("Database export failed: ${e.message}")
+                                                }
+
+                                                // Bundle the successful files into a ZIP
+                                                try {
+                                                    // listOfNotNull will safely ignore any files that failed to generate
+                                                    val filesToZip = listOfNotNull(
+                                                        pdfFile,
+                                                        jsonFile,
+                                                        csvFile,
+                                                        dbFile
+                                                    )
+                                                    if (filesToZip.isNotEmpty()) {
+                                                        zipFile =
+                                                            ZipExporter(this@MainActivity).createZip(
+                                                                filesToZip
+                                                            )
+                                                    }
+                                                } catch (e: Exception) {
+                                                    errors.add("ZIP creation failed: ${e.message}")
+                                                }
+
+                                                // Finally, return the data class containing everything
+                                                ExportResult(
                                                     pdfFile,
                                                     jsonFile,
                                                     csvFile,
-                                                    dbFile
+                                                    dbFile,
+                                                    zipFile,
+                                                    errors
                                                 )
-                                                if (filesToZip.isNotEmpty()) {
-                                                    zipFile =
-                                                        ZipExporter(this@MainActivity).createZip(
-                                                            filesToZip
-                                                        )
-                                                }
-                                            } catch (e: Exception) {
-                                                errors.add("ZIP creation failed: ${e.message}")
                                             }
 
-                                            // Finally, return the data class containing everything
-                                            ExportResult(
-                                                pdfFile,
-                                                jsonFile,
-                                                csvFile,
-                                                dbFile,
-                                                zipFile,
-                                                errors
-                                            )
+                                            // 2. Fetch the total app count
+                                            val totalApps = withContext(Dispatchers.IO) {
+                                                db.appDao()
+                                                    .count() // Assuming you have a count() function in your DAO
+                                            }
+
+                                            // 3. Update the UI
+                                            status = """
+                    Scan Completed Successfully
+
+                    Applications : $totalApps
+
+                    PDF :
+                    ${exports.pdf?.name ?: "-"}
+
+                    JSON :
+                    ${exports.json?.name ?: "-"}
+
+                    CSV :
+                    ${exports.csv?.name ?: "-"}
+
+                    Database :
+                    ${exports.database?.name ?: "-"}
+
+                    ZIP :
+                    ${exports.zip?.name ?: "-"}
+
+                    Saved In :
+                    ${getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS)?.absolutePath ?: "-"}
+
+                    Errors :
+                    ${if (exports.errors.isEmpty()) "None" else exports.errors.joinToString("\n")}
+                """.trimIndent()
+
+                                        } catch (e: Exception) {
+                                            e.printStackTrace()
+                                            status = """
+                    Critical Scan Failure
+
+                    ${e.message ?: "Unknown Error"}
+                """.trimIndent()
+                                        } finally {
+                                            isEnabled = true
                                         }
-
-                                        // 2. Fetch the total app count
-                                        val totalApps = withContext(Dispatchers.IO) {
-                                            db.appDao()
-                                                .count() // Assuming you have a count() function in your DAO
-                                        }
-
-                                        // 3. Update the UI
-                                        status = """
-                Scan Completed Successfully
-
-                Applications : $totalApps
-
-                PDF :
-                ${exports.pdf?.name ?: "-"}
-
-                JSON :
-                ${exports.json?.name ?: "-"}
-
-                CSV :
-                ${exports.csv?.name ?: "-"}
-
-                Database :
-                ${exports.database?.name ?: "-"}
-
-                ZIP :
-                ${exports.zip?.name ?: "-"}
-
-                Saved In :
-                ${getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS)?.absolutePath ?: "-"}
-
-                Errors :
-                ${if (exports.errors.isEmpty()) "None" else exports.errors.joinToString("\n")}
-            """.trimIndent()
-
-                                    } catch (e: Exception) {
-                                        e.printStackTrace()
-                                        status = """
-                Critical Scan Failure
-                
-                ${e.message ?: "Unknown Error"}
-            """.trimIndent()
-                                    } finally {
-                                        isEnabled = true
                                     }
-                                }
-                            },
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = Color.Red
-                            ),
+                                },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color.Red
+                                ),
 
-                            ) {
-                            Column(
-                                modifier = Modifier.fillMaxSize(),
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.Center
-                            ) {
-                                Text(
-                                    text = button,
-                                )
+                                ) {
+                                Column(
+                                    modifier = Modifier.fillMaxSize(),
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.Center
+                                ) {
+                                    Text(
+                                        text = button,
+                                    )
+                                }
+
                             }
 
-                        }
-
-                        Text(
-                            text = status,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .verticalScroll(rememberScrollState())
-                        )
-                    }*/
+                            Text(
+                                text = status,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .verticalScroll(rememberScrollState())
+                            )
+                        }*/
+                    }
                 }
+
             }
         }
     }
