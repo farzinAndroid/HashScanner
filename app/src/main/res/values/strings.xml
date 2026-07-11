@@ -14,7 +14,6 @@
     <string name="scan_statistic_remaining_apps_count">باقی‌مانده</string>
     <string name="scan_warning_do_not_close_app">لطفا تا پایان اسکن برنامه را نبندید</string>
 
-    <string name="format_scan_progress_current_of_total">(%1$d از %2$d)</string>
 
     <string name="topbar_title_scan_result">نتیجه اسکن</string>
     <string name="result_header_scan_completed_successfully">اسکن با موفقیت انجام شد</string>

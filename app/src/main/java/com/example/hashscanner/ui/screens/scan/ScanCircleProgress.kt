@@ -10,41 +10,38 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.example.hashscanner.R
 import com.example.hashscanner.ui.theme.AccentPurpleColor
-import com.example.hashscanner.ui.theme.PrimaryTextColor
+import com.example.hashscanner.ui.theme.WhitePurple
+import com.example.hashscanner.ui.theme.LightGray
 
 @Composable
 fun ScanCircleProgress() {
     Box(
         modifier = Modifier
             .wrapContentHeight()
-            .fillMaxWidth()
+            .fillMaxWidth(),
+        contentAlignment = Alignment.Center
     ){
 
 
         Text(
             text = "30%",
             style = MaterialTheme.typography.displaySmall,
-            color = MaterialTheme.colorScheme.AccentPurpleColor,
-            modifier = Modifier
-                .fillMaxWidth()
-                .align(Alignment.Center),
+            color = MaterialTheme.colorScheme.WhitePurple,
             textAlign = TextAlign.Center
         )
 
 
         CircularProgressIndicator(
-            progress = { 0.4f },
-            trackColor = MaterialTheme.colorScheme.AccentPurpleColor,
+            progress = { 0.6f },
+            trackColor = MaterialTheme.colorScheme.LightGray,
             gapSize = 0.dp,
             modifier = Modifier
-                .size(200.dp)
+                .size(180.dp)
                 .align(Alignment.Center),
-            color = MaterialTheme.colorScheme.PrimaryTextColor
+            color = MaterialTheme.colorScheme.AccentPurpleColor
         )
     }
 }

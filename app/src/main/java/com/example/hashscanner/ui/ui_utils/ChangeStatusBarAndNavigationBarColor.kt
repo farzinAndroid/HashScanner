@@ -1,6 +1,5 @@
 package com.example.hashscanner.ui.ui_utils
 
-import android.graphics.Color
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.enableEdgeToEdge
@@ -10,14 +9,13 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.graphics.toArgb
 import com.example.hashscanner.ui.theme.AccentPurpleColor
 import com.example.hashscanner.ui.theme.BackgroundColor
-import com.example.hashscanner.ui.theme.CardBackgroundColor
 
 @Composable
 fun ChangeStatusBarAndNavigationBarColor(isDarkMode: Boolean, context: ComponentActivity) {
 
 
     val statusColor = MaterialTheme.colorScheme.AccentPurpleColor.toArgb()
-    val navBarColor = MaterialTheme.colorScheme.CardBackgroundColor.toArgb()
+    val navBarColor = MaterialTheme.colorScheme.BackgroundColor.toArgb()
 
     val statusBarStyle = if (isDarkMode) {
         SystemBarStyle.dark(

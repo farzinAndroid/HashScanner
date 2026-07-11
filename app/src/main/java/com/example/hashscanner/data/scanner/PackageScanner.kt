@@ -20,11 +20,8 @@ import java.time.LocalDate
 import java.time.LocalTime
 
 class PackageScanner(
-
     private val context: Context,
-
     private val db: AppDatabase
-
 ) {
 
     private val pm = context.packageManager
@@ -58,6 +55,21 @@ class PackageScanner(
             }
 
         for (pkg in packages) {
+
+            //this is for later
+            /*
+            currentAppCount++
+            val appName = pkg.applicationInfo?.let { pm.getApplicationLabel(it).toString() } ?: pkg.packageName
+
+
+            onProgress(currentAppCount, totalApps, appName)*/
+
+            /*val iconBitmap = try {
+                val drawable = pkg?.let { pm.getApplicationIcon(it.applicationInfo!!) } ?: pm.defaultActivityIcon
+                drawable.toBitmap() // Converts Android Drawable to a standard Bitmap
+            } catch (e: Exception) {
+                null // If an app has a corrupted icon, we safely ignore it
+            }*/
 
             try {
 

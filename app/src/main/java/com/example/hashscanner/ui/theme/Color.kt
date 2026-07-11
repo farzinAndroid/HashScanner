@@ -15,59 +15,63 @@ val Pink40 = Color(0xFF7D5260)
 
 
 
-val ColorScheme.BackgroundColor: Color
-    @Composable
-    get() = if (isSystemInDarkTheme()) Color(0xff121212) else Color(0xffFFFFFF)
-
-
-
-val ColorScheme.TopBarColor: Color
-    @Composable
-    get() = if (isSystemInDarkTheme()) Color(0xff191029) else Color(0xff3D5AFE)
-
-
-
 
 val ColorScheme.AccentPurpleColor: Color
     @Composable
-    get() = if (isSystemInDarkTheme()) Color(0xFF0F2DF3) else Color(0xff3D5AFE)
+    get() = if (isSystemInDarkTheme()) Color(0xFF4A64FC) else Color(0xff3D5AFE)
 
 
 
-val ColorScheme.CardBackgroundColor: Color
+val ColorScheme.BackgroundColor: Color
     @Composable
-    get() = if (isSystemInDarkTheme()) Color(0xff242424) else Color(0xffFFFFFF)
+    get() = if (isSystemInDarkTheme()) Color(0xFF212121) else Color(0xffFFFFFF)
 
 
 
-val ColorScheme.PrimaryTextColor: Color
+val ColorScheme.BlackWhiteColor: Color
     @Composable
     get() = if (isSystemInDarkTheme()) Color(0xffFFFFFF) else Color(0xff000000)
 
 
-val ColorScheme.PrimaryTextColorReversed: Color
+val ColorScheme.WhitePurple: Color
     @Composable
-    get() = if (isSystemInDarkTheme()) Color(0xff000000) else Color(0xffFFFFFF)
+    get() = if (isSystemInDarkTheme()) Color(0xffFFFFFF) else Color(0xff3D5AFE)
 
 
-val ColorScheme.SubtleTextColor: Color
-    @Composable
-    get() = if (isSystemInDarkTheme()) Color(0xffE0E0E0) else Color(0xFFCCC8C8)
-
-
-val ColorScheme.SuccessGreenColor: Color
+val ColorScheme.GreenColor: Color
     @Composable
     get() = if (isSystemInDarkTheme()) Color(0xff66BB6A) else Color(0xff4CAF50)
 
 
-val ColorScheme.MediumRiskYellowColor: Color
+val ColorScheme.YellowColor: Color
     @Composable
     get() = if (isSystemInDarkTheme()) Color(0xffFFEB3B) else Color(0xffFFEB3B)
 
 
-val ColorScheme.HighRiskRedColor: Color
+val ColorScheme.RedColor: Color
     @Composable
     get() = if (isSystemInDarkTheme()) Color(0xffF44336) else Color(0xffF44336)
+
+
+
+val ColorScheme.LightGray: Color
+    @Composable
+    get() = if (isSystemInDarkTheme()) Color(0xFFD9D9D9) else Color(0xFFB0B0B0)
+
+
+val ColorScheme.BoxGrayColor: Color
+    @Composable
+    get() = if (isSystemInDarkTheme()) Color(0xFF3B3A3A) else Color(0xFFE7E4E4)
+
+
+
+val ColorScheme.RedWhite: Color
+    @Composable
+    get() = if (isSystemInDarkTheme()) Color(0xFFE3E2E2) else Color(0xFF670000)
+
+
+
+
 
 
 

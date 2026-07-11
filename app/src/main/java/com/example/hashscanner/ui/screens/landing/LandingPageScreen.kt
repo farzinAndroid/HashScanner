@@ -10,10 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -32,10 +29,8 @@ import androidx.compose.ui.unit.dp
 import com.example.hashscanner.R
 import com.example.hashscanner.ui.theme.AccentPurpleColor
 import com.example.hashscanner.ui.theme.BackgroundColor
-import com.example.hashscanner.ui.theme.CardBackgroundColor
-import com.example.hashscanner.ui.theme.PrimaryTextColor
-import com.example.hashscanner.ui.theme.PrimaryTextColorReversed
-import com.example.hashscanner.ui.theme.SubtleTextColor
+import com.example.hashscanner.ui.theme.BlackWhiteColor
+import com.example.hashscanner.ui.theme.LightGray
 import com.example.hashscanner.ui.theme.Typography
 import com.example.hashscanner.ui.theme.spacing
 
@@ -66,7 +61,7 @@ fun LandingPageScreen(
                 contentScale = ContentScale.Fit
             )
 
-            Spacer(modifier = Modifier.height(MaterialTheme.spacing.medium16))
+            Spacer(modifier = Modifier.height(MaterialTheme.spacing.dp16))
 
             Text(
                 text = stringResource(R.string.app_name),
@@ -74,12 +69,12 @@ fun LandingPageScreen(
                 color = Color.White
             )
 
-            Spacer(modifier = Modifier.height(MaterialTheme.spacing.extraSmall4))
+            Spacer(modifier = Modifier.height(MaterialTheme.spacing.dp4))
 
             Text(
                 text = stringResource(R.string.landing_subtitle_security_scanner),
                 style = Typography.bodyMedium,
-                color = MaterialTheme.colorScheme.SubtleTextColor
+                color = MaterialTheme.colorScheme.LightGray
             )
 
         }
@@ -92,19 +87,19 @@ fun LandingPageScreen(
                 .fillMaxSize()
                 .weight(0.6f),
             shape = RoundedCornerShape(
-                topStart = MaterialTheme.spacing.large32,
-                topEnd = MaterialTheme.spacing.large32
+                topStart = MaterialTheme.spacing.dp32,
+                topEnd = MaterialTheme.spacing.dp32
             ),
             colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.CardBackgroundColor
+                containerColor = MaterialTheme.colorScheme.BackgroundColor
             )
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(
-                        vertical = MaterialTheme.spacing.large32,
-                        horizontal = MaterialTheme.spacing.semiLarge24
+                        vertical = MaterialTheme.spacing.dp32,
+                        horizontal = MaterialTheme.spacing.dp24
                     ),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.SpaceBetween
@@ -127,20 +122,20 @@ fun LandingPageScreen(
                         text = stringResource(R.string.landing_instruction_tap_to_start),
                         style = Typography.bodyLarge,
                         textAlign = TextAlign.Center,
-                        color = MaterialTheme.colorScheme.PrimaryTextColor,
+                        color = MaterialTheme.colorScheme.BlackWhiteColor,
                         modifier = Modifier
                             .fillMaxWidth(),
                     )
 
 
-                    Spacer(modifier = Modifier.height(MaterialTheme.spacing.medium16))
+                    Spacer(modifier = Modifier.height(MaterialTheme.spacing.dp16))
 
                     Button(
                         onClick =onButtonClick,
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(56.dp),
-                        shape = RoundedCornerShape(MaterialTheme.spacing.medium16),
+                        shape = RoundedCornerShape(MaterialTheme.spacing.dp16),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = MaterialTheme.colorScheme.AccentPurpleColor,
                             contentColor = Color.White
