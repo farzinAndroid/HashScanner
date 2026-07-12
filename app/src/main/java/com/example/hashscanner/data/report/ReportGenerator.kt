@@ -1,6 +1,7 @@
 package com.example.hashscanner.data.report
 
 import com.example.hashscanner.data.database.AppDatabase
+import com.example.hashscanner.data.model.ScanReport
 import java.time.LocalDate
 import java.time.LocalTime
 

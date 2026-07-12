@@ -21,7 +21,12 @@ import com.example.hashscanner.ui.theme.LightGray
 import com.example.hashscanner.ui.theme.spacing
 
 @Composable
-fun ScanProgressionReportBox() {
+fun ScanProgressionReportBox(
+    totalCount: Int,
+    scannedCount: Int,
+    suspiciousCount: Int,
+    remainingCount: Int
+) {
 
 
     ElevatedCard(
@@ -45,7 +50,7 @@ fun ScanProgressionReportBox() {
 
         ProgressReportRow(
             title = stringResource(R.string.scan_statistic_total_apps_count),
-            counter = 180
+            counter = totalCount
         )
         Spacer(
             modifier = Modifier
@@ -55,7 +60,7 @@ fun ScanProgressionReportBox() {
         )
         ProgressReportRow(
             title = stringResource(R.string.scan_statistic_scanned_apps_count),
-            counter = 180
+            counter = scannedCount
         )
         Spacer(
             modifier = Modifier
@@ -65,7 +70,7 @@ fun ScanProgressionReportBox() {
         )
         ProgressReportRow(
             title = stringResource(R.string.scan_statistic_suspicious_apps_count),
-            counter = 180
+            counter = suspiciousCount
         )
         Spacer(
             modifier = Modifier
@@ -75,7 +80,7 @@ fun ScanProgressionReportBox() {
         )
         ProgressReportRow(
             title = stringResource(R.string.scan_statistic_remaining_apps_count),
-            counter = 180
+            counter = remainingCount
         )
 
 

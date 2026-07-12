@@ -6,7 +6,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
-import com.example.hashscanner.data.database.entity.SuspiciousApp
+import com.example.hashscanner.data.model.db_entities.SuspiciousApp
 
 @Dao
 interface SuspiciousDao {

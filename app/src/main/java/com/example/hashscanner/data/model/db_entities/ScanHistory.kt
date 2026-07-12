@@ -1,4 +1,4 @@
-package com.example.hashscanner.data.database.entity
+package com.example.hashscanner.data.model.db_entities
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

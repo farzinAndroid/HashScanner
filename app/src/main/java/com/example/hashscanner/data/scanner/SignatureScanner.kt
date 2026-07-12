@@ -4,9 +4,10 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import java.security.MessageDigest
+import javax.inject.Inject
 
-class SignatureScanner(
-    private val context: Context
+class SignatureScanner @Inject constructor(
+    private val pm: PackageManager
 ) {
 
     data class SignatureInfo(
@@ -16,7 +17,7 @@ class SignatureScanner(
 
     fun getSignature(packageName: String): SignatureInfo {
 
-        val pm = context.packageManager
+
 
         return try {
 

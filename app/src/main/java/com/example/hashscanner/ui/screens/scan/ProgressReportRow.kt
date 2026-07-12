@@ -11,6 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.example.hashscanner.ui.theme.BlackWhiteColor
 import com.example.hashscanner.ui.theme.spacing
+import com.example.hashscanner.utils.DigitHelper
 
 @Composable
 fun ProgressReportRow(
@@ -29,7 +30,7 @@ fun ProgressReportRow(
 
 
         Text(
-            text = counter.toString(),
+            text = DigitHelper.digitByLang(counter.toString()),
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.BlackWhiteColor
         )

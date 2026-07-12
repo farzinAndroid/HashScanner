@@ -1,5 +1,6 @@
 package com.example.hashscanner.ui.screens.scan
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -11,22 +12,54 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.hashscanner.R
 import com.example.hashscanner.ui.theme.BackgroundColor
-import com.example.hashscanner.ui.theme.WhitePurple
 import com.example.hashscanner.ui.theme.HashScannerTheme
+import com.example.hashscanner.ui.theme.WhitePurple
 import com.example.hashscanner.ui.theme.spacing
+import com.example.hashscanner.viewmodel.ScannerViewmodel
 
 @Composable
 fun ScanningProgressSection(
-    paddingValues: PaddingValues
+    paddingValues: PaddingValues,
+    scannerViewmodel: ScannerViewmodel = hiltViewModel()
 ) {
 
+    var progress by remember { mutableFloatStateOf(0f) }
+    var percentage by remember { mutableIntStateOf(0) }
+
+    val totalCount by scannerViewmodel.totalCount.collectAsStateWithLifecycle()
+    val suspiciousCount by scannerViewmodel.suspiciousCount.collectAsStateWithLifecycle()
+    val scannedCount by scannerViewmodel.scannedCount.collectAsStateWithLifecycle()
+    val remainingCount by scannerViewmodel.remainingCount.collectAsStateWithLifecycle()
+    val appName by scannerViewmodel.appName.collectAsStateWithLifecycle()
+    val icon by scannerViewmodel.iconBitmap.collectAsStateWithLifecycle()
+
+
+    LaunchedEffect(true) {
+        scannerViewmodel.startScan()
+    }
+
+    LaunchedEffect(scannedCount) {
+        progress = if (totalCount > 0) scannedCount.toFloat() / totalCount.toFloat() else 0f
+        percentage = (progress * 100).toInt()
+
+//        Log.e("TAG",progress.toString())
+//        Log.e("TAG",percentage.toString())
+    }
 
     Column(
         modifier = Modifier
@@ -51,17 +84,31 @@ fun ScanningProgressSection(
         Spacer(modifier = Modifier.height(MaterialTheme.spacing.dp16))
 
 
-        ScanCircleProgress()
+        ScanCircleProgress(
+            progress = progress,
+            percentage = percentage
+        )
 
         Spacer(modifier = Modifier.height(MaterialTheme.spacing.dp32))
 
-        CurrentlyScanSection()
+        CurrentlyScanSection(
+            appName = appName,
+            icon = icon,
+            progress = progress,
+            scannedCount = scannedCount,
+            totalCount = totalCount
+        )
 
 
         Spacer(modifier = Modifier.height(MaterialTheme.spacing.dp32))
 
 
-        ScanProgressionReportBox()
+        ScanProgressionReportBox(
+            totalCount = totalCount,
+            scannedCount = scannedCount,
+            suspiciousCount = suspiciousCount,
+            remainingCount = remainingCount
+        )
 
         Spacer(modifier = Modifier.height(MaterialTheme.spacing.dp32))
 

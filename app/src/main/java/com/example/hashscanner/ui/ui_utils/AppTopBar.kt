@@ -35,17 +35,17 @@ fun AppTopBar() {
             Row(
                 modifier = Modifier
                     .fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
+                horizontalArrangement = Arrangement.Absolute.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
 
-                Icon(
+                /*Icon(
                     imageVector = Icons.Default.Done,
                     modifier = Modifier
                         .size(18.dp),
                     contentDescription = "",
                     tint = Color.Red
-                )
+                )*/
 
                 Text(
                     text = stringResource(R.string.topbar_title_scan_apps),
@@ -53,13 +53,13 @@ fun AppTopBar() {
                     color = Color.White
                 )
 
-                Icon(
+                /*Icon(
                     imageVector = Icons.Default.Done,
                     modifier = Modifier
                         .size(18.dp),
                     contentDescription = "",
                     tint = Color.Red
-                )
+                )*/
 
 
 

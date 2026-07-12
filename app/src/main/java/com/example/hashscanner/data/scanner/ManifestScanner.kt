@@ -3,26 +3,8 @@ package com.example.hashscanner.data.scanner
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
+import com.example.hashscanner.data.model.ManifestInfo
 
-data class ManifestInfo(
-
-    val activityCount: Int,
-
-    val serviceCount: Int,
-
-    val receiverCount: Int,
-
-    val providerCount: Int,
-
-    val exportedActivities: Int,
-
-    val exportedServices: Int,
-
-    val exportedReceivers: Int,
-
-    val exportedProviders: Int
-
-)
 
 class ManifestScanner(
 

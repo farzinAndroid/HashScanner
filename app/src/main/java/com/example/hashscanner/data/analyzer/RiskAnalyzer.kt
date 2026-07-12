@@ -3,22 +3,11 @@ package com.example.hashscanner.data.analyzer
 import android.Manifest
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageInfo
+import com.example.hashscanner.data.model.RiskResult
+import javax.inject.Inject
 
-data class RiskResult(
 
-    val score: Int,
-
-    val level: String,
-
-    val reasons: String,
-
-    val recommendUpload: Boolean,
-
-    val recommendation: String
-
-)
-
-class RiskAnalyzer {
+class RiskAnalyzer @Inject constructor(){
 
     fun analyze(
 

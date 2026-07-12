@@ -4,7 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import com.example.hashscanner.data.database.entity.PermissionInfo
+import com.example.hashscanner.data.model.db_entities.PermissionInfo
 
 @Dao
 interface PermissionDao {

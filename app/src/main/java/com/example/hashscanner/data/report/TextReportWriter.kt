@@ -1,6 +1,6 @@
 package com.example.hashscanner.data.report
 
-import com.example.hashscanner.data.database.entity.AppInfo
+import com.example.hashscanner.data.model.db_entities.AppInfo
 import java.io.File
 
 class TextReportWriter {

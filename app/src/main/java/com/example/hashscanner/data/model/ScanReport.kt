@@ -1,4 +1,4 @@
-package com.example.hashscanner.data.report
+package com.example.hashscanner.data.model
 
 data class ScanReport(
 
