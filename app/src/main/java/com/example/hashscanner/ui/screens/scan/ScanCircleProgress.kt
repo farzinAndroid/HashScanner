@@ -50,7 +50,7 @@ fun ScanCircleProgress(
                 .size(180.dp)
                 .align(Alignment.Center),
             color = MaterialTheme.colorScheme.AccentPurpleColor,
-            strokeCap = StrokeCap.Round,
+            strokeCap = StrokeCap.Butt,
         )
     }
 }

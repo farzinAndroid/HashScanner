@@ -1,9 +1,11 @@
 package com.example.hashscanner.viewmodel
 
 import android.graphics.Bitmap
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.hashscanner.repository.ScannerRepository
+import com.example.hashscanner.ui.screens.scan.ScanPageState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,8 +23,10 @@ class ScannerViewmodel @Inject constructor(
     val remainingCount = MutableStateFlow<Int>(0)
     val appName = MutableStateFlow<String>("")
     val iconBitmap = MutableStateFlow<Bitmap?>(null)
+    val isScanCompleted = MutableStateFlow<ScanPageState>(ScanPageState.SCANNING)
 
     fun startScan() = viewModelScope.launch(Dispatchers.IO) {
+        isScanCompleted.value = ScanPageState.SCANNING
         scannerRepository.startScan(
             onProgress = { scanned, total, suspicious, remaining, app,icon ->
                 totalCount.value = total
@@ -34,6 +38,7 @@ class ScannerViewmodel @Inject constructor(
 
             }
         )
+    }.invokeOnCompletion {
+        isScanCompleted.value = ScanPageState.SCAN_COMPLETE
     }
-
-}
+    }

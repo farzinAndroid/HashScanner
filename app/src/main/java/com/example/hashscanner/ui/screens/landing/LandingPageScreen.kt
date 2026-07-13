@@ -33,6 +33,7 @@ import com.example.hashscanner.ui.theme.BlackWhiteColor
 import com.example.hashscanner.ui.theme.LightGray
 import com.example.hashscanner.ui.theme.Typography
 import com.example.hashscanner.ui.theme.spacing
+import com.example.hashscanner.ui.ui_utils.MainPurpleButton
 
 @Composable
 fun LandingPageScreen(
@@ -130,22 +131,10 @@ fun LandingPageScreen(
 
                     Spacer(modifier = Modifier.height(MaterialTheme.spacing.dp16))
 
-                    Button(
-                        onClick =onButtonClick,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(56.dp),
-                        shape = RoundedCornerShape(MaterialTheme.spacing.dp16),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.AccentPurpleColor,
-                            contentColor = Color.White
-                        )
-                    ) {
-                        Text(
-                            text = stringResource(R.string.button_start_scan),
-                            style = Typography.titleMedium,
-                        )
-                    }
+                    MainPurpleButton(
+                        text = stringResource(R.string.button_start_scan),
+                        onClick = onButtonClick
+                    )
                 }
             }
         }

@@ -24,7 +24,9 @@ import com.example.hashscanner.ui.theme.AccentPurpleColor
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AppTopBar() {
+fun AppTopBar(
+    topBarText: String
+) {
 
 
     TopAppBar(
@@ -48,7 +50,7 @@ fun AppTopBar() {
                 )*/
 
                 Text(
-                    text = stringResource(R.string.topbar_title_scan_apps),
+                    text = topBarText,
                     style = MaterialTheme.typography.titleLarge,
                     color = Color.White
                 )
@@ -73,5 +75,5 @@ fun AppTopBar() {
 @Preview
 @Composable
 fun AppTopBarPrev() {
-    AppTopBar()
+    AppTopBar(stringResource(R.string.topbar_title_scan_apps))
 }

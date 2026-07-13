@@ -135,7 +135,7 @@ fun CurrentlyScanSection(
                     .padding(horizontal = MaterialTheme.spacing.dp16),
                 trackColor = MaterialTheme.colorScheme.LightGray,
                 gapSize = 0.dp,
-                strokeCap = StrokeCap.Round,
+                strokeCap = StrokeCap.Butt,
                 drawStopIndicator = {},
                 color = MaterialTheme.colorScheme.AccentPurpleColor,
 
