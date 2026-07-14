@@ -15,7 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.navigation.compose.rememberNavController
-import com.example.hashscanner.navigation.NavGraph
+import com.example.hashscanner.ui.navigation.NavGraph
 import com.example.hashscanner.ui.theme.BackgroundColor
 import com.example.hashscanner.ui.theme.HashScannerTheme
 import com.example.hashscanner.ui.ui_utils.ChangeStatusBarAndNavigationBarColor

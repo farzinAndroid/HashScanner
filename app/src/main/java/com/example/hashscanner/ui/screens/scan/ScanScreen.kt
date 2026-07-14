@@ -7,6 +7,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import com.example.hashscanner.R
 import com.example.hashscanner.data.model.ScanReport
 import com.example.hashscanner.ui.theme.BackgroundColor
@@ -17,7 +19,8 @@ import com.example.hashscanner.viewmodel.ScannerViewmodel
 
 @Composable
 fun ScanScreen(
-    scannerViewmodel: ScannerViewmodel = hiltViewModel()
+    scannerViewmodel: ScannerViewmodel = hiltViewModel(),
+    navController: NavController
 ) {
 
 
@@ -41,7 +44,8 @@ fun ScanScreen(
                 )
             } else {
                 ScanCompleteSection(
-                    paddingValues = paddingValues
+                    paddingValues = paddingValues,
+                    navController = navController
                 )
             }
 

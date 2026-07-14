@@ -1,4 +1,4 @@
-package com.example.hashscanner.navigation
+package com.example.hashscanner.ui.navigation
 
 import kotlinx.serialization.Serializable
 
@@ -13,6 +13,12 @@ interface Screens {
 
     @Serializable
     object Details : Screens
+
+
+
+    @Serializable
+    object AppList : Screens
+
 
 
     /*

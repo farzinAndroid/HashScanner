@@ -36,7 +36,7 @@ fun ReportCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(MaterialTheme.spacing.dp64)
+            .height(74.dp)
             .padding(horizontal = MaterialTheme.spacing.dp32),
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.BlackWhiteColor),
         shape = Shapes().medium,
@@ -55,7 +55,7 @@ fun ReportCard(
                 color = color,
                 style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier
-                    .padding(start = MaterialTheme.spacing.dp8)
+                    .padding(start = MaterialTheme.spacing.dp12)
             )
 
 
@@ -70,8 +70,9 @@ fun ReportCard(
                 contentDescription = null,
                 colorFilter = ColorFilter.tint(color),
                 modifier = Modifier
-                    .size(MaterialTheme.spacing.dp32)
-                    .padding(end = MaterialTheme.spacing.dp8)
+                    .padding(end = MaterialTheme.spacing.dp12)
+                    .size(MaterialTheme.spacing.dp24)
+
             )
 
         }

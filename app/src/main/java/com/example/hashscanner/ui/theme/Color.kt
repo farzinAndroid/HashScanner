@@ -48,6 +48,12 @@ val ColorScheme.YellowColor: Color
     get() = if (isSystemInDarkTheme()) Color(0xffFFEB3B) else Color(0xffFFEB3B)
 
 
+
+val ColorScheme.StrongYellowColor: Color
+    @Composable
+    get() = if (isSystemInDarkTheme()) Color(0xFFB6A904) else Color(0xFFB6A904)
+
+
 val ColorScheme.RedColor: Color
     @Composable
     get() = if (isSystemInDarkTheme()) Color(0xffF44336) else Color(0xffF44336)

@@ -14,13 +14,16 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
+import com.example.hashscanner.ui.navigation.Screens
 import com.example.hashscanner.ui.theme.BackgroundColor
 import com.example.hashscanner.viewmodel.ScannerViewmodel
 
 @Composable
 fun ScanCompleteSection(
     paddingValues: PaddingValues,
-    scannerViewmodel: ScannerViewmodel = hiltViewModel()
+    scannerViewmodel: ScannerViewmodel = hiltViewModel(),
+    navController: NavController
 ) {
 
     val totalCount by scannerViewmodel.totalCount.collectAsStateWithLifecycle()
@@ -43,7 +46,13 @@ fun ScanCompleteSection(
                 .weight(0.7f),
             totalApps = totalCount,
             suspiciousApps = suspiciousCount,
-            onButtonClick = {}
+            onButtonClick = {
+                navController.navigate(Screens.AppList){
+                    popUpTo(Screens.Scan){
+                        inclusive = true
+                    }
+                }
+            }
         )
     }
 
