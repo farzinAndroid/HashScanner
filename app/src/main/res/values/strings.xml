@@ -32,7 +32,7 @@
     <string name="label_item_risk_score">امتیاز خطر</string>
     <string name="list_instruction_tap_app_for_details">برای مشاهده جزئیات بیشتر روی هر برنامه ضربه بزنید</string>
 
-    <string name="format_risk_score_value">امتیاز خطر: %1$d / 100</string>
+    <string name="format_risk_score_value">امتیاز خطر: </string>
 
     <string name="topbar_title_app_details">جزئیات برنامه</string>
     <string name="details_section_title_suspicion_reasons">دلایل مشکوک بودن</string>

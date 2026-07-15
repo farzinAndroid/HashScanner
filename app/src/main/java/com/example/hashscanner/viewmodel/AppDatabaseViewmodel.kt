@@ -331,52 +331,44 @@ class AppDatabaseViewmodel @Inject constructor(
         _recommendedSuspiciousApps.value = result
     }
 
-    fun countSystemApps(onResult: (Int) -> Unit) = viewModelScope.launch(Dispatchers.IO) {
+    fun countSystemApps() = viewModelScope.launch(Dispatchers.IO) {
         val result = appDataBaseRepo.countSystemApps()
         _systemAppsCount.value = result
-        onResult(result)
     }
 
-    fun countUserApps(onResult: (Int) -> Unit) = viewModelScope.launch(Dispatchers.IO) {
+    fun countUserApps() = viewModelScope.launch(Dispatchers.IO) {
         val result = appDataBaseRepo.countUserApps()
         _userAppsCount.value = result
-        onResult(result)
     }
 
-    fun countSuspiciousApps(onResult: (Int) -> Unit) = viewModelScope.launch(Dispatchers.IO) {
+    fun countSuspiciousApps() = viewModelScope.launch(Dispatchers.IO) {
         val result = appDataBaseRepo.countSuspiciousApps()
         _suspiciousAppsCount.value = result
-        onResult(result)
     }
 
-    fun countSafeApps(onResult: (Int) -> Unit) = viewModelScope.launch(Dispatchers.IO) {
+    fun countSafeApps() = viewModelScope.launch(Dispatchers.IO) {
         val result = appDataBaseRepo.countSafeApps()
         _safeAppsCount.value = result
-        onResult(result)
     }
 
-    fun countLowRiskApps(onResult: (Int) -> Unit) = viewModelScope.launch(Dispatchers.IO) {
+    fun countLowRiskApps() = viewModelScope.launch(Dispatchers.IO) {
         val result = appDataBaseRepo.countLowRiskApps()
         _lowRiskAppsCount.value = result
-        onResult(result)
     }
 
-    fun countMediumRiskApps(onResult: (Int) -> Unit) = viewModelScope.launch(Dispatchers.IO) {
+    fun countMediumRiskApps() = viewModelScope.launch(Dispatchers.IO) {
         val result = appDataBaseRepo.countMediumRiskApps()
         _mediumRiskAppsCount.value = result
-        onResult(result)
     }
 
-    fun countHighRiskApps(onResult: (Int) -> Unit) = viewModelScope.launch(Dispatchers.IO) {
+    fun countHighRiskApps() = viewModelScope.launch(Dispatchers.IO) {
         val result = appDataBaseRepo.countHighRiskApps()
         _highRiskAppsCount.value = result
-        onResult(result)
     }
 
-    fun countCriticalApps(onResult: (Int) -> Unit) = viewModelScope.launch(Dispatchers.IO) {
+    fun countCriticalApps() = viewModelScope.launch(Dispatchers.IO) {
         val result = appDataBaseRepo.countCriticalApps()
         _criticalAppsCount.value = result
-        onResult(result)
     }
 
     // --- PermissionDao Functions ---

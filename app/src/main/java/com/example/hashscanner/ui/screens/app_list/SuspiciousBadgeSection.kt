@@ -22,7 +22,11 @@ import com.example.hashscanner.ui.theme.YellowColor
 import com.example.hashscanner.ui.theme.spacing
 
 @Composable
-fun SuspiciousBadgeSection() {
+fun SuspiciousBadgeSection(
+    highRiskAppsCount: Int,
+    mediumRiskAppsCount: Int,
+    lowRiskAppsCount: Int
+) {
 
 
     Row(
@@ -36,7 +40,7 @@ fun SuspiciousBadgeSection() {
 
         Spacer(modifier = Modifier.width(MaterialTheme.spacing.dp16))
         TopReportBadge(
-            count = 1,
+            count = highRiskAppsCount,
             modifier = Modifier
                 .weight(0.3f),
             color = MaterialTheme.colorScheme.RedColor,
@@ -47,7 +51,7 @@ fun SuspiciousBadgeSection() {
 
         Spacer(modifier = Modifier.width(MaterialTheme.spacing.dp16))
         TopReportBadge(
-            count = 1,
+            count = mediumRiskAppsCount,
             modifier = Modifier
                 .weight(0.3f),
             color = MaterialTheme.colorScheme.YellowColor,
@@ -56,7 +60,7 @@ fun SuspiciousBadgeSection() {
         )
         Spacer(modifier = Modifier.width(MaterialTheme.spacing.dp16))
         TopReportBadge(
-            count = 1,
+            count = lowRiskAppsCount,
             modifier = Modifier
                 .weight(0.3f),
             color = MaterialTheme.colorScheme.GreenColor,
@@ -73,6 +77,6 @@ fun SuspiciousBadgeSection() {
 @Composable
 fun SuspiciousBadgeSectionPreview() {
     HashScannerTheme {
-        SuspiciousBadgeSection()
+        SuspiciousBadgeSection(1,1,1,)
     }
 }
