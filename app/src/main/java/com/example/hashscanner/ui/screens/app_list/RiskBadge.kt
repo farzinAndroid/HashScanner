@@ -1,6 +1,5 @@
 package com.example.hashscanner.ui.screens.app_list
 
-import androidx.appcompat.R
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -27,28 +26,13 @@ import com.example.hashscanner.ui.theme.YellowColor
 
 @Composable
 fun RiskBadge(
-    risk: String,
+    riskText: String,
+    color: Color
 ) {
 
-    var color by remember { mutableStateOf(Color.Transparent) }
-    var riskText by remember { mutableStateOf("") }
 
-    when (risk) {
-        "Low" -> {
-            color = MaterialTheme.colorScheme.GreenColor
-            riskText = stringResource(com.example.hashscanner.R.string.badge_risk_level_low)
-        }
 
-        "Medium" -> {
-            color = MaterialTheme.colorScheme.YellowColor
-            riskText = stringResource(com.example.hashscanner.R.string.badge_risk_level_medium)
-        }
 
-        "High" -> {
-            color = MaterialTheme.colorScheme.RedColor
-            riskText = stringResource(com.example.hashscanner.R.string.badge_risk_level_high)
-        }
-    }
 
     Box(
         modifier = Modifier
@@ -57,12 +41,12 @@ fun RiskBadge(
             .clip(Shapes().medium)
             .border(
                 width = 1.dp,
-                color =color,
+                color = color,
                 shape = Shapes().medium
             )
             .background(color.copy(0.3f)),
         contentAlignment = Alignment.Center
-    ){
+    ) {
         Text(
             text = riskText,
             color = MaterialTheme.colorScheme.BlackWhiteColor,

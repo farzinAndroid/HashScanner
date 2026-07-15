@@ -1,5 +1,6 @@
 package com.example.hashscanner.data.model.db_entities
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
@@ -17,6 +18,9 @@ data class AppInfo(
     val id: Long = 0,
 
     val appName: String,
+
+    @ColumnInfo(typeAffinity = ColumnInfo.BLOB)
+    val iconData: ByteArray? = null,
 
     val packageName: String,
 

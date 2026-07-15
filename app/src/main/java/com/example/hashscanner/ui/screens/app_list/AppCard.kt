@@ -19,10 +19,15 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -38,6 +43,7 @@ import com.example.hashscanner.ui.theme.RedColor
 import com.example.hashscanner.ui.theme.YellowColor
 import com.example.hashscanner.ui.theme.spacing
 import com.example.hashscanner.utils.DigitHelper
+import com.example.hashscanner.utils.IconConverter
 
 
 @Composable
@@ -45,6 +51,38 @@ fun AppCard(
     appInfo: AppInfo
 ) {
 
+    val iconBitmap = IconConverter.byteArrayToBitmap(appInfo.iconData)
+
+    var color by remember { mutableStateOf(Color.Transparent) }
+    var riskText by remember { mutableStateOf("") }
+
+    when (appInfo.riskLevel) {
+        "LOW" -> {
+            color = MaterialTheme.colorScheme.GreenColor
+            riskText = stringResource(com.example.hashscanner.R.string.badge_risk_level_low)
+        }
+
+        "MEDIUM" -> {
+            color = MaterialTheme.colorScheme.YellowColor
+            riskText = stringResource(com.example.hashscanner.R.string.badge_risk_level_medium)
+        }
+
+        "HIGH" -> {
+            color = MaterialTheme.colorScheme.RedColor
+            riskText = stringResource(com.example.hashscanner.R.string.badge_risk_level_high)
+        }
+
+        "CRITICAL" -> {
+            color = MaterialTheme.colorScheme.RedColor
+            riskText = stringResource(com.example.hashscanner.R.string.badge_risk_level_high)
+        }
+
+
+        "SAFE" -> {
+            color = MaterialTheme.colorScheme.GreenColor
+            riskText = stringResource(com.example.hashscanner.R.string.badge_risk_level_none)
+        }
+    }
 
     Card(
         modifier = Modifier
@@ -53,11 +91,11 @@ fun AppCard(
             .padding(top = MaterialTheme.spacing.dp8)
             .padding(horizontal = MaterialTheme.spacing.dp20),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.LightGray.copy(0.3f)
+            containerColor = color.copy(0.3f)
         ),
         border = BorderStroke(
             width = 1.dp,
-            color = MaterialTheme.colorScheme.LightGray
+            color = color
         )
     ) {
 
@@ -68,14 +106,25 @@ fun AppCard(
                 .padding(horizontal = MaterialTheme.spacing.dp16),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Image(
-                painter = painterResource(com.example.hashscanner.R.drawable.shield_done),
-                contentDescription = null,
-                modifier = Modifier
-                    .size(60.dp)
-                    .clip(CircleShape)
-                    .align(Alignment.CenterVertically)
-            )
+            if (iconBitmap != null) {
+                Image(
+                    bitmap = iconBitmap.asImageBitmap(),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(60.dp)
+                        .clip(CircleShape)
+                        .align(Alignment.CenterVertically)
+                )
+            } else {
+                Image(
+                    painter = painterResource(R.drawable.ic_launcher_background),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(60.dp)
+                        .clip(CircleShape)
+                        .align(Alignment.CenterVertically)
+                )
+            }
 
 
 
@@ -90,7 +139,7 @@ fun AppCard(
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.BlackWhiteColor,
                     modifier = Modifier
-                        .width(100.dp),
+                        .width(150.dp),
                     overflow = TextOverflow.Ellipsis,
                     maxLines = 1
                 )
@@ -132,9 +181,9 @@ fun AppCard(
             ) {
 
 
-
                 RiskBadge(
-                    risk = appInfo.riskLevel
+                    riskText = riskText,
+                    color = color
                 )
             }
         }

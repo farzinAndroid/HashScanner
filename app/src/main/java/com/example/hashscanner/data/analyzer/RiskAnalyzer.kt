@@ -3,6 +3,7 @@ package com.example.hashscanner.data.analyzer
 import android.Manifest
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageInfo
+import com.example.hashscanner.data.model.RiskLevels
 import com.example.hashscanner.data.model.RiskResult
 import javax.inject.Inject
 
@@ -125,15 +126,15 @@ class RiskAnalyzer @Inject constructor(){
 
         val level = when {
 
-            score >= 80 -> "CRITICAL"
+            score >= 80 -> RiskLevels.CRITICAL.toString()
 
-            score >= 60 -> "HIGH"
+            score >= 60 -> RiskLevels.HIGH.toString()
 
-            score >= 40 -> "MEDIUM"
+            score >= 40 -> RiskLevels.MEDIUM.toString()
 
-            score >= 20 -> "LOW"
+            score >= 20 -> RiskLevels.LOW.toString()
 
-            else -> "SAFE"
+            else -> RiskLevels.SAFE.toString()
 
         }
 

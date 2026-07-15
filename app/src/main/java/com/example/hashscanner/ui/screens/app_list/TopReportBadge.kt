@@ -2,6 +2,7 @@ package com.example.hashscanner.ui.screens.app_list
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -33,16 +35,18 @@ fun TopReportBadge(
     modifier: Modifier = Modifier,
     color: Color,
     textColor: Color,
-    text: String
+    text: String,
+    onClick:()-> Unit
 ) {
 
     Card(
         modifier = modifier
             .height(100.dp)
-            .fillMaxWidth(),
+            .width(100.dp),
         colors = CardDefaults.cardColors(
             containerColor = color.copy(0.3f)
         ),
+        onClick = onClick,
         shape = Shapes().medium,
         border = BorderStroke(
             width = 1.dp,

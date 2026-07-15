@@ -15,6 +15,7 @@ import com.example.hashscanner.data.database.dao.SuspiciousDao
 import com.example.hashscanner.data.model.db_entities.AppInfo
 import com.example.hashscanner.data.model.db_entities.PermissionInfo
 import com.example.hashscanner.data.model.db_entities.SuspiciousApp
+import com.example.hashscanner.utils.IconConverter
 import java.io.File
 import java.time.LocalDate
 import java.time.LocalTime
@@ -78,7 +79,7 @@ class PackageScanner @Inject constructor(
                     null // If an app has a corrupted icon, we safely ignore it
                 }
 
-                val isSuspicious = scanPackage(pkg)
+                val isSuspicious = scanPackage(pkg, iconBitmap)
 
                 scannedCount++
                 if (isSuspicious) suspiciousCount++
@@ -116,6 +117,7 @@ class PackageScanner @Inject constructor(
 
     private suspend fun scanPackage(
         pkg: PackageInfo,
+        icon: Bitmap? = null
     ): Boolean {
 
         val app = pkg.applicationInfo ?: return false
@@ -194,6 +196,8 @@ class PackageScanner @Inject constructor(
         val appInfo = AppInfo(
 
             appName = appName,
+
+            iconData = IconConverter.bitmapToByteArray(icon),
 
             packageName = packageName,
 
