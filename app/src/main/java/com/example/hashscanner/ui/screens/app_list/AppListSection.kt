@@ -111,7 +111,7 @@ fun AppListContent(
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
         ) {
-            item {
+            stickyHeader {
                 SuspiciousBadgeSection(
                     highRiskAppsCount = highRiskCount,
                     mediumRiskAppsCount = mediumRiskCount,

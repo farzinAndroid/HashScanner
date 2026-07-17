@@ -1,6 +1,5 @@
 package com.example.hashscanner.ui.screens.app_list
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
@@ -19,10 +18,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -34,6 +29,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.hashscanner.R
+import com.example.hashscanner.data.model.RiskLevels
 import com.example.hashscanner.data.model.db_entities.AppInfo
 import com.example.hashscanner.ui.theme.BlackWhiteColor
 import com.example.hashscanner.ui.theme.GreenColor
@@ -45,43 +41,26 @@ import com.example.hashscanner.ui.theme.spacing
 import com.example.hashscanner.utils.DigitHelper
 import com.example.hashscanner.utils.IconConverter
 
-
 @Composable
 fun AppCard(
     appInfo: AppInfo
 ) {
-
     val iconBitmap = IconConverter.byteArrayToBitmap(appInfo.iconData)
 
-    var color by remember { mutableStateOf(Color.Transparent) }
-    var riskText by remember { mutableStateOf("") }
+    val riskColor = when (appInfo.riskLevel) {
+        RiskLevels.LOW.toString(), RiskLevels.SAFE.toString() -> MaterialTheme.colorScheme.GreenColor
+        RiskLevels.MEDIUM.toString() -> MaterialTheme.colorScheme.YellowColor
+        RiskLevels.HIGH.toString(), RiskLevels.CRITICAL.toString() -> MaterialTheme.colorScheme.RedColor
+        else -> Color.Transparent
+    }
 
-    when (appInfo.riskLevel) {
-        "LOW" -> {
-            color = MaterialTheme.colorScheme.GreenColor
-            riskText = stringResource(com.example.hashscanner.R.string.badge_risk_level_low)
-        }
-
-        "MEDIUM" -> {
-            color = MaterialTheme.colorScheme.YellowColor
-            riskText = stringResource(com.example.hashscanner.R.string.badge_risk_level_medium)
-        }
-
-        "HIGH" -> {
-            color = MaterialTheme.colorScheme.RedColor
-            riskText = stringResource(com.example.hashscanner.R.string.badge_risk_level_high)
-        }
-
-        "CRITICAL" -> {
-            color = MaterialTheme.colorScheme.RedColor
-            riskText = stringResource(com.example.hashscanner.R.string.badge_risk_level_high)
-        }
-
-
-        "SAFE" -> {
-            color = MaterialTheme.colorScheme.GreenColor
-            riskText = stringResource(com.example.hashscanner.R.string.badge_risk_level_none)
-        }
+    val riskText = when (appInfo.riskLevel) {
+        RiskLevels.LOW.toString() -> stringResource(R.string.badge_risk_level_low)
+        RiskLevels.MEDIUM.toString() -> stringResource(R.string.badge_risk_level_medium)
+        RiskLevels.HIGH.toString() -> stringResource(R.string.badge_risk_level_high)
+        RiskLevels.CRITICAL.toString() -> stringResource(R.string.badge_risk_level_very_high)
+        RiskLevels.SAFE.toString() -> stringResource(R.string.badge_risk_level_none)
+        else -> ""
     }
 
     Card(
@@ -91,42 +70,37 @@ fun AppCard(
             .padding(top = MaterialTheme.spacing.dp8)
             .padding(horizontal = MaterialTheme.spacing.dp20),
         colors = CardDefaults.cardColors(
-            containerColor = color.copy(0.3f)
+            containerColor = riskColor.copy(0.3f)
         ),
         border = BorderStroke(
             width = 1.dp,
-            color = color
+            color = riskColor
         )
     ) {
-
-
         Row(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(horizontal = MaterialTheme.spacing.dp16),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            val iconModifier = Modifier
+                .size(60.dp)
+                .clip(CircleShape)
+                .align(Alignment.CenterVertically)
+
             if (iconBitmap != null) {
                 Image(
                     bitmap = iconBitmap.asImageBitmap(),
                     contentDescription = null,
-                    modifier = Modifier
-                        .size(60.dp)
-                        .clip(CircleShape)
-                        .align(Alignment.CenterVertically)
+                    modifier = iconModifier
                 )
             } else {
                 Image(
                     painter = painterResource(R.drawable.ic_launcher_background),
                     contentDescription = null,
-                    modifier = Modifier
-                        .size(60.dp)
-                        .clip(CircleShape)
-                        .align(Alignment.CenterVertically)
+                    modifier = iconModifier
                 )
             }
-
-
 
             Column(
                 modifier = Modifier
@@ -138,31 +112,24 @@ fun AppCard(
                     text = appInfo.appName,
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.BlackWhiteColor,
-                    modifier = Modifier
-                        .width(150.dp),
+                    modifier = Modifier.width(150.dp),
                     overflow = TextOverflow.Ellipsis,
                     maxLines = 1
                 )
-
-
 
                 Text(
                     text = appInfo.packageName,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.LightGray,
-                    modifier = Modifier
-                        .width(100.dp),
+                    modifier = Modifier.width(100.dp),
                     overflow = TextOverflow.Ellipsis,
                     maxLines = 1
                 )
 
-
                 Text(
-                    text = "${stringResource(R.string.format_risk_score_value)}${
-                        DigitHelper.digitByLang(
-                            appInfo.riskScore.toString()
-                        )
-                    }/${DigitHelper.digitByLang("100")}",
+                    text = stringResource(R.string.format_risk_score_value) +
+                            DigitHelper.digitByLang(appInfo.riskScore.toString()) +
+                            "/${DigitHelper.digitByLang("100")}",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.LightGray,
                     modifier = Modifier
@@ -174,24 +141,16 @@ fun AppCard(
             }
 
             Box(
-                modifier = Modifier
-                    .fillMaxSize(),
+                modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
-
             ) {
-
-
                 RiskBadge(
                     riskText = riskText,
-                    color = color
+                    color = riskColor
                 )
             }
         }
-
-
     }
-
-
 }
 
 @Preview(showBackground = true)
@@ -227,7 +186,7 @@ fun AppCardPreview() {
                 isDebuggable = false,
                 isEnabled = true,
                 riskScore = 0,
-                riskLevel = "Low",
+                riskLevel = "LOW",
                 suspicious = false,
                 riskReasons = "",
                 recommendUpload = false,
