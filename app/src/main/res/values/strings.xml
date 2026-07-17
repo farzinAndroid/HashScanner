@@ -49,6 +49,11 @@
     <string name="details_label_app_size">اندازه</string>
     <string name="details_label_digital_signature_status">امضای دیجیتال</string>
     <string name="details_value_signature_invalid">نامعتبر</string>
+    <string name="details_value_signature_valid">معتبر و اصلی</string>
+    <string name="details_value_signature_system">معتبر (سیستمی)</string>
+    <string name="details_value_signature_store">معتبر (فروشگاه)</string>
+    <string name="details_value_signature_sideloaded">امضای توسعه‌دهنده</string>
+    <string name="details_value_signature_unknown">ناشناس یا مشکوک</string>
 
     <string name="button_uninstall_app">حذف نصب</string>
     <string name="button_send_apk_file">ارسال فایل APK</string>

@@ -1,14 +1,10 @@
 package com.example.hashscanner.ui.screens.scan
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Icon
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -25,35 +21,31 @@ fun ScanCompleteSection(
     scannerViewmodel: ScannerViewmodel = hiltViewModel(),
     navController: NavController
 ) {
-
     val totalCount by scannerViewmodel.totalCount.collectAsStateWithLifecycle()
     val suspiciousCount by scannerViewmodel.suspiciousCount.collectAsStateWithLifecycle()
 
-    Column(
+    LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .padding(paddingValues)
-            .background(MaterialTheme.colorScheme.BackgroundColor)
+            .background(MaterialTheme.colorScheme.BackgroundColor),
+        contentPadding = paddingValues
     ) {
+        item {
+            ScanDoneShield()
+        }
 
-        ScanDoneShield(
-            modifier = Modifier
-                .weight(0.3f)
-        )
-
-        ReportSection(
-            modifier = Modifier
-                .weight(0.7f),
-            totalApps = totalCount,
-            suspiciousApps = suspiciousCount,
-            onButtonClick = {
-                navController.navigate(Screens.AppList){
-                    popUpTo(Screens.Scan){
-                        inclusive = true
+        item {
+            ReportSection(
+                totalApps = totalCount,
+                suspiciousApps = suspiciousCount,
+                onButtonClick = {
+                    navController.navigate(Screens.AppList) {
+                        popUpTo(Screens.Scan) {
+                            inclusive = true
+                        }
                     }
                 }
-            }
-        )
+            )
+        }
     }
-
 }

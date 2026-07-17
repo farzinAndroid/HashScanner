@@ -76,6 +76,11 @@ val ColorScheme.RedWhite: Color
     get() = if (isSystemInDarkTheme()) Color(0xFFE3E2E2) else Color(0xFF670000)
 
 
+val ColorScheme.BlueColor: Color
+    @Composable
+    get() = if (isSystemInDarkTheme()) Color(0xFF64B5F6) else Color(0xFF2196F3)
+
+
 
 
 

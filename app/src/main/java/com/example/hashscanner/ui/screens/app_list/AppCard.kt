@@ -43,7 +43,8 @@ import com.example.hashscanner.utils.IconConverter
 
 @Composable
 fun AppCard(
-    appInfo: AppInfo
+    appInfo: AppInfo,
+    onClick: () -> Unit
 ) {
     val iconBitmap = IconConverter.byteArrayToBitmap(appInfo.iconData)
 
@@ -72,6 +73,7 @@ fun AppCard(
         colors = CardDefaults.cardColors(
             containerColor = riskColor.copy(0.3f)
         ),
+        onClick = onClick,
         border = BorderStroke(
             width = 1.dp,
             color = riskColor
@@ -195,7 +197,8 @@ fun AppCardPreview() {
                 vtResult = "",
                 scanDate = "2023-10-27",
                 scanTime = "10:00:00"
-            )
+            ),
+            onClick = {}
         )
     }
 }

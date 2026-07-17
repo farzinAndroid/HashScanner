@@ -12,7 +12,9 @@ interface Screens {
     object Scan : Screens
 
     @Serializable
-    object Details : Screens
+    data class Details(
+        val packageName:String
+    ) : Screens
 
 
 

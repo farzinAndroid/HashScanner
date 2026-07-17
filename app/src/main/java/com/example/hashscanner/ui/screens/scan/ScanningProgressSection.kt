@@ -1,14 +1,12 @@
 package com.example.hashscanner.ui.screens.scan
 
-import android.util.Log
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -61,62 +59,66 @@ fun ScanningProgressSection(
 //        Log.e("TAG",percentage.toString())
     }
 
-    Column(
+    LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.BackgroundColor)
-            .padding(paddingValues),
+            .background(MaterialTheme.colorScheme.BackgroundColor),
+        contentPadding = paddingValues,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
+        item {
+            Spacer(Modifier.height(MaterialTheme.spacing.dp16))
 
+            Text(
+                text = stringResource(R.string.scan_progress_status_scanning_installed_apps),
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.WhitePurple,
+                modifier = Modifier
+                    .fillMaxWidth(),
+                textAlign = TextAlign.Center
+            )
 
-        Spacer(Modifier.height(MaterialTheme.spacing.dp16))
+            Spacer(modifier = Modifier.height(MaterialTheme.spacing.dp16))
+        }
 
-        Text(
-            text = stringResource(R.string.scan_progress_status_scanning_installed_apps),
-            style = MaterialTheme.typography.titleLarge,
-            color = MaterialTheme.colorScheme.WhitePurple,
-            modifier = Modifier
-                .fillMaxWidth(),
-            textAlign = TextAlign.Center
-        )
+        item {
+            ScanCircleProgress(
+                progress = progress,
+                percentage = percentage
+            )
+        }
 
-        Spacer(modifier = Modifier.height(MaterialTheme.spacing.dp16))
+        item {
+            Spacer(modifier = Modifier.height(MaterialTheme.spacing.dp32))
 
+            CurrentlyScanSection(
+                appName = appName,
+                icon = icon,
+                progress = progress,
+                scannedCount = scannedCount,
+                totalCount = totalCount
+            )
+        }
 
-        ScanCircleProgress(
-            progress = progress,
-            percentage = percentage
-        )
+        item {
+            Spacer(modifier = Modifier.height(MaterialTheme.spacing.dp32))
 
-        Spacer(modifier = Modifier.height(MaterialTheme.spacing.dp32))
+            ScanProgressionReportBox(
+                totalCount = totalCount,
+                scannedCount = scannedCount,
+                suspiciousCount = suspiciousCount,
+                remainingCount = remainingCount
+            )
+        }
 
-        CurrentlyScanSection(
-            appName = appName,
-            icon = icon,
-            progress = progress,
-            scannedCount = scannedCount,
-            totalCount = totalCount
-        )
+        item {
+            Spacer(modifier = Modifier.height(MaterialTheme.spacing.dp32))
 
+            ScanWarning()
 
-        Spacer(modifier = Modifier.height(MaterialTheme.spacing.dp32))
-
-
-        ScanProgressionReportBox(
-            totalCount = totalCount,
-            scannedCount = scannedCount,
-            suspiciousCount = suspiciousCount,
-            remainingCount = remainingCount
-        )
-
-        Spacer(modifier = Modifier.height(MaterialTheme.spacing.dp32))
-
-        ScanWarning()
-
+            Spacer(modifier = Modifier.height(MaterialTheme.spacing.dp32))
+        }
     }
-
-
 }
 
 

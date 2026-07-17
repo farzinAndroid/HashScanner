@@ -183,28 +183,24 @@ class AppDatabaseViewmodel @Inject constructor(
         _allApps.value = appDataBaseRepo.getAllApps()
     }
 
-    fun getAppByPackage(pkg: String, onResult: (AppInfo?) -> Unit) = viewModelScope.launch(Dispatchers.IO) {
+    fun getAppByPackage(pkg: String) = viewModelScope.launch(Dispatchers.IO) {
         val result = appDataBaseRepo.getAppByPackage(pkg)
         _appByPackage.value = result
-        onResult(result)
     }
 
-    fun getAppBySha256(hash: String, onResult: (AppInfo?) -> Unit) = viewModelScope.launch(Dispatchers.IO) {
+    fun getAppBySha256(hash: String,) = viewModelScope.launch(Dispatchers.IO) {
         val result = appDataBaseRepo.getAppBySha256(hash)
         _appBySha256.value = result
-        onResult(result)
     }
 
-    fun getAppByMd5(md5: String, onResult: (AppInfo?) -> Unit) = viewModelScope.launch(Dispatchers.IO) {
+    fun getAppByMd5(md5: String) = viewModelScope.launch(Dispatchers.IO) {
         val result = appDataBaseRepo.getAppByMd5(md5)
         _appByMd5.value = result
-        onResult(result)
     }
 
-    fun getAppBySha1(sha1: String, onResult: (AppInfo?) -> Unit) = viewModelScope.launch(Dispatchers.IO) {
+    fun getAppBySha1(sha1: String) = viewModelScope.launch(Dispatchers.IO) {
         val result = appDataBaseRepo.getAppBySha1(sha1)
         _appBySha1.value = result
-        onResult(result)
     }
 
     fun countApps(onResult: (Int) -> Unit) = viewModelScope.launch(Dispatchers.IO) {

@@ -4,6 +4,8 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.toRoute
+import com.example.hashscanner.ui.screens.app_details.AppDetailsScreen
 import com.example.hashscanner.ui.screens.app_list.AppListScreen
 import com.example.hashscanner.ui.screens.landing.LandingPageScreen
 import com.example.hashscanner.ui.screens.scan.ScanScreen
@@ -36,7 +38,16 @@ fun NavGraph(
 
 
         composable<Screens.AppList> {
-            AppListScreen()
+            AppListScreen(navController = navController)
+        }
+
+
+        composable<Screens.Details> { backStackEntry ->
+            val details = backStackEntry.toRoute<Screens.Details>()
+            AppDetailsScreen(
+                navController = navController,
+                packageName = details.packageName
+            )
         }
 
     }

@@ -28,7 +28,8 @@ import com.example.hashscanner.viewmodel.AppDatabaseViewmodel
 @Composable
 fun AppListSection(
     paddingValues: PaddingValues,
-    databaseViewmodel: AppDatabaseViewmodel = hiltViewModel()
+    databaseViewmodel: AppDatabaseViewmodel = hiltViewModel(),
+    onAppClick: (String) -> Unit
 ) {
     var whichAppsToLoad by remember { mutableStateOf(RiskLevelsUI.SAFE) }
 
@@ -85,7 +86,8 @@ fun AppListSection(
         safeRiskCount = safeRiskCount,
         criticalRiskCount = criticalRiskCount,
         currentApps = currentApps,
-        onRiskLevelSelected = { whichAppsToLoad = it }
+        onRiskLevelSelected = { whichAppsToLoad = it },
+        onAppClick = onAppClick
     )
 }
 
@@ -99,7 +101,8 @@ fun AppListContent(
     safeRiskCount: Int,
     criticalRiskCount: Int,
     currentApps: List<AppInfo>,
-    onRiskLevelSelected: (RiskLevelsUI) -> Unit
+    onRiskLevelSelected: (RiskLevelsUI) -> Unit,
+    onAppClick: (String) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -127,7 +130,10 @@ fun AppListContent(
             }
 
             items(currentApps) { app ->
-                AppCard(app)
+                AppCard(
+                    appInfo = app,
+                    onClick = { onAppClick(app.packageName) }
+                )
             }
         }
     }
@@ -146,7 +152,8 @@ fun AppListSectionPreview() {
             safeRiskCount = 4,
             criticalRiskCount = 5,
             currentApps = emptyList(),
-            onRiskLevelSelected = {}
+            onRiskLevelSelected = {},
+            onAppClick = {}
         )
     }
 }
