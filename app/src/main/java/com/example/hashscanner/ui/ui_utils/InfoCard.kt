@@ -1,4 +1,4 @@
-package com.example.hashscanner.ui.screens.app_details
+package com.example.hashscanner.ui.ui_utils
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -11,18 +11,23 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.hashscanner.ui.theme.spacing
 
 @Composable
 fun InfoCard(
+    modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(MaterialTheme.spacing.dp16),
+    color: Color? = null,
     content: @Composable ColumnScope.() -> Unit
 ) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(MaterialTheme.spacing.dp16),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        colors = CardDefaults.cardColors(
+            containerColor = color ?: MaterialTheme.colorScheme.surface
+        ),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(

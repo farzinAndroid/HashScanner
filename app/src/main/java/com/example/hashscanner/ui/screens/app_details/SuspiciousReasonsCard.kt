@@ -22,6 +22,7 @@ import com.example.hashscanner.R
 import com.example.hashscanner.data.model.db_entities.AppInfo
 import com.example.hashscanner.ui.theme.RedColor
 import com.example.hashscanner.ui.theme.spacing
+import com.example.hashscanner.ui.ui_utils.InfoCard
 
 @Composable
 fun SuspiciousReasonsCard(
@@ -38,7 +39,10 @@ fun SuspiciousReasonsCard(
         Spacer(modifier = Modifier.height(MaterialTheme.spacing.dp16))
 
         Column(verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.dp12)) {
-            /*appInfo.riskReasons.forEach { reason ->
+            val reasons =
+                appInfo.riskReasons.split(",").map { it.trim() }.filter { it.isNotEmpty() }
+
+            reasons.forEach { reason ->
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
@@ -57,26 +61,8 @@ fun SuspiciousReasonsCard(
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
                     )
                 }
-            }*/
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.dp10)
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(MaterialTheme.spacing.dp8)
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.RedColor)
-                )
-                Text(
-                    text = appInfo.riskReasons,
-                    modifier = Modifier.weight(1f),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
-                )
             }
+
         }
     }
 }

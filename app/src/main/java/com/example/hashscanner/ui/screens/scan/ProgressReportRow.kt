@@ -9,6 +9,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import com.example.hashscanner.ui.theme.BlackWhiteColor
 import com.example.hashscanner.ui.theme.spacing
 import com.example.hashscanner.utils.DigitHelper
@@ -30,18 +31,23 @@ fun ProgressReportRow(
 
 
         Text(
-            text = DigitHelper.digitByLang(counter.toString()),
+            text = title,
             style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.BlackWhiteColor
+            color = MaterialTheme.colorScheme.BlackWhiteColor,
+            fontWeight = FontWeight.SemiBold
         )
-
 
 
         Text(
-            text = title,
+            text = DigitHelper.digitByLang(counter.toString()),
             style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.BlackWhiteColor
+            color = MaterialTheme.colorScheme.BlackWhiteColor,
+            fontWeight = FontWeight.SemiBold
         )
+
+
+
+
     }
 
 }

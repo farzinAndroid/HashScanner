@@ -33,7 +33,10 @@ fun ScanScreen(
                 topBarText = if (isScanCompeted == ScanPageState.SCANNING)
                     stringResource(R.string.topbar_title_scan_apps)
                 else
-                    stringResource(R.string.topbar_title_scan_result)
+                    stringResource(R.string.topbar_title_scan_result),
+                onClick = {
+                    navController.popBackStack()
+                }
             )
         },
         content = { paddingValues ->

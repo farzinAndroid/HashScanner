@@ -22,6 +22,9 @@ fun AppListScreen(
         topBar = {
             AppTopBar(
                 topBarText = stringResource(R.string.topbar_title_suspicious_apps),
+                onClick = {
+                    navController.popBackStack()
+                }
             )
         },
         content = {paddingValues ->

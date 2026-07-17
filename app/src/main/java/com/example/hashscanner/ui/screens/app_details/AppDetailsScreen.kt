@@ -40,7 +40,12 @@ fun AppDetailsScreen(
     Scaffold(
         containerColor = MaterialTheme.colorScheme.BackgroundColor,
         topBar = {
-            AppTopBar(topBarText = stringResource(R.string.topbar_title_app_details))
+            AppTopBar(
+                topBarText = stringResource(R.string.topbar_title_app_details),
+                onClick = {
+                    navController.popBackStack()
+                }
+            )
         },
         bottomBar = { AppDetailsBottomBar() }
     ) { innerPadding ->

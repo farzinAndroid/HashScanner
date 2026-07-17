@@ -21,6 +21,7 @@ import com.example.hashscanner.R
 import com.example.hashscanner.ui.theme.BoxGrayColor
 import com.example.hashscanner.ui.theme.RedColor
 import com.example.hashscanner.ui.theme.spacing
+import com.example.hashscanner.ui.ui_utils.InfoCard
 import com.example.hashscanner.utils.DigitHelper
 
 @Composable

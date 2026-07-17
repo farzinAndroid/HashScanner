@@ -1,6 +1,7 @@
 package com.example.hashscanner.ui.screens.scan
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -10,11 +11,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import com.example.hashscanner.R
 import com.example.hashscanner.ui.theme.AccentPurpleColor
 import com.example.hashscanner.ui.theme.GreenColor
 import com.example.hashscanner.ui.theme.RedColor
 import com.example.hashscanner.ui.theme.spacing
+import com.example.hashscanner.ui.ui_utils.InfoCard
 import com.example.hashscanner.ui.ui_utils.MainPurpleButton
 import com.example.hashscanner.utils.DigitHelper
 
