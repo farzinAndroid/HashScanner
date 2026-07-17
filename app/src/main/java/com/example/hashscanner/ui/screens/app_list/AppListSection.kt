@@ -116,6 +116,7 @@ fun AppListContent(
         ) {
             stickyHeader {
                 SuspiciousBadgeSection(
+                    selectedRiskLevel = whichAppsToLoad,
                     highRiskAppsCount = highRiskCount,
                     mediumRiskAppsCount = mediumRiskCount,
                     lowRiskAppsCount = lowRiskCount,

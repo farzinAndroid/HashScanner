@@ -7,5 +7,6 @@ data class BadgeData(
     val color: Color,
     val textColor: Color,
     val text: String,
+    val riskLevel: RiskLevelsUI,
     val onClick: () -> Unit
 )

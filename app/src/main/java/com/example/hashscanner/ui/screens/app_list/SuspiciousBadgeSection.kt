@@ -11,7 +11,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.hashscanner.R
@@ -23,10 +22,11 @@ import com.example.hashscanner.ui.theme.StrongYellowColor
 import com.example.hashscanner.ui.theme.YellowColor
 import com.example.hashscanner.ui.theme.spacing
 import com.example.hashscanner.ui.ui_utils.BadgeData
-
+import com.example.hashscanner.ui.ui_utils.RiskLevelsUI
 
 @Composable
 fun SuspiciousBadgeSection(
+    selectedRiskLevel: RiskLevelsUI,
     highRiskAppsCount: Int,
     mediumRiskAppsCount: Int,
     lowRiskAppsCount: Int,
@@ -44,6 +44,7 @@ fun SuspiciousBadgeSection(
             color = MaterialTheme.colorScheme.GreenColor,
             textColor = MaterialTheme.colorScheme.GreenColor,
             text = stringResource(R.string.badge_risk_level_none),
+            riskLevel = RiskLevelsUI.SAFE,
             onClick = onSafeAppsSelected
         ),
         BadgeData(
@@ -51,6 +52,7 @@ fun SuspiciousBadgeSection(
             color = MaterialTheme.colorScheme.GreenColor,
             textColor = MaterialTheme.colorScheme.GreenColor,
             text = stringResource(R.string.badge_risk_level_low),
+            riskLevel = RiskLevelsUI.LOW,
             onClick = onLowRiskAppsSelected
         ),
         BadgeData(
@@ -58,6 +60,7 @@ fun SuspiciousBadgeSection(
             color = MaterialTheme.colorScheme.YellowColor,
             textColor = MaterialTheme.colorScheme.StrongYellowColor,
             text = stringResource(R.string.badge_risk_level_medium),
+            riskLevel = RiskLevelsUI.MEDIUM,
             onClick = onMediumRiskAppsSelected
         ),
         BadgeData(
@@ -65,6 +68,7 @@ fun SuspiciousBadgeSection(
             color = MaterialTheme.colorScheme.RedColor,
             textColor = MaterialTheme.colorScheme.RedColor,
             text = stringResource(R.string.badge_risk_level_very_high),
+            riskLevel = RiskLevelsUI.CRITICAL,
             onClick = onCriticalAppsSelected
         ),
         BadgeData(
@@ -72,6 +76,7 @@ fun SuspiciousBadgeSection(
             color = MaterialTheme.colorScheme.RedColor,
             textColor = MaterialTheme.colorScheme.RedColor,
             text = stringResource(R.string.badge_risk_level_high),
+            riskLevel = RiskLevelsUI.HIGH,
             onClick = onHighRiskAppsSelected
         )
     )
@@ -83,10 +88,6 @@ fun SuspiciousBadgeSection(
             .wrapContentHeight(),
         contentPadding = PaddingValues(vertical = MaterialTheme.spacing.dp16),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(
-            space = MaterialTheme.spacing.dp16,
-            alignment = Alignment.CenterHorizontally
-        )
     ) {
         items(badges) { badge ->
             TopReportBadge(
@@ -94,6 +95,7 @@ fun SuspiciousBadgeSection(
                 color = badge.color,
                 textColor = badge.textColor,
                 text = badge.text,
+                isSelected = badge.riskLevel == selectedRiskLevel,
                 onClick = badge.onClick
             )
         }
@@ -105,6 +107,7 @@ fun SuspiciousBadgeSection(
 fun SuspiciousBadgeSectionPreview() {
     HashScannerTheme {
         SuspiciousBadgeSection(
+            selectedRiskLevel = RiskLevelsUI.SAFE,
             highRiskAppsCount = 1,
             mediumRiskAppsCount = 1,
             lowRiskAppsCount = 1,

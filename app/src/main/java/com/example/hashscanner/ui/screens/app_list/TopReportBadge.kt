@@ -18,6 +18,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Shapes
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -27,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import com.example.hashscanner.R
 import com.example.hashscanner.ui.theme.BlackWhiteColor
 import com.example.hashscanner.ui.theme.spacing
+import com.example.hashscanner.ui.ui_utils.InfoCard
 import com.example.hashscanner.utils.DigitHelper
 
 @Composable
@@ -36,11 +41,14 @@ fun TopReportBadge(
     color: Color,
     textColor: Color,
     text: String,
-    onClick:()-> Unit
+    isSelected: Boolean = false,
+    onClick: () -> Unit
 ) {
 
     Card(
         modifier = modifier
+            .padding(start = MaterialTheme.spacing.dp8)
+            .padding(end = MaterialTheme.spacing.dp8)
             .height(100.dp)
             .width(100.dp),
         colors = CardDefaults.cardColors(
@@ -49,8 +57,8 @@ fun TopReportBadge(
         onClick = onClick,
         shape = Shapes().medium,
         border = BorderStroke(
-            width = 1.dp,
-            color = color,
+            width = if (isSelected) 2.dp else 1.dp,
+            color = if (isSelected) Color.Black else color,
         )
     ) {
         Column(
