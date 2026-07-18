@@ -10,10 +10,9 @@ import android.text.StaticLayout
 import android.text.TextPaint
 import com.example.hashscanner.data.database.AppDatabase
 import com.example.hashscanner.utils.Constants
+import com.example.hashscanner.utils.DateTimeUtils
 import java.io.File
 import java.io.FileOutputStream
-import java.time.LocalDate
-import java.time.LocalTime
 
 class PdfGenerator(
     private val context: Context,
@@ -92,8 +91,8 @@ class PdfGenerator(
         val apps = dao.getAll()
 
         drawWrappedText(Constants.EXPORT_LABEL_REPORT_TITLE, isTitle = true)
-        drawWrappedText("${Constants.EXPORT_LABEL_SCAN_DATE} : ${LocalDate.now()}")
-        drawWrappedText("${Constants.EXPORT_LABEL_SCAN_TIME} : ${LocalTime.now()}")
+        drawWrappedText("${Constants.EXPORT_LABEL_SCAN_DATE} : ${DateTimeUtils.getCurrentDate()}")
+        drawWrappedText("${Constants.EXPORT_LABEL_SCAN_TIME} : ${DateTimeUtils.getCurrentTime()}")
         drawWrappedText("${Constants.EXPORT_LABEL_TOTAL_APPS} : ${apps.size}")
         drawWrappedText("${Constants.EXPORT_LABEL_SUSPICIOUS_APPS} : ${dao.countSuspiciousApps()}")
 

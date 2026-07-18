@@ -1,7 +1,7 @@
 package com.example.hashscanner.network
 
 import com.example.hashscanner.data.database.AppDatabase
-import java.time.LocalDateTime
+import com.example.hashscanner.utils.DateTimeUtils
 
 class UploadManager(
 
@@ -21,7 +21,7 @@ class UploadManager(
             return
         }
 
-        val uploadTime = LocalDateTime.now().toString()
+        val uploadTime = DateTimeUtils.getCurrentDateTime()
 
         list.forEach { app ->
 

@@ -15,10 +15,9 @@ import com.example.hashscanner.data.database.dao.SuspiciousDao
 import com.example.hashscanner.data.model.db_entities.AppInfo
 import com.example.hashscanner.data.model.db_entities.PermissionInfo
 import com.example.hashscanner.data.model.db_entities.SuspiciousApp
+import com.example.hashscanner.utils.DateTimeUtils
 import com.example.hashscanner.utils.IconConverter
 import java.io.File
-import java.time.LocalDate
-import java.time.LocalTime
 import javax.inject.Inject
 
 class PackageScanner @Inject constructor(
@@ -280,9 +279,9 @@ class PackageScanner @Inject constructor(
 
             vtResult = "",
 
-            scanDate = LocalDate.now().toString(),
+            scanDate = DateTimeUtils.getCurrentDate(),
 
-            scanTime = LocalTime.now().toString()
+            scanTime = DateTimeUtils.getCurrentTime()
 
         )
 
@@ -355,7 +354,7 @@ class PackageScanner @Inject constructor(
 
                     reason = result.reasons,
 
-                    reportDate = LocalDate.now().toString(),
+                    reportDate = DateTimeUtils.getCurrentDate(),
 
                     sentToServer = false,
 

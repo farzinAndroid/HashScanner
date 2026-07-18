@@ -24,6 +24,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.hashscanner.R
@@ -67,7 +68,8 @@ fun LandingPageScreen(
             Text(
                 text = stringResource(R.string.app_name),
                 style = Typography.headlineMedium,
-                color = Color.White
+                color = Color.White,
+                fontWeight = FontWeight.Bold
             )
 
             Spacer(modifier = Modifier.height(MaterialTheme.spacing.dp4))
@@ -75,7 +77,8 @@ fun LandingPageScreen(
             Text(
                 text = stringResource(R.string.landing_subtitle_security_scanner),
                 style = Typography.bodyMedium,
-                color = MaterialTheme.colorScheme.LightGray
+                color = MaterialTheme.colorScheme.LightGray,
+                fontWeight = FontWeight.Bold
             )
 
         }
@@ -126,6 +129,7 @@ fun LandingPageScreen(
                         color = MaterialTheme.colorScheme.BlackWhiteColor,
                         modifier = Modifier
                             .fillMaxWidth(),
+                        fontWeight = FontWeight.Bold
                     )
 
 

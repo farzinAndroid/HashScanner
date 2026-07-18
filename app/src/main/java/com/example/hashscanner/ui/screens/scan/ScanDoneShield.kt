@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -54,7 +55,8 @@ fun ScanDoneShield(
             color = MaterialTheme.colorScheme.GreenColor,
             modifier = Modifier
                 .fillMaxWidth(),
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
+            fontWeight = FontWeight.Bold
         )
 
 
@@ -66,7 +68,8 @@ fun ScanDoneShield(
             color = MaterialTheme.colorScheme.LightGray,
             modifier = Modifier
                 .fillMaxWidth(),
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
+            fontWeight = FontWeight.SemiBold
         )
 
 

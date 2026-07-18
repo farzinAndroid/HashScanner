@@ -35,7 +35,7 @@ fun RiskScoreCard(score: Int) {
             Text(
                 text = stringResource(R.string.label_item_risk_score),
                 style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Medium
+                fontWeight = FontWeight.Bold,
             )
             Text(
                 text = "${DigitHelper.digitByLang(score.toString())} ${stringResource(R.string.label_out_of_100)}",

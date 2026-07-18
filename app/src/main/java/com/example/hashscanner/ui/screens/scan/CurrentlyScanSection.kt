@@ -27,6 +27,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -90,7 +91,8 @@ fun CurrentlyScanSection(
                 Text(
                     text = stringResource(R.string.scan_label_currently_scanning_app),
                     style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.LightGray
+                    color = MaterialTheme.colorScheme.LightGray,
+                    fontWeight = FontWeight.Bold
                 )
 
                 Spacer(modifier = Modifier.height(MaterialTheme.spacing.dp4))
@@ -103,7 +105,8 @@ fun CurrentlyScanSection(
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier
                         .width(250.dp),
-                    textAlign = TextAlign.Center
+                    textAlign = TextAlign.Center,
+                    fontWeight = FontWeight.Bold
                 )
             }
 
