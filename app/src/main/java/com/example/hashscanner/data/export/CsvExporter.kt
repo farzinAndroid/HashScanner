@@ -3,6 +3,7 @@ package com.example.hashscanner.data.export
 import android.content.Context
 import android.os.Environment
 import com.example.hashscanner.data.database.AppDatabase
+import com.example.hashscanner.utils.Constants
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -29,7 +30,7 @@ class CsvExporter(
         }
 
         val time = SimpleDateFormat(
-            "yyyy-MM-dd_HH-mm-ss",
+            Constants.DATE_FORMAT_EXPORT,
             Locale.getDefault()
         ).format(Date())
 
@@ -41,7 +42,11 @@ class CsvExporter(
         val builder = StringBuilder()
 
         builder.append(
-            "App Name,Package,Risk,Score,SHA256\n"
+            "${Constants.EXPORT_LABEL_APPLICATION}," +
+                    "${Constants.EXPORT_LABEL_PACKAGE}," +
+                    "${Constants.EXPORT_LABEL_RISK_LEVEL}," +
+                    "${Constants.EXPORT_LABEL_RISK_SCORE}," +
+                    "${Constants.EXPORT_LABEL_SHA256}\n"
         )
 
         apps.forEach {

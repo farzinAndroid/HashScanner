@@ -21,8 +21,10 @@ import com.example.hashscanner.R
 import com.example.hashscanner.data.model.RiskLevels
 import com.example.hashscanner.ui.theme.GreenColor
 import com.example.hashscanner.ui.theme.RedColor
+import com.example.hashscanner.ui.theme.StrongYellowColor
 import com.example.hashscanner.ui.theme.YellowColor
 import com.example.hashscanner.ui.theme.spacing
+import com.example.hashscanner.utils.Constants
 
 @Composable
 fun RiskBadge(riskLevel: String) {
@@ -30,7 +32,7 @@ fun RiskBadge(riskLevel: String) {
         RiskLevels.SAFE.toString(), RiskLevels.LOW.toString() -> 
             MaterialTheme.colorScheme.GreenColor to R.string.badge_risk_level_low
         RiskLevels.MEDIUM.toString() -> 
-            MaterialTheme.colorScheme.YellowColor to R.string.badge_risk_level_medium
+            MaterialTheme.colorScheme.StrongYellowColor to R.string.badge_risk_level_medium
         RiskLevels.HIGH.toString() -> 
             MaterialTheme.colorScheme.RedColor to R.string.badge_risk_level_high
         RiskLevels.CRITICAL.toString() -> 
@@ -47,7 +49,7 @@ fun RiskBadge(riskLevel: String) {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.dp6)
     ) {
-        Text(text = "⚠", color = riskColor, fontSize = 12.sp)
+        Text(text = Constants.SYMBOL_WARNING, color = riskColor, fontSize = 12.sp)
         Text(
             text = stringResource(riskTextRes),
             color = riskColor,

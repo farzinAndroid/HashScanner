@@ -23,6 +23,7 @@ import com.example.hashscanner.data.model.db_entities.AppInfo
 import com.example.hashscanner.ui.theme.RedColor
 import com.example.hashscanner.ui.theme.spacing
 import com.example.hashscanner.ui.ui_utils.InfoCard
+import com.example.hashscanner.utils.Constants
 
 @Composable
 fun SuspiciousReasonsCard(
@@ -55,7 +56,7 @@ fun SuspiciousReasonsCard(
                             .background(MaterialTheme.colorScheme.RedColor)
                     )
                     Text(
-                        text = reason,
+                        text = translateRiskReason(reason),
                         modifier = Modifier.weight(1f),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
@@ -64,5 +65,22 @@ fun SuspiciousReasonsCard(
             }
 
         }
+    }
+}
+
+@Composable
+fun translateRiskReason(reason: String): String {
+    return when (reason) {
+        Constants.RISK_REASON_DEBUGGABLE -> stringResource(R.string.risk_reason_debuggable)
+        Constants.RISK_REASON_UNKNOWN_INSTALLER -> stringResource(R.string.risk_reason_unknown_installer)
+        Constants.RISK_REASON_OVERLAY -> stringResource(R.string.risk_reason_overlay)
+        Constants.RISK_REASON_INSTALL_PACKAGES -> stringResource(R.string.risk_reason_install_packages)
+        Constants.RISK_REASON_ACCESSIBILITY -> stringResource(R.string.risk_reason_accessibility)
+        Constants.RISK_REASON_MICROPHONE -> stringResource(R.string.risk_reason_microphone)
+        Constants.RISK_REASON_CAMERA -> stringResource(R.string.risk_reason_camera)
+        Constants.RISK_REASON_READ_SMS -> stringResource(R.string.risk_reason_read_sms)
+        Constants.RISK_REASON_SEND_SMS -> stringResource(R.string.risk_reason_send_sms)
+        Constants.RISK_REASON_AUTO_START -> stringResource(R.string.risk_reason_auto_start)
+        else -> reason
     }
 }

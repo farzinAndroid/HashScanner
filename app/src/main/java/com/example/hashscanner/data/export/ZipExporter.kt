@@ -2,6 +2,7 @@ package com.example.hashscanner.data.export
 
 import android.content.Context
 import android.os.Environment
+import com.example.hashscanner.utils.Constants
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -32,7 +33,7 @@ class ZipExporter(
         }
 
         val time = SimpleDateFormat(
-            "yyyy-MM-dd_HH-mm-ss",
+            Constants.DATE_FORMAT_EXPORT,
             Locale.getDefault()
         ).format(Date())
 

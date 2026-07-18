@@ -57,4 +57,72 @@
 
     <string name="button_uninstall_app">حذف نصب</string>
     <string name="button_send_apk_file">ارسال فایل APK</string>
+
+    <!-- Content Descriptions -->
+    <string name="content_desc_app_logo">لوگوی برنامه</string>
+    <string name="content_desc_security_illustration">تصویر امنیتی</string>
+
+    <!-- Technical Details -->
+    <string name="details_label_certificate_issuer">صادرکننده</string>
+    <string name="label_of">از</string>
+    <string name="label_out_of_100">از ۱۰۰</string>
+
+    <!-- Risk Reasons (from RiskAnalyzer) -->
+    <string name="risk_reason_debuggable">برنامه قابل دیباگ (Debuggable)</string>
+    <string name="risk_reason_unknown_installer">نصب‌کننده ناشناس</string>
+    <string name="risk_reason_overlay">دسترسی نمایش روی سایر برنامه‌ها</string>
+    <string name="risk_reason_install_packages">قابلیت نصب سایر برنامه‌ها</string>
+    <string name="risk_reason_accessibility">دسترسی سرویس کمک‌درمانی (Accessibility)</string>
+    <string name="risk_reason_microphone">دسترسی به میکروفون</string>
+    <string name="risk_reason_camera">دسترسی به دوربین</string>
+    <string name="risk_reason_read_sms">دسترسی خواندن پیامک</string>
+    <string name="risk_reason_send_sms">دسترسی ارسال پیامک</string>
+    <string name="risk_reason_auto_start">اجرای خودکار پس از روشن شدن</string>
+
+    <!-- Risk Recommendations -->
+    <string name="risk_recommendation_critical">این برنامه امتیاز خطر بسیار بالایی دارد. توصیه می‌شود فایل APK برای تحلیل امنیتی پیشرفته ارسال شود.</string>
+    <string name="risk_recommendation_high">این برنامه مشکوک به نظر می‌رسد. ارسال فایل APK برای تحلیل امنیتی بیشتر توصیه می‌شود.</string>
+    <string name="risk_recommendation_medium">برخی شاخص‌های مشکوک شناسایی شد. این برنامه را با دقت زیر نظر داشته باشید.</string>
+    <string name="risk_recommendation_safe">هیچ خطر امنیتی قابل توجهی شناسایی نشد.</string>
+
+    <!-- Report Labels -->
+    <string name="report_title">گزارش امنیت برنامه‌های اندروید</string>
+    <string name="report_label_scan_date">تاریخ اسکن</string>
+    <string name="report_label_scan_time">زمان اسکن</string>
+    <string name="report_label_total_apps">تعداد کل برنامه‌ها</string>
+    <string name="report_label_suspicious_apps">برنامه‌های مشکوک</string>
+    <string name="report_label_package">بسته (Package)</string>
+    <string name="report_label_sha256">SHA256</string>
+    <string name="report_label_risk_score">امتیاز خطر</string>
+    <string name="report_label_application">برنامه</string>
+    <string name="report_label_installer">نصب‌کننده</string>
+    <string name="report_label_target_sdk">Target SDK</string>
+    <string name="report_label_risk_level">سطح خطر</string>
+    <string name="report_label_reasons">دلایل</string>
+    <string name="report_label_certificate_sha256">SHA256 گواهینامه</string>
+    <string name="report_header_hashes">هش‌ها (Hashes)</string>
+    <string name="report_label_md5">MD5</string>
+    <string name="report_label_sha1">SHA1</string>
+    <string name="report_header_version">نسخه</string>
+    <string name="report_header_apk">فایل APK</string>
+    <string name="report_label_apk_name">نام فایل</string>
+    <string name="report_label_apk_path">مسیر فایل</string>
+    <string name="report_label_apk_size">اندازه فایل</string>
+    <string name="report_header_certificate">گواهینامه (Certificate)</string>
+    <string name="report_label_subject">موضوع (Subject)</string>
+    <string name="report_label_serial">شماره سریال</string>
+    <string name="report_label_algorithm">الگوریتم</string>
+    <string name="report_label_valid_from">معتبر از</string>
+    <string name="report_label_valid_to">معتبر تا</string>
+    <string name="report_header_android">اندروید</string>
+    <string name="report_label_min_sdk">Min SDK</string>
+    <string name="report_label_system_app">برنامه سیستمی</string>
+    <string name="report_label_debuggable">قابل دیباگ</string>
+    <string name="report_label_enabled">فعال</string>
+    <string name="report_header_risk_analysis">تحلیل خطر</string>
+    <string name="report_label_suspicious">مشکوک</string>
+    <string name="report_header_virustotal">VirusTotal</string>
+    <string name="report_label_checked">بررسی شده</string>
+    <string name="report_label_result">نتیجه</string>
+    <string name="report_header_scan">اسکن</string>
 </resources>

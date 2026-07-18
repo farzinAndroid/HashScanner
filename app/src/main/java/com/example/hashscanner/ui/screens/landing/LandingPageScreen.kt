@@ -57,7 +57,7 @@ fun LandingPageScreen(
         ) {
             Image(
                 painter = painterResource(R.drawable.shild),
-                contentDescription = "App Logo",
+                contentDescription = stringResource(R.string.content_desc_app_logo),
                 modifier = Modifier.size(100.dp),
                 contentScale = ContentScale.Fit
             )
@@ -109,7 +109,7 @@ fun LandingPageScreen(
 
                 Image(
                     painter = painterResource(R.drawable.shild_cyber),
-                    contentDescription = "Security Illustration",
+                    contentDescription = stringResource(R.string.content_desc_security_illustration),
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 48.dp)

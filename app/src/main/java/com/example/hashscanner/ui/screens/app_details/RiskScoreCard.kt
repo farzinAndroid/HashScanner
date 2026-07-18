@@ -38,7 +38,7 @@ fun RiskScoreCard(score: Int) {
                 fontWeight = FontWeight.Medium
             )
             Text(
-                text = DigitHelper.digitByLang("$score / 100"),
+                text = "${DigitHelper.digitByLang(score.toString())} ${stringResource(R.string.label_out_of_100)}",
                 color = MaterialTheme.colorScheme.RedColor,
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold

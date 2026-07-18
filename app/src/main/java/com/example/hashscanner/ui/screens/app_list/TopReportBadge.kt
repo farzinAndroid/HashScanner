@@ -27,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.hashscanner.R
 import com.example.hashscanner.ui.theme.BlackWhiteColor
@@ -57,8 +58,8 @@ fun TopReportBadge(
         onClick = onClick,
         shape = Shapes().medium,
         border = BorderStroke(
-            width = if (isSelected) 2.dp else 1.dp,
-            color = if (isSelected) Color.Black else color,
+            width = if (isSelected) 4.dp else 1.dp,
+            color = color,
         )
     ) {
         Column(
@@ -81,7 +82,8 @@ fun TopReportBadge(
             Text(
                 text = DigitHelper.digitByLang(count.toString()),
                 style = MaterialTheme.typography.bodyMedium,
-                color = textColor
+                color = textColor,
+                fontWeight = FontWeight.Bold
             )
 
             Spacer(modifier = Modifier.height(MaterialTheme.spacing.dp6))
@@ -90,7 +92,8 @@ fun TopReportBadge(
             Text(
                 text = text,
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.BlackWhiteColor
+                color = MaterialTheme.colorScheme.BlackWhiteColor,
+                fontWeight = FontWeight.Bold
             )
         }
     }

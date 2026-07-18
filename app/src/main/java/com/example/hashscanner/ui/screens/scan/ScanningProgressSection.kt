@@ -78,7 +78,7 @@ fun ScanningProgressSection(
                 textAlign = TextAlign.Center
             )
 
-            Spacer(modifier = Modifier.height(MaterialTheme.spacing.dp16))
+            Spacer(modifier = Modifier.height(MaterialTheme.spacing.dp8))
         }
 
         item {
@@ -89,7 +89,7 @@ fun ScanningProgressSection(
         }
 
         item {
-            Spacer(modifier = Modifier.height(MaterialTheme.spacing.dp32))
+            Spacer(modifier = Modifier.height(MaterialTheme.spacing.dp16))
 
             CurrentlyScanSection(
                 appName = appName,
@@ -101,7 +101,7 @@ fun ScanningProgressSection(
         }
 
         item {
-            Spacer(modifier = Modifier.height(MaterialTheme.spacing.dp32))
+            Spacer(modifier = Modifier.height(MaterialTheme.spacing.dp16))
 
             ScanProgressionReportBox(
                 totalCount = totalCount,
@@ -112,11 +112,10 @@ fun ScanningProgressSection(
         }
 
         item {
-            Spacer(modifier = Modifier.height(MaterialTheme.spacing.dp32))
+            Spacer(modifier = Modifier.height(MaterialTheme.spacing.dp16))
 
             ScanWarning()
 
-            Spacer(modifier = Modifier.height(MaterialTheme.spacing.dp32))
         }
     }
 }

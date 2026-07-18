@@ -115,7 +115,7 @@ fun CurrentlyScanSection(
         Spacer(modifier = Modifier.height(MaterialTheme.spacing.dp16))
 
         Text(
-            text = "${DigitHelper.digitByLang(scannedCount.toString())} از  ${
+            text = "${DigitHelper.digitByLang(scannedCount.toString())} ${stringResource(R.string.label_of)} ${
                 DigitHelper.digitByLang(
                     totalCount.toString()
                 )

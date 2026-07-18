@@ -57,11 +57,19 @@ fun SuspiciousBadgeSection(
         ),
         BadgeData(
             count = mediumRiskAppsCount,
-            color = MaterialTheme.colorScheme.YellowColor,
+            color = MaterialTheme.colorScheme.StrongYellowColor,
             textColor = MaterialTheme.colorScheme.StrongYellowColor,
             text = stringResource(R.string.badge_risk_level_medium),
             riskLevel = RiskLevelsUI.MEDIUM,
             onClick = onMediumRiskAppsSelected
+        ),
+        BadgeData(
+            count = highRiskAppsCount,
+            color = MaterialTheme.colorScheme.RedColor,
+            textColor = MaterialTheme.colorScheme.RedColor,
+            text = stringResource(R.string.badge_risk_level_high),
+            riskLevel = RiskLevelsUI.HIGH,
+            onClick = onHighRiskAppsSelected
         ),
         BadgeData(
             count = criticalAppsCount,
@@ -71,14 +79,6 @@ fun SuspiciousBadgeSection(
             riskLevel = RiskLevelsUI.CRITICAL,
             onClick = onCriticalAppsSelected
         ),
-        BadgeData(
-            count = highRiskAppsCount,
-            color = MaterialTheme.colorScheme.RedColor,
-            textColor = MaterialTheme.colorScheme.RedColor,
-            text = stringResource(R.string.badge_risk_level_high),
-            riskLevel = RiskLevelsUI.HIGH,
-            onClick = onHighRiskAppsSelected
-        )
     )
 
     LazyRow(

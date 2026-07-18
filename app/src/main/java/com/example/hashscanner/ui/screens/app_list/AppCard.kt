@@ -25,6 +25,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -36,6 +37,7 @@ import com.example.hashscanner.ui.theme.GreenColor
 import com.example.hashscanner.ui.theme.HashScannerTheme
 import com.example.hashscanner.ui.theme.LightGray
 import com.example.hashscanner.ui.theme.RedColor
+import com.example.hashscanner.ui.theme.StrongYellowColor
 import com.example.hashscanner.ui.theme.YellowColor
 import com.example.hashscanner.ui.theme.spacing
 import com.example.hashscanner.utils.DigitHelper
@@ -51,6 +53,14 @@ fun AppCard(
     val riskColor = when (appInfo.riskLevel) {
         RiskLevels.LOW.toString(), RiskLevels.SAFE.toString() -> MaterialTheme.colorScheme.GreenColor
         RiskLevels.MEDIUM.toString() -> MaterialTheme.colorScheme.YellowColor
+        RiskLevels.HIGH.toString(), RiskLevels.CRITICAL.toString() -> MaterialTheme.colorScheme.RedColor
+        else -> Color.Transparent
+    }
+    
+    
+    val riskBorderColor = when (appInfo.riskLevel) {
+        RiskLevels.LOW.toString(), RiskLevels.SAFE.toString() -> MaterialTheme.colorScheme.GreenColor
+        RiskLevels.MEDIUM.toString() -> MaterialTheme.colorScheme.StrongYellowColor
         RiskLevels.HIGH.toString(), RiskLevels.CRITICAL.toString() -> MaterialTheme.colorScheme.RedColor
         else -> Color.Transparent
     }
@@ -76,7 +86,7 @@ fun AppCard(
         onClick = onClick,
         border = BorderStroke(
             width = 1.dp,
-            color = riskColor
+            color = riskBorderColor
         )
     ) {
         Row(
@@ -116,13 +126,14 @@ fun AppCard(
                     color = MaterialTheme.colorScheme.BlackWhiteColor,
                     modifier = Modifier.width(150.dp),
                     overflow = TextOverflow.Ellipsis,
-                    maxLines = 1
+                    maxLines = 1,
+                    fontWeight = FontWeight.Bold
                 )
 
                 Text(
                     text = appInfo.packageName,
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.LightGray,
+                    color = MaterialTheme.colorScheme.BlackWhiteColor,
                     modifier = Modifier.width(100.dp),
                     overflow = TextOverflow.Ellipsis,
                     maxLines = 1
@@ -131,9 +142,9 @@ fun AppCard(
                 Text(
                     text = stringResource(R.string.format_risk_score_value) +
                             DigitHelper.digitByLang(appInfo.riskScore.toString()) +
-                            "/${DigitHelper.digitByLang("100")}",
+                            " ${stringResource(R.string.label_out_of_100)}",
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.LightGray,
+                    color = MaterialTheme.colorScheme.BlackWhiteColor,
                     modifier = Modifier
                         .width(100.dp)
                         .padding(top = MaterialTheme.spacing.dp8),
@@ -148,7 +159,7 @@ fun AppCard(
             ) {
                 RiskBadge(
                     riskText = riskText,
-                    color = riskColor
+                    color = riskBorderColor
                 )
             }
         }

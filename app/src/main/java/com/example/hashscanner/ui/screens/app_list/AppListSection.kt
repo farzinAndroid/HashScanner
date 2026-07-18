@@ -13,6 +13,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -31,7 +32,7 @@ fun AppListSection(
     databaseViewmodel: AppDatabaseViewmodel = hiltViewModel(),
     onAppClick: (String) -> Unit
 ) {
-    var whichAppsToLoad by remember { mutableStateOf(RiskLevelsUI.SAFE) }
+    var whichAppsToLoad by rememberSaveable { mutableStateOf(RiskLevelsUI.SAFE) }
 
     // Counts
     val highRiskCount by databaseViewmodel.highRiskAppsCount.collectAsStateWithLifecycle()

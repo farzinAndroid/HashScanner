@@ -5,6 +5,7 @@ import android.content.pm.ApplicationInfo
 import android.content.pm.PackageInfo
 import com.example.hashscanner.data.model.RiskLevels
 import com.example.hashscanner.data.model.RiskResult
+import com.example.hashscanner.utils.Constants
 import javax.inject.Inject
 
 
@@ -28,7 +29,7 @@ class RiskAnalyzer @Inject constructor(){
 
             score += 15
 
-            reasons.add("Debuggable Application")
+            reasons.add(Constants.RISK_REASON_DEBUGGABLE)
 
         }
 
@@ -38,11 +39,11 @@ class RiskAnalyzer @Inject constructor(){
 
         }
 
-        if (installer == "Unknown") {
+        if (installer == Constants.INSTALLER_UNKNOWN) {
 
             score += 20
 
-            reasons.add("Unknown Installer")
+            reasons.add(Constants.RISK_REASON_UNKNOWN_INSTALLER)
 
         }
 
@@ -54,7 +55,7 @@ class RiskAnalyzer @Inject constructor(){
 
                     score += 20
 
-                    reasons.add("Overlay Permission")
+                    reasons.add(Constants.RISK_REASON_OVERLAY)
 
                 }
 
@@ -62,7 +63,7 @@ class RiskAnalyzer @Inject constructor(){
 
                     score += 20
 
-                    reasons.add("Can Install APK")
+                    reasons.add(Constants.RISK_REASON_INSTALL_PACKAGES)
 
                 }
 
@@ -70,7 +71,7 @@ class RiskAnalyzer @Inject constructor(){
 
                     score += 25
 
-                    reasons.add("Accessibility Service")
+                    reasons.add(Constants.RISK_REASON_ACCESSIBILITY)
 
                 }
 
@@ -78,7 +79,7 @@ class RiskAnalyzer @Inject constructor(){
 
                     score += 5
 
-                    reasons.add("Microphone Access")
+                    reasons.add(Constants.RISK_REASON_MICROPHONE)
 
                 }
 
@@ -86,7 +87,7 @@ class RiskAnalyzer @Inject constructor(){
 
                     score += 5
 
-                    reasons.add("Camera Access")
+                    reasons.add(Constants.RISK_REASON_CAMERA)
 
                 }
 
@@ -94,7 +95,7 @@ class RiskAnalyzer @Inject constructor(){
 
                     score += 15
 
-                    reasons.add("Read SMS")
+                    reasons.add(Constants.RISK_REASON_READ_SMS)
 
                 }
 
@@ -102,7 +103,7 @@ class RiskAnalyzer @Inject constructor(){
 
                     score += 15
 
-                    reasons.add("Send SMS")
+                    reasons.add(Constants.RISK_REASON_SEND_SMS)
 
                 }
 
@@ -110,7 +111,7 @@ class RiskAnalyzer @Inject constructor(){
 
                     score += 10
 
-                    reasons.add("Starts Automatically")
+                    reasons.add(Constants.RISK_REASON_AUTO_START)
 
                 }
 
@@ -142,13 +143,13 @@ class RiskAnalyzer @Inject constructor(){
 
         val recommendation = when {
 
-            score >= 80 -> "This application has a very high risk score. It is strongly recommended to upload the APK for advanced malware analysis."
+            score >= 80 -> Constants.RISK_REC_CRITICAL
 
-            score >= 60 -> "This application appears suspicious. Uploading the APK for further security analysis is recommended."
+            score >= 60 -> Constants.RISK_REC_HIGH
 
-            score >= 40 -> "Some suspicious indicators were detected. Monitor this application carefully."
+            score >= 40 -> Constants.RISK_REC_MEDIUM
 
-            else -> "No significant security risk detected."
+            else -> Constants.RISK_REC_SAFE
 
         }
 

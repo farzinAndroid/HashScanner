@@ -29,6 +29,7 @@ import com.example.hashscanner.ui.theme.GreenColor
 import com.example.hashscanner.ui.theme.RedColor
 import com.example.hashscanner.ui.theme.spacing
 import com.example.hashscanner.ui.ui_utils.InfoCard
+import com.example.hashscanner.utils.Constants
 import com.example.hashscanner.utils.DigitHelper
 
 @Composable
@@ -80,28 +81,24 @@ fun TechnicalDetailsCard(appInfo: AppInfo) {
                         Triple(
                             stringResource(R.string.details_value_signature_system),
                             MaterialTheme.colorScheme.GreenColor,
-                            "✓"
+                            Constants.SYMBOL_CHECK
                         )
                     }
 
-                    listOf(
-                        "com.android.vending",
-                        "com.farsitel.bazaar",
-                        "ir.mservices.market"
-                    ).contains(appInfo.installer) -> {
+                    Constants.TRUSTED_INSTALLERS.contains(appInfo.installer) -> {
                         Triple(
                             stringResource(R.string.details_value_signature_store),
                             MaterialTheme.colorScheme.GreenColor,
-                            "✓"
+                            Constants.SYMBOL_CHECK
                         )
                     }
 
-                    appInfo.certificateIssuer.contains("Google", ignoreCase = true) ||
-                            appInfo.certificateIssuer.contains("Android", ignoreCase = true) -> {
+                    appInfo.certificateIssuer.contains(Constants.CERT_ISSUER_GOOGLE, ignoreCase = true) ||
+                            appInfo.certificateIssuer.contains(Constants.CERT_ISSUER_ANDROID, ignoreCase = true) -> {
                         Triple(
                             stringResource(R.string.details_value_signature_valid),
                             MaterialTheme.colorScheme.GreenColor,
-                            "✓"
+                            Constants.SYMBOL_CHECK
                         )
                     }
 
@@ -109,7 +106,7 @@ fun TechnicalDetailsCard(appInfo: AppInfo) {
                         Triple(
                             stringResource(R.string.details_value_signature_sideloaded),
                             MaterialTheme.colorScheme.BlueColor,
-                            "ℹ"
+                            Constants.SYMBOL_INFO
                         )
                     }
 
@@ -117,7 +114,7 @@ fun TechnicalDetailsCard(appInfo: AppInfo) {
                         Triple(
                             stringResource(R.string.details_value_signature_unknown),
                             MaterialTheme.colorScheme.RedColor,
-                            "✕"
+                            Constants.SYMBOL_CROSS
                         )
                     }
                 }
@@ -144,8 +141,8 @@ fun TechnicalDetailsCard(appInfo: AppInfo) {
             )
             DetailRow(
                 icon = { Icon(Icons.Default.Info, contentDescription = null) },
-                label = "صادرکننده",
-                value = appInfo.certificateIssuer.substringBefore(",").substringAfter("CN=")
+                label = stringResource(R.string.details_label_certificate_issuer),
+                value = appInfo.certificateIssuer
             )
         }
     }

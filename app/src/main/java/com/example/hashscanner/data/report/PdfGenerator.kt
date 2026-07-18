@@ -9,6 +9,7 @@ import android.text.Layout
 import android.text.StaticLayout
 import android.text.TextPaint
 import com.example.hashscanner.data.database.AppDatabase
+import com.example.hashscanner.utils.Constants
 import java.io.File
 import java.io.FileOutputStream
 import java.time.LocalDate
@@ -90,11 +91,11 @@ class PdfGenerator(
         val dao = db.appDao()
         val apps = dao.getAll()
 
-        drawWrappedText("Android Application Security Report", isTitle = true)
-        drawWrappedText("Scan Date : ${LocalDate.now()}")
-        drawWrappedText("Scan Time : ${LocalTime.now()}")
-        drawWrappedText("Total Apps : ${apps.size}")
-        drawWrappedText("Suspicious Apps : ${dao.countSuspiciousApps()}")
+        drawWrappedText(Constants.EXPORT_LABEL_REPORT_TITLE, isTitle = true)
+        drawWrappedText("${Constants.EXPORT_LABEL_SCAN_DATE} : ${LocalDate.now()}")
+        drawWrappedText("${Constants.EXPORT_LABEL_SCAN_TIME} : ${LocalTime.now()}")
+        drawWrappedText("${Constants.EXPORT_LABEL_TOTAL_APPS} : ${apps.size}")
+        drawWrappedText("${Constants.EXPORT_LABEL_SUSPICIOUS_APPS} : ${dao.countSuspiciousApps()}")
 
         y += 12f // Extra padding before the list
 
@@ -105,16 +106,16 @@ class PdfGenerator(
             canvas.drawLine(marginX, y, pageWidth - marginX, y, paint)
             y += 18f
 
-            drawWrappedText("Application : ${app.appName}")
-            drawWrappedText("Package : ${app.packageName}")
-            drawWrappedText("Version : ${app.versionName}")
-            drawWrappedText("SHA256 : ${app.sha256}")
-            drawWrappedText("Certificate SHA256 : ${app.certificateSha256}")
-            drawWrappedText("Installer : ${app.installer}")
-            drawWrappedText("Target SDK : ${app.targetSdk}")
-            drawWrappedText("Risk Score : ${app.riskScore}")
-            drawWrappedText("Risk Level : ${app.riskLevel}")
-            drawWrappedText("Reasons : ${app.riskReasons}")
+            drawWrappedText("${Constants.EXPORT_LABEL_APPLICATION} : ${app.appName}")
+            drawWrappedText("${Constants.EXPORT_LABEL_PACKAGE} : ${app.packageName}")
+            drawWrappedText("${Constants.EXPORT_LABEL_VERSION} : ${app.versionName}")
+            drawWrappedText("${Constants.EXPORT_LABEL_SHA256} : ${app.sha256}")
+            drawWrappedText("${Constants.EXPORT_LABEL_CERT_SHA256} : ${app.certificateSha256}")
+            drawWrappedText("${Constants.EXPORT_LABEL_INSTALLER} : ${app.installer}")
+            drawWrappedText("${Constants.EXPORT_LABEL_TARGET_SDK} : ${app.targetSdk}")
+            drawWrappedText("${Constants.EXPORT_LABEL_RISK_SCORE} : ${app.riskScore}")
+            drawWrappedText("${Constants.EXPORT_LABEL_RISK_LEVEL} : ${app.riskLevel}")
+            drawWrappedText("${Constants.EXPORT_LABEL_REASONS} : ${app.riskReasons}")
 
             y += 12f // Extra padding between apps
         }
