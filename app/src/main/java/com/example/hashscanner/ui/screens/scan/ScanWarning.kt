@@ -51,13 +51,7 @@ fun ScanWarning() {
             verticalAlignment = Alignment.CenterVertically
         ) {
 
-            Image(
-                painter = painterResource(R.drawable.shield_border),
-                contentDescription = null,
-                modifier = Modifier
-                    .padding(end = MaterialTheme.spacing.dp12)
-                    .height(MaterialTheme.spacing.dp16)
-            )
+
 
 
             Text(

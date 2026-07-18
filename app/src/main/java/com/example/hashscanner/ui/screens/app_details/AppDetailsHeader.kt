@@ -24,6 +24,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.hashscanner.R
 import com.example.hashscanner.data.model.db_entities.AppInfo
+import com.example.hashscanner.ui.theme.BlackWhiteColor
 import com.example.hashscanner.ui.theme.spacing
 import com.example.hashscanner.utils.IconConverter
 
@@ -68,7 +69,8 @@ fun AppHeaderSection(
                 modifier = Modifier
                     .fillMaxWidth(),
                 maxLines = 1,
-                overflow = TextOverflow.Ellipsis
+                overflow = TextOverflow.Ellipsis,
+                color = MaterialTheme.colorScheme.BlackWhiteColor
             )
             Text(
                 text = appInfo.packageName,
