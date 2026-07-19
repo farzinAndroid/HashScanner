@@ -1,29 +1,37 @@
 package com.example.hashscanner.network
 
 import com.example.hashscanner.data.model.db_entities.SuspiciousApp
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
+import javax.inject.Inject
+import javax.inject.Named
 
-class ServerUploader(
+class ServerUploader @Inject constructor(
 
-    private val serverUrl: String
+    private val client: OkHttpClient,
+
+    @Named("base_url") private val baseUrl: String
 
 ) {
 
-    private val client = OkHttpClient()
-
     suspend fun upload(
 
-        app: SuspiciousApp
+        app: SuspiciousApp,
 
-    ): Boolean {
+        deviceId: String
 
-        return try {
+    ): Boolean = withContext(Dispatchers.IO) {
+
+        try {
 
             val json = JSONObject().apply {
+
+                put("deviceId", deviceId)
 
                 put("appName", app.appName)
 
@@ -53,7 +61,7 @@ class ServerUploader(
 
             val request = Request.Builder()
 
-                .url(serverUrl)
+                .url(baseUrl)
 
                 .post(body)
 

@@ -5,14 +5,16 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.asRequestBody
 import java.io.File
+import javax.inject.Inject
+import javax.inject.Named
 
-class ApkUploader(
+class ApkUploader @Inject constructor(
 
-    private val serverUrl: String
+    private val client: OkHttpClient,
+
+    @field:Named("base_url") private val baseUrl: String
 
 ) {
-
-    private val client = OkHttpClient()
 
     fun upload(
 
@@ -50,7 +52,7 @@ class ApkUploader(
 
             val request = Request.Builder()
 
-                .url(serverUrl)
+                .url(baseUrl)
 
                 .post(body)
 

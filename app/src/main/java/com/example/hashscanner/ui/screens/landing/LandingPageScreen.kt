@@ -1,5 +1,6 @@
 package com.example.hashscanner.ui.screens.landing
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -27,6 +28,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.hashscanner.R
 import com.example.hashscanner.ui.theme.AccentPurpleColor
 import com.example.hashscanner.ui.theme.BackgroundColor
@@ -34,12 +36,22 @@ import com.example.hashscanner.ui.theme.BlackWhiteColor
 import com.example.hashscanner.ui.theme.LightGray
 import com.example.hashscanner.ui.theme.Typography
 import com.example.hashscanner.ui.theme.spacing
+import com.example.hashscanner.ui.ui_utils.CreateNewUUID
 import com.example.hashscanner.ui.ui_utils.MainPurpleButton
+import com.example.hashscanner.utils.Constants
+import com.example.hashscanner.viewmodel.DataStoreViewModel
 
 @Composable
 fun LandingPageScreen(
-    onButtonClick:()-> Unit
+    onButtonClick:()-> Unit,
+    dataStoreViewModel: DataStoreViewModel = hiltViewModel()
 ) {
+
+
+    CreateNewUUID(dataStoreViewModel) {myUUID->
+        Constants.UUID = myUUID
+    }
+
 
     Column(
         modifier = Modifier

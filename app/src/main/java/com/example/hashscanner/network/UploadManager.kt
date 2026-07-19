@@ -1,25 +1,32 @@
 package com.example.hashscanner.network
 
-import com.example.hashscanner.data.database.AppDatabase
+import com.example.hashscanner.data.database.dao.SuspiciousDao
+import com.example.hashscanner.data.datastore.DataStoreRepo
+import com.example.hashscanner.utils.Constants
 import com.example.hashscanner.utils.DateTimeUtils
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
-class UploadManager(
+class UploadManager @Inject constructor(
 
-    private val db: AppDatabase,
+    private val dao: SuspiciousDao,
 
-    private val uploader: ServerUploader
+    private val uploader: ServerUploader,
+
+    private val dataStoreRepo: DataStoreRepo
 
 ) {
 
-    suspend fun uploadPending() {
-
-        val dao = db.suspiciousDao()
+    suspend fun uploadPending() = withContext(Dispatchers.IO) {
 
         val list = dao.getNotSent()
 
         if (list.isEmpty()) {
-            return
+            return@withContext
         }
+
+        val deviceId = dataStoreRepo.getString(Constants.UUID_DATASTORE_ID) ?: "unknown_device"
 
         val uploadTime = DateTimeUtils.getCurrentDateTime()
 
@@ -27,7 +34,7 @@ class UploadManager(
 
             try {
 
-                val success = uploader.upload(app)
+                val success = uploader.upload(app, deviceId)
 
                 if (success) {
 

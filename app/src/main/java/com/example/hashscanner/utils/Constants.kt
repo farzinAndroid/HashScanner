@@ -5,6 +5,14 @@ object Constants {
 
     const val APP_DB_NAME = "app_hash_scanner"
 
+    const val BASE_URL = ""
+
+    const val DATASTORE_NAME = "hash_scanner_datastore"
+
+
+    const val UUID_DATASTORE_ID = "uuid_id"
+    var UUID = ""
+
     // Installers
     const val INSTALLER_UNKNOWN = "Unknown"
     const val INSTALLER_PLAY_STORE = "com.android.vending"
