@@ -47,7 +47,18 @@ fun AppDetailsScreen(
                 }
             )
         },
-        bottomBar = { AppDetailsBottomBar() }
+        bottomBar = {
+            appDetails?.let {
+                if (it.recommendUpload){
+                    AppDetailsBottomBar(
+                        onUploadApkClicked = {
+                        },
+                        onDeleteClicked = {
+                        }
+                    )
+                }
+            }
+        }
     ) { innerPadding ->
         LazyColumn(
             modifier = Modifier

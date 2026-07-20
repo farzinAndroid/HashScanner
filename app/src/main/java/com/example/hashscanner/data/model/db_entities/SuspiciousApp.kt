@@ -13,6 +13,8 @@ data class SuspiciousApp(
 
     val sha256: String,
 
+    val apkPath: String,
+
     val riskScore: Int,
 
     val riskLevel: String,

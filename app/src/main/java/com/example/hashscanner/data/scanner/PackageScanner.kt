@@ -348,6 +348,8 @@ class PackageScanner @Inject constructor(
 
                     sha256 = sha256,
 
+                    apkPath = apk.absolutePath,
+
                     riskScore = risk,
 
                     riskLevel = level,

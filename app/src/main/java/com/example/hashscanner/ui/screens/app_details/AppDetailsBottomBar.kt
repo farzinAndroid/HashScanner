@@ -28,7 +28,10 @@ import com.example.hashscanner.ui.theme.RedColor
 import com.example.hashscanner.ui.theme.spacing
 
 @Composable
-fun AppDetailsBottomBar() {
+fun AppDetailsBottomBar(
+    onUploadApkClicked:()-> Unit,
+    onDeleteClicked:()-> Unit
+) {
     Surface(
         color = MaterialTheme.colorScheme.surface,
         tonalElevation = 2.dp,
@@ -41,7 +44,7 @@ fun AppDetailsBottomBar() {
             horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.dp12)
         ) {
             OutlinedButton(
-                onClick = {},
+                onClick = onDeleteClicked,
                 modifier = Modifier.weight(1f),
                 shape = RoundedCornerShape(MaterialTheme.spacing.dp16),
                 colors = ButtonDefaults.outlinedButtonColors(
@@ -58,7 +61,7 @@ fun AppDetailsBottomBar() {
             }
 
             Button(
-                onClick = {},
+                onClick = onUploadApkClicked,
                 modifier = Modifier.weight(1f),
                 shape = RoundedCornerShape(MaterialTheme.spacing.dp16),
                 colors = ButtonDefaults.buttonColors(
