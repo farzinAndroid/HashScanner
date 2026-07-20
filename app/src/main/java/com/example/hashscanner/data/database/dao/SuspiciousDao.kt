@@ -47,14 +47,27 @@ interface SuspiciousDao {
     @Query("SELECT COUNT(*) FROM suspicious_apps WHERE sentToServer=0")
     suspend fun countNotSent(): Int
 
+    @Query("SELECT COUNT(*) FROM suspicious_apps WHERE sentToServer=1")
+    suspend fun countSent(): Int
+
     @Query("""
         UPDATE suspicious_apps
         SET sentToServer = 1,
-            apkUploaded = 1,
             uploadDate = :date
         WHERE packageName = :pkg
     """)
-    suspend fun markUploaded(
+    suspend fun markReportSent(
+        pkg: String,
+        date: String
+    )
+
+    @Query("""
+        UPDATE suspicious_apps
+        SET apkUploaded = 1,
+            uploadDate = :date
+        WHERE packageName = :pkg
+    """)
+    suspend fun markApkUploaded(
         pkg: String,
         date: String
     )

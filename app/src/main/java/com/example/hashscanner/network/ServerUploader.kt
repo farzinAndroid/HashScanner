@@ -27,6 +27,10 @@ class ServerUploader @Inject constructor(
 
     ): Boolean = withContext(Dispatchers.IO) {
 
+        if (baseUrl.isBlank() || !baseUrl.startsWith("http")) {
+            return@withContext false
+        }
+
         try {
 
             val json = JSONObject().apply {

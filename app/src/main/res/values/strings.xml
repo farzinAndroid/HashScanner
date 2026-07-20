@@ -7,6 +7,7 @@
 
     <string name="topbar_title_scan_apps">اسکن برنامه‌ها</string>
     <string name="scan_progress_status_scanning_installed_apps">در حال اسکن برنامه‌های نصب شده…</string>
+    <string name="scan_progress_status_uploading">در حال ارسال گزارش‌ها به سرور…</string>
     <string name="scan_label_currently_scanning_app">برنامه در حال اسکن:</string>
     <string name="scan_statistic_total_apps_count">کل برنامه‌ها</string>
     <string name="scan_statistic_scanned_apps_count">اسکن شده</string>

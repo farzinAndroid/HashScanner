@@ -26,6 +26,7 @@ fun ReportSection(
     modifier: Modifier = Modifier,
     totalApps: Int,
     suspiciousApps: Int,
+    sentReports: Int = 0,
     onButtonClick:()-> Unit
 ) {
 
@@ -61,7 +62,7 @@ fun ReportSection(
         ReportCard(
             icon = painterResource(R.drawable.cloud),
             title = stringResource(R.string.result_item_reports_sent_to_server),
-            subtitle = "9",
+            subtitle = DigitHelper.digitByLang(sentReports.toString()),
             color = MaterialTheme.colorScheme.GreenColor
         )
 

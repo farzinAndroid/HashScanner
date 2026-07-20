@@ -1,5 +1,6 @@
 package com.example.hashscanner.network
 
+import android.util.Log
 import com.example.hashscanner.data.database.dao.SuspiciousDao
 import com.example.hashscanner.data.datastore.DataStoreRepo
 import com.example.hashscanner.utils.Constants
@@ -36,9 +37,11 @@ class UploadManager @Inject constructor(
 
                 val success = uploader.upload(app, deviceId)
 
+                Log.d("UploadManager", "Report upload for ${app.packageName}: $success")
+
                 if (success) {
 
-                    dao.markUploaded(
+                    dao.markReportSent(
 
                         pkg = app.packageName,
 

@@ -41,7 +41,7 @@ fun ScanScreen(
         },
         content = { paddingValues ->
 
-            if (isScanCompeted == ScanPageState.SCANNING) {
+            if (isScanCompeted == ScanPageState.SCANNING || isScanCompeted == ScanPageState.UPLOADING) {
                 ScanningProgressSection(
                     paddingValues = paddingValues
                 )

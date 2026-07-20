@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.hashscanner.repository.NetworkRepo
 import com.example.hashscanner.repository.ScannerRepository
 import com.example.hashscanner.ui.screens.scan.ScanPageState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -14,7 +15,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ScannerViewmodel @Inject constructor(
-    private val scannerRepository: ScannerRepository
+    private val scannerRepository: ScannerRepository,
+    private val networkRepo: NetworkRepo
 ) : ViewModel() {
 
     val totalCount = MutableStateFlow<Int>(0)
@@ -28,17 +30,17 @@ class ScannerViewmodel @Inject constructor(
     fun startScan() = viewModelScope.launch(Dispatchers.IO) {
         isScanCompleted.value = ScanPageState.SCANNING
         scannerRepository.startScan(
-            onProgress = { scanned, total, suspicious, remaining, app,icon ->
+            onProgress = { scanned, total, suspicious, remaining, app, icon ->
                 totalCount.value = total
                 scannedCount.value = scanned
                 suspiciousCount.value = suspicious
                 remainingCount.value = remaining
                 appName.value = app
                 iconBitmap.value = icon
-
             }
         )
-    }.invokeOnCompletion {
+        isScanCompleted.value = ScanPageState.UPLOADING
+        networkRepo.uploadPending()
         isScanCompleted.value = ScanPageState.SCAN_COMPLETE
     }
-    }
+}

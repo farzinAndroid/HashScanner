@@ -14,21 +14,22 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.example.hashscanner.ui.navigation.Screens
 import com.example.hashscanner.ui.theme.BackgroundColor
-import com.example.hashscanner.viewmodel.NetworkViewmodel
+import com.example.hashscanner.viewmodel.AppDatabaseViewmodel
 import com.example.hashscanner.viewmodel.ScannerViewmodel
 
 @Composable
 fun ScanCompleteSection(
     paddingValues: PaddingValues,
     scannerViewmodel: ScannerViewmodel = hiltViewModel(),
-    networkViewmodel: NetworkViewmodel = hiltViewModel(),
+    appDatabaseViewmodel: AppDatabaseViewmodel = hiltViewModel(),
     navController: NavController
 ) {
     val totalCount by scannerViewmodel.totalCount.collectAsStateWithLifecycle()
     val suspiciousCount by scannerViewmodel.suspiciousCount.collectAsStateWithLifecycle()
+    val sentReportsCount by appDatabaseViewmodel.sentSuspiciousCount.collectAsStateWithLifecycle()
 
     LaunchedEffect(true) {
-        networkViewmodel.uploadPending()
+        appDatabaseViewmodel.countSentSuspicious()
     }
 
 
@@ -46,6 +47,7 @@ fun ScanCompleteSection(
             ReportSection(
                 totalApps = totalCount,
                 suspiciousApps = suspiciousCount,
+                sentReports = sentReportsCount,
                 onButtonClick = {
                     navController.navigate(Screens.AppList) {
                         popUpTo(Screens.Scan) {

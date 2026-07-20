@@ -6,12 +6,10 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "suspicious_apps")
 data class SuspiciousApp(
 
-    @PrimaryKey(autoGenerate = true)
-    val id: Long = 0,
+    @PrimaryKey
+    val packageName: String,
 
     val appName: String,
-
-    val packageName: String,
 
     val sha256: String,
 

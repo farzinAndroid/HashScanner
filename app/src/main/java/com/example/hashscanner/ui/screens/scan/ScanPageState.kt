@@ -2,6 +2,6 @@ package com.example.hashscanner.ui.screens.scan
 
 enum class ScanPageState {
 
-    SCANNING,SCAN_COMPLETE
+    SCANNING, UPLOADING, SCAN_COMPLETE
 
 }

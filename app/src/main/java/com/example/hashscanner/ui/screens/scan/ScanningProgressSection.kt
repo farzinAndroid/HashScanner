@@ -38,8 +38,7 @@ fun ScanningProgressSection(
 ) {
 
     var progress by remember { mutableFloatStateOf(0f) }
-    var percentage by remember { mutableIntStateOf(0) }
-
+    
     val totalCount by scannerViewmodel.totalCount.collectAsStateWithLifecycle()
     val suspiciousCount by scannerViewmodel.suspiciousCount.collectAsStateWithLifecycle()
     val scannedCount by scannerViewmodel.scannedCount.collectAsStateWithLifecycle()
@@ -47,17 +46,21 @@ fun ScanningProgressSection(
     val appName by scannerViewmodel.appName.collectAsStateWithLifecycle()
     val icon by scannerViewmodel.iconBitmap.collectAsStateWithLifecycle()
 
-
-    LaunchedEffect(true) {
-        scannerViewmodel.startScan()
+    val percentage by remember(scannedCount, totalCount) {
+        mutableIntStateOf(if (totalCount > 0) (scannedCount.toFloat() / totalCount.toFloat() * 100).toInt() else 0)
     }
 
     LaunchedEffect(scannedCount) {
         progress = if (totalCount > 0) scannedCount.toFloat() / totalCount.toFloat() else 0f
-        percentage = (progress * 100).toInt()
+    }
 
-//        Log.e("TAG",progress.toString())
-//        Log.e("TAG",percentage.toString())
+    val scanState by scannerViewmodel.isScanCompleted.collectAsStateWithLifecycle()
+
+
+    LaunchedEffect(true) {
+        if (scanState == ScanPageState.SCANNING) {
+            scannerViewmodel.startScan()
+        }
     }
 
     LazyColumn(
@@ -71,7 +74,10 @@ fun ScanningProgressSection(
             Spacer(Modifier.height(MaterialTheme.spacing.dp16))
 
             Text(
-                text = stringResource(R.string.scan_progress_status_scanning_installed_apps),
+                text = if (scanState == ScanPageState.UPLOADING)
+                    stringResource(R.string.scan_progress_status_uploading)
+                else
+                    stringResource(R.string.scan_progress_status_scanning_installed_apps),
                 style = MaterialTheme.typography.titleLarge,
                 color = MaterialTheme.colorScheme.WhitePurple,
                 modifier = Modifier
@@ -85,21 +91,23 @@ fun ScanningProgressSection(
 
         item {
             ScanCircleProgress(
-                progress = progress,
-                percentage = percentage
+                progress = if (scanState == ScanPageState.UPLOADING) 1f else progress,
+                percentage = if (scanState == ScanPageState.UPLOADING) 100 else percentage
             )
         }
 
         item {
-            Spacer(modifier = Modifier.height(MaterialTheme.spacing.dp16))
+            if (scanState == ScanPageState.SCANNING) {
+                Spacer(modifier = Modifier.height(MaterialTheme.spacing.dp16))
 
-            CurrentlyScanSection(
-                appName = appName,
-                icon = icon,
-                progress = progress,
-                scannedCount = scannedCount,
-                totalCount = totalCount
-            )
+                CurrentlyScanSection(
+                    appName = appName,
+                    icon = icon,
+                    progress = progress,
+                    scannedCount = scannedCount,
+                    totalCount = totalCount
+                )
+            }
         }
 
         item {

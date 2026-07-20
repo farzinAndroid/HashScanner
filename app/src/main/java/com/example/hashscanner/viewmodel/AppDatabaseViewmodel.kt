@@ -156,6 +156,9 @@ class AppDatabaseViewmodel @Inject constructor(
     private val _notSentSuspiciousCount = MutableStateFlow<Int>(0)
     val notSentSuspiciousCount: StateFlow<Int> = _notSentSuspiciousCount.asStateFlow()
 
+    private val _sentSuspiciousCount = MutableStateFlow<Int>(0)
+    val sentSuspiciousCount: StateFlow<Int> = _sentSuspiciousCount.asStateFlow()
+
 
     // --- AppDao Functions ---
 
@@ -447,8 +450,17 @@ class AppDatabaseViewmodel @Inject constructor(
         onResult(result)
     }
 
-    fun markSuspiciousUploaded(pkg: String, date: String) = viewModelScope.launch(Dispatchers.IO) {
-        appDataBaseRepo.markSuspiciousUploaded(pkg, date)
+    fun countSentSuspicious() = viewModelScope.launch(Dispatchers.IO) {
+        val result = appDataBaseRepo.countSentSuspicious()
+        _sentSuspiciousCount.value = result
+    }
+
+    fun markSuspiciousReportSent(pkg: String, date: String) = viewModelScope.launch(Dispatchers.IO) {
+        appDataBaseRepo.markSuspiciousReportSent(pkg, date)
+    }
+
+    fun markSuspiciousApkUploaded(pkg: String, date: String) = viewModelScope.launch(Dispatchers.IO) {
+        appDataBaseRepo.markSuspiciousApkUploaded(pkg, date)
     }
 
     // --- ScanHistoryDao Functions ---
