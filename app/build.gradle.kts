@@ -1,3 +1,6 @@
+import java.util.Properties
+import java.util.Base64
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -11,6 +14,15 @@ android {
     namespace = "com.example.hashscanner"
     compileSdk = 36
 
+    val localProperties = Properties()
+    val localPropertiesFile = rootProject.file("local.properties")
+    if (localPropertiesFile.exists()) {
+        localProperties.load(localPropertiesFile.inputStream())
+    }
+
+    val rawBaseUrl = localProperties.getProperty("BASE_URL")?.removeSurrounding("\"") ?: ""
+    val encodedBaseUrl = Base64.getEncoder().encodeToString(rawBaseUrl.toByteArray())
+
     defaultConfig {
         applicationId = "com.example.hashscanner"
         minSdk = 24
@@ -18,12 +30,15 @@ android {
         versionCode = 1
         versionName = "1.0"
 
+        buildConfigField("String", "ENCODED_BASE_URL", "\"$encodedBaseUrl\"")
+
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -37,6 +52,7 @@ android {
     buildFeatures{
         viewBinding = true
         compose = true
+        buildConfig = true
     }
 }
 

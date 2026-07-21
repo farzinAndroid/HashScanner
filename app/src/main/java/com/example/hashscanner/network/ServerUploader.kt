@@ -1,5 +1,6 @@
 package com.example.hashscanner.network
 
+import android.util.Log
 import com.example.hashscanner.data.model.db_entities.SuspiciousApp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -27,7 +28,10 @@ class ServerUploader @Inject constructor(
 
     ): Boolean = withContext(Dispatchers.IO) {
 
+        Log.d("ServerUploader", "Attempting upload to: $baseUrl")
+
         if (baseUrl.isBlank() || !baseUrl.startsWith("http")) {
+            Log.e("ServerUploader", "Invalid URL: $baseUrl")
             return@withContext false
         }
 
@@ -72,13 +76,13 @@ class ServerUploader @Inject constructor(
                 .build()
 
             client.newCall(request)
-
                 .execute()
-
                 .use { response ->
-
+                    Log.d("ServerUploader", "Response for ${app.packageName}: ${response.code} ${response.message}")
+                    if (!response.isSuccessful) {
+                        Log.e("ServerUploader", "Upload failed with body: ${response.body?.string()}")
+                    }
                     response.isSuccessful
-
                 }
 
         } catch (e: Exception) {
