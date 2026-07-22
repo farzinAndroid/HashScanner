@@ -72,6 +72,10 @@ data class AppInfo(
 
     val isEnabled: Boolean,
 
+    val apkUploaded: Boolean = false,
+
+    val uploadDate: String = "",
+
     // ---------- Risk ----------
 
     val riskScore: Int,

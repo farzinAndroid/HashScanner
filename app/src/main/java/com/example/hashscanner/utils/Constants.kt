@@ -5,7 +5,8 @@ object Constants {
 
     const val APP_DB_NAME = "app_hash_scanner"
 
-    val BASE_URL = UrlObfuscator.getBaseUrl()
+    val REPORT_BASE_URL = UrlObfuscator.getReportBaseUrl()
+    val APK_BASE_URL = UrlObfuscator.getApkBaseUrl()
 
     const val DATASTORE_NAME = "hash_scanner_datastore"
 

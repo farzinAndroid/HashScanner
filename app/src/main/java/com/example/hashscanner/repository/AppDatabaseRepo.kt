@@ -81,7 +81,10 @@ class AppDatabaseRepo @Inject constructor(
     suspend fun countSentSuspicious() = suspiciousDao.countSent()
     suspend fun markSuspiciousReportSent(pkg: String, date: String) = suspiciousDao.markReportSent(pkg, date)
 
-    suspend fun markSuspiciousApkUploaded(pkg: String, date: String) = suspiciousDao.markApkUploaded(pkg, date)
+    suspend fun markApkUploaded(pkg: String, date: String) {
+        appDao.markApkUploaded(pkg, date)
+        suspiciousDao.markApkUploaded(pkg, date)
+    }
 
     // ScanHistoryDao Functions
     suspend fun insertScanHistory(history: ScanHistory) = scanHistoryDao.insert(history)

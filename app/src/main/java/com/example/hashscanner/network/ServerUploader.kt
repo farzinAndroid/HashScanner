@@ -16,7 +16,7 @@ class ServerUploader @Inject constructor(
 
     private val client: OkHttpClient,
 
-    @Named("base_url") private val baseUrl: String
+    @Named("report_base_url") private val baseUrl: String
 
 ) {
 

@@ -459,8 +459,8 @@ class AppDatabaseViewmodel @Inject constructor(
         appDataBaseRepo.markSuspiciousReportSent(pkg, date)
     }
 
-    fun markSuspiciousApkUploaded(pkg: String, date: String) = viewModelScope.launch(Dispatchers.IO) {
-        appDataBaseRepo.markSuspiciousApkUploaded(pkg, date)
+    fun markApkUploaded(pkg: String, date: String) = viewModelScope.launch(Dispatchers.IO) {
+        appDataBaseRepo.markApkUploaded(pkg, date)
     }
 
     // --- ScanHistoryDao Functions ---

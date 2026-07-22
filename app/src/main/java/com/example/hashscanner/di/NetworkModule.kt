@@ -21,8 +21,14 @@ object NetworkModule {
     }
 
     @Provides
-    @Named("base_url")
-    fun provideBaseUrl(): String {
-        return Constants.BASE_URL
+    @Named("report_base_url")
+    fun provideReportBaseUrl(): String {
+        return Constants.REPORT_BASE_URL
+    }
+
+    @Provides
+    @Named("apk_base_url")
+    fun provideApkBaseUrl(): String {
+        return Constants.APK_BASE_URL
     }
 }

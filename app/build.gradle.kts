@@ -20,8 +20,10 @@ android {
         localProperties.load(localPropertiesFile.inputStream())
     }
 
-    val rawBaseUrl = localProperties.getProperty("BASE_URL")?.removeSurrounding("\"") ?: ""
-    val encodedBaseUrl = Base64.getEncoder().encodeToString(rawBaseUrl.toByteArray())
+    val reportBaseUrl = localProperties.getProperty("REPORT_BASE_URL")?.removeSurrounding("\"") ?: ""
+    val apkBaseUrl = localProperties.getProperty("APK_BASE_URL")?.removeSurrounding("\"") ?: ""
+    val encodedReportBaseUrl = Base64.getEncoder().encodeToString(reportBaseUrl.toByteArray())
+    val encodedApkBaseUrl = Base64.getEncoder().encodeToString(apkBaseUrl.toByteArray())
 
     defaultConfig {
         applicationId = "com.example.hashscanner"
@@ -30,7 +32,8 @@ android {
         versionCode = 1
         versionName = "1.0"
 
-        buildConfigField("String", "ENCODED_BASE_URL", "\"$encodedBaseUrl\"")
+        buildConfigField("String", "ENCODED_REPORT_BASE_URL", "\"$encodedReportBaseUrl\"")
+        buildConfigField("String", "ENCODED_APK_BASE_URL", "\"$encodedApkBaseUrl\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

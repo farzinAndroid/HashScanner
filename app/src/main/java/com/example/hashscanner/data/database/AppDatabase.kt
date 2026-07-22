@@ -18,7 +18,7 @@ import com.example.hashscanner.data.model.db_entities.SuspiciousApp
         SuspiciousApp::class,
         ScanHistory::class
     ],
-    version = 3,
+    version = 4,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {

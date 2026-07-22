@@ -59,6 +59,7 @@
     <string name="button_uninstall_app">حذف نصب</string>
     <string name="button_app_info">اطلاعات برنامه</string>
     <string name="button_send_apk_file">ارسال فایل APK</string>
+    <string name="apk_already_uploaded">این فایل قبلا به سرور ارسال شده است</string>
     <string name="error_action_not_supported">این عملیات توسط دستگاه شما پشتیبانی نمی‌شود</string>
     <string name="app_uninstalled_successfully">برنامه حذف شد</string>
 

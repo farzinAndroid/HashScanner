@@ -95,6 +95,17 @@ interface AppDao {
     @Query("SELECT * FROM apps ORDER BY apkSize ASC")
     suspend fun getSmallestApps(): List<AppInfo>
 
+    @Query("""
+        UPDATE apps
+        SET apkUploaded = 1,
+            uploadDate = :date
+        WHERE packageName = :pkg
+    """)
+    suspend fun markApkUploaded(
+        pkg: String,
+        date: String
+    )
+
     // ---------- Upload Recommendation ----------
 
     @Query("""
