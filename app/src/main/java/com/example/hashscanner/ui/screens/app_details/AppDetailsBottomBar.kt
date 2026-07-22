@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -29,6 +30,7 @@ import com.example.hashscanner.ui.theme.spacing
 
 @Composable
 fun AppDetailsBottomBar(
+    isSystem: Boolean = false,
     onUploadApkClicked:()-> Unit,
     onDeleteClicked:()-> Unit
 ) {
@@ -52,10 +54,15 @@ fun AppDetailsBottomBar(
                 ),
                 border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.RedColor)
             ) {
-                Icon(Icons.Default.Delete, contentDescription = null)
+                Icon(
+                    if (isSystem) Icons.Default.Info else Icons.Default.Delete,
+                    contentDescription = null
+                )
                 Spacer(modifier = Modifier.width(MaterialTheme.spacing.dp8))
                 Text(
-                    text = stringResource(R.string.button_uninstall_app),
+                    text = stringResource(
+                        if (isSystem) R.string.button_app_info else R.string.button_uninstall_app
+                    ),
                     fontWeight = FontWeight.Bold
                 )
             }
