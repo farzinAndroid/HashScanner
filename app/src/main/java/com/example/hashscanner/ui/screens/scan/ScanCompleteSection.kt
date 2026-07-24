@@ -49,7 +49,7 @@ fun ScanCompleteSection(
                 suspiciousApps = suspiciousCount,
                 sentReports = sentReportsCount,
                 onButtonClick = {
-                    navController.navigate(Screens.AppList) {
+                    navController.navigate(Screens.RiskLevelList) {
                         popUpTo(Screens.Scan) {
                             inclusive = true
                         }

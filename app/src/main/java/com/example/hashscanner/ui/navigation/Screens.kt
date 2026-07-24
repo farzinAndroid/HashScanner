@@ -19,7 +19,13 @@ interface Screens {
 
 
     @Serializable
-    object AppList : Screens
+    data class AppList(
+        val riskLevel: com.example.hashscanner.ui.ui_utils.RiskLevelsUI
+    ) : Screens
+
+
+    @Serializable
+    object RiskLevelList : Screens
 
 
 

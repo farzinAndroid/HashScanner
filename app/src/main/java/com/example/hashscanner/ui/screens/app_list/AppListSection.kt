@@ -12,7 +12,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -23,23 +22,18 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.hashscanner.data.model.db_entities.AppInfo
 import com.example.hashscanner.ui.theme.BackgroundColor
 import com.example.hashscanner.ui.theme.HashScannerTheme
+import com.example.hashscanner.ui.ui_utils.EmptyStateView
 import com.example.hashscanner.ui.ui_utils.RiskLevelsUI
 import com.example.hashscanner.viewmodel.AppDatabaseViewmodel
 
 @Composable
 fun AppListSection(
     paddingValues: PaddingValues,
+    initialRiskLevel: RiskLevelsUI,
     databaseViewmodel: AppDatabaseViewmodel = hiltViewModel(),
     onAppClick: (String) -> Unit
 ) {
-    var whichAppsToLoad by rememberSaveable { mutableStateOf(RiskLevelsUI.SAFE) }
-
-    // Counts
-    val highRiskCount by databaseViewmodel.highRiskAppsCount.collectAsStateWithLifecycle()
-    val mediumRiskCount by databaseViewmodel.mediumRiskAppsCount.collectAsStateWithLifecycle()
-    val lowRiskCount by databaseViewmodel.lowRiskAppsCount.collectAsStateWithLifecycle()
-    val safeRiskCount by databaseViewmodel.safeAppsCount.collectAsStateWithLifecycle()
-    val criticalRiskCount by databaseViewmodel.criticalAppsCount.collectAsStateWithLifecycle()
+    var whichAppsToLoad by rememberSaveable { mutableStateOf(initialRiskLevel) }
 
     // Lists
     val lowRiskApps by databaseViewmodel.lowRiskApps.collectAsStateWithLifecycle()
@@ -56,16 +50,6 @@ fun AppListSection(
         RiskLevelsUI.CRITICAL -> criticalApps
     }
 
-    LaunchedEffect(Unit) {
-        databaseViewmodel.apply {
-            countHighRiskApps()
-            countMediumRiskApps()
-            countLowRiskApps()
-            countSafeApps()
-            countCriticalApps()
-        }
-    }
-
     LaunchedEffect(whichAppsToLoad) {
         databaseViewmodel.apply {
             when (whichAppsToLoad) {
@@ -80,14 +64,7 @@ fun AppListSection(
 
     AppListContent(
         paddingValues = paddingValues,
-        whichAppsToLoad = whichAppsToLoad,
-        highRiskCount = highRiskCount,
-        mediumRiskCount = mediumRiskCount,
-        lowRiskCount = lowRiskCount,
-        safeRiskCount = safeRiskCount,
-        criticalRiskCount = criticalRiskCount,
         currentApps = currentApps,
-        onRiskLevelSelected = { whichAppsToLoad = it },
         onAppClick = onAppClick
     )
 }
@@ -95,14 +72,7 @@ fun AppListSection(
 @Composable
 fun AppListContent(
     paddingValues: PaddingValues,
-    whichAppsToLoad: RiskLevelsUI,
-    highRiskCount: Int,
-    mediumRiskCount: Int,
-    lowRiskCount: Int,
-    safeRiskCount: Int,
-    criticalRiskCount: Int,
     currentApps: List<AppInfo>,
-    onRiskLevelSelected: (RiskLevelsUI) -> Unit,
     onAppClick: (String) -> Unit
 ) {
     Column(
@@ -112,30 +82,18 @@ fun AppListContent(
             .padding(paddingValues),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-        ) {
-            stickyHeader {
-                SuspiciousBadgeSection(
-                    selectedRiskLevel = whichAppsToLoad,
-                    highRiskAppsCount = highRiskCount,
-                    mediumRiskAppsCount = mediumRiskCount,
-                    lowRiskAppsCount = lowRiskCount,
-                    safeAppsCount = safeRiskCount,
-                    criticalAppsCount = criticalRiskCount,
-                    onSafeAppsSelected = { onRiskLevelSelected(RiskLevelsUI.SAFE) },
-                    onCriticalAppsSelected = { onRiskLevelSelected(RiskLevelsUI.CRITICAL) },
-                    onLowRiskAppsSelected = { onRiskLevelSelected(RiskLevelsUI.LOW) },
-                    onMediumRiskAppsSelected = { onRiskLevelSelected(RiskLevelsUI.MEDIUM) },
-                    onHighRiskAppsSelected = { onRiskLevelSelected(RiskLevelsUI.HIGH) },
-                )
-            }
-
-            items(currentApps) { app ->
-                AppCard(
-                    appInfo = app,
-                    onClick = { onAppClick(app.packageName) }
-                )
+        if (currentApps.isEmpty()) {
+            EmptyStateView()
+        } else {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+            ) {
+                items(currentApps) { app ->
+                    AppCard(
+                        appInfo = app,
+                        onClick = { onAppClick(app.packageName) }
+                    )
+                }
             }
         }
     }
@@ -147,14 +105,7 @@ fun AppListSectionPreview() {
     HashScannerTheme {
         AppListContent(
             paddingValues = PaddingValues(),
-            whichAppsToLoad = RiskLevelsUI.SAFE,
-            highRiskCount = 1,
-            mediumRiskCount = 2,
-            lowRiskCount = 3,
-            safeRiskCount = 4,
-            criticalRiskCount = 5,
             currentApps = emptyList(),
-            onRiskLevelSelected = {},
             onAppClick = {}
         )
     }

@@ -8,6 +8,7 @@ import androidx.navigation.toRoute
 import com.example.hashscanner.ui.screens.app_details.AppDetailsScreen
 import com.example.hashscanner.ui.screens.app_list.AppListScreen
 import com.example.hashscanner.ui.screens.landing.LandingPageScreen
+import com.example.hashscanner.ui.screens.risk_level_list.RiskLevelListScreen
 import com.example.hashscanner.ui.screens.scan.ScanScreen
 
 @Composable
@@ -37,8 +38,18 @@ fun NavGraph(
 
 
 
-        composable<Screens.AppList> {
-            AppListScreen(navController = navController)
+        composable<Screens.AppList> { backStackEntry ->
+            val appList = backStackEntry.toRoute<Screens.AppList>()
+            AppListScreen(
+                navController = navController,
+                riskLevel = appList.riskLevel
+            )
+        }
+
+
+
+        composable<Screens.RiskLevelList> {
+            RiskLevelListScreen(navController = navController)
         }
 
 

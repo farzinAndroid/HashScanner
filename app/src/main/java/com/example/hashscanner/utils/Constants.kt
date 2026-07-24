@@ -96,4 +96,6 @@ object Constants {
     const val RISK_REC_MEDIUM = "Some suspicious indicators were detected. Monitor this application carefully."
     const val RISK_REC_SAFE = "No significant security risk detected."
 
+    const val BALE_BOT_URL = "https://ble.ir/App_scanner_bot"
+
 }

@@ -14,7 +14,8 @@ import com.example.hashscanner.ui.ui_utils.AppTopBar
 
 @Composable
 fun AppListScreen(
-    navController: NavController
+    navController: NavController,
+    riskLevel: com.example.hashscanner.ui.ui_utils.RiskLevelsUI
 ) {
 
 
@@ -30,6 +31,7 @@ fun AppListScreen(
         content = {paddingValues ->
             AppListSection(
                 paddingValues = paddingValues,
+                initialRiskLevel = riskLevel,
                 onAppClick = { packageName ->
                     navController.navigate(Screens.Details(packageName))
                 }
@@ -43,6 +45,9 @@ fun AppListScreen(
 @Composable
 fun AppListScreenPreview() {
     HashScannerTheme {
-        AppListScreen(navController = NavController(LocalContext.current))
+        AppListScreen(
+            navController = NavController(LocalContext.current),
+            riskLevel = com.example.hashscanner.ui.ui_utils.RiskLevelsUI.SAFE
+        )
     }
 }
