@@ -1,7 +1,7 @@
 package com.example.hashscanner.repository
 
-import com.example.hashscanner.network.ApkUploader
-import com.example.hashscanner.network.UploadManager
+import com.example.hashscanner.data.network.ApkUploader
+import com.example.hashscanner.data.network.UploadManager
 import java.io.File
 import javax.inject.Inject
 

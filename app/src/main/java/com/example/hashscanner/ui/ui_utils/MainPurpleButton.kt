@@ -20,7 +20,7 @@ import com.example.hashscanner.ui.theme.spacing
 fun MainPurpleButton(
     text: String,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Button(
         onClick = onClick,
@@ -30,7 +30,7 @@ fun MainPurpleButton(
         shape = RoundedCornerShape(MaterialTheme.spacing.dp16),
         colors = ButtonDefaults.buttonColors(
             containerColor = MaterialTheme.colorScheme.AccentPurpleColor,
-            contentColor = Color.White
+            contentColor = Color.White,
         )
     ) {
         Text(

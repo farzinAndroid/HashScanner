@@ -1,4 +1,4 @@
-package com.example.hashscanner.network
+package com.example.hashscanner.data.network
 
 import android.util.Log
 import kotlinx.coroutines.Dispatchers

@@ -1,9 +1,13 @@
 package com.example.hashscanner.di
 
+import android.content.Context
+import com.example.hashscanner.data.network.ConnectivityObserver
+import com.example.hashscanner.data.network.NetworkConnectivityObserver
 import com.example.hashscanner.utils.Constants
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import javax.inject.Named
@@ -30,5 +34,11 @@ object NetworkModule {
     @Named("apk_base_url")
     fun provideApkBaseUrl(): String {
         return Constants.APK_BASE_URL
+    }
+
+    @Provides
+    @Singleton
+    fun provideConnectivityObserver(@ApplicationContext context: Context): ConnectivityObserver {
+        return NetworkConnectivityObserver(context)
     }
 }
