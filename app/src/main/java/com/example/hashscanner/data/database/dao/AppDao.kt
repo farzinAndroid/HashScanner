@@ -47,20 +47,20 @@ interface AppDao {
     @Query("SELECT * FROM apps WHERE suspicious=1")
     suspend fun getSuspicious(): List<AppInfo>
 
-    @Query("SELECT * FROM apps WHERE riskLevel='SAFE'")
-    suspend fun getSafeApps(): List<AppInfo>
+    @Query("SELECT * FROM apps WHERE riskLevel='SAFE' AND (:onlyUser = 0 OR isSystem = 0)")
+    suspend fun getSafeApps(onlyUser: Boolean = false): List<AppInfo>
 
-    @Query("SELECT * FROM apps WHERE riskLevel='LOW'")
-    suspend fun getLowRiskApps(): List<AppInfo>
+    @Query("SELECT * FROM apps WHERE riskLevel='LOW' AND (:onlyUser = 0 OR isSystem = 0)")
+    suspend fun getLowRiskApps(onlyUser: Boolean = false): List<AppInfo>
 
-    @Query("SELECT * FROM apps WHERE riskLevel='MEDIUM'")
-    suspend fun getMediumRiskApps(): List<AppInfo>
+    @Query("SELECT * FROM apps WHERE riskLevel='MEDIUM' AND (:onlyUser = 0 OR isSystem = 0)")
+    suspend fun getMediumRiskApps(onlyUser: Boolean = false): List<AppInfo>
 
-    @Query("SELECT * FROM apps WHERE riskLevel='HIGH'")
-    suspend fun getHighRiskApps(): List<AppInfo>
+    @Query("SELECT * FROM apps WHERE riskLevel='HIGH' AND (:onlyUser = 0 OR isSystem = 0)")
+    suspend fun getHighRiskApps(onlyUser: Boolean = false): List<AppInfo>
 
-    @Query("SELECT * FROM apps WHERE riskLevel='CRITICAL'")
-    suspend fun getCriticalApps(): List<AppInfo>
+    @Query("SELECT * FROM apps WHERE riskLevel='CRITICAL' AND (:onlyUser = 0 OR isSystem = 0)")
+    suspend fun getCriticalApps(onlyUser: Boolean = false): List<AppInfo>
 
     @Query("SELECT * FROM apps ORDER BY riskScore DESC")
     suspend fun getAppsByRisk(): List<AppInfo>
@@ -141,19 +141,19 @@ interface AppDao {
     @Query("SELECT COUNT(*) FROM apps WHERE suspicious=1")
     suspend fun countSuspiciousApps(): Int
 
-    @Query("SELECT COUNT(*) FROM apps WHERE riskLevel='SAFE'")
-    suspend fun countSafeApps(): Int
+    @Query("SELECT COUNT(*) FROM apps WHERE riskLevel='SAFE' AND (:onlyUser = 0 OR isSystem = 0)")
+    suspend fun countSafeApps(onlyUser: Boolean = false): Int
 
-    @Query("SELECT COUNT(*) FROM apps WHERE riskLevel='LOW'")
-    suspend fun countLowRiskApps(): Int
+    @Query("SELECT COUNT(*) FROM apps WHERE riskLevel='LOW' AND (:onlyUser = 0 OR isSystem = 0)")
+    suspend fun countLowRiskApps(onlyUser: Boolean = false): Int
 
-    @Query("SELECT COUNT(*) FROM apps WHERE riskLevel='MEDIUM'")
-    suspend fun countMediumRiskApps(): Int
+    @Query("SELECT COUNT(*) FROM apps WHERE riskLevel='MEDIUM' AND (:onlyUser = 0 OR isSystem = 0)")
+    suspend fun countMediumRiskApps(onlyUser: Boolean = false): Int
 
-    @Query("SELECT COUNT(*) FROM apps WHERE riskLevel='HIGH'")
-    suspend fun countHighRiskApps(): Int
+    @Query("SELECT COUNT(*) FROM apps WHERE riskLevel='HIGH' AND (:onlyUser = 0 OR isSystem = 0)")
+    suspend fun countHighRiskApps(onlyUser: Boolean = false): Int
 
-    @Query("SELECT COUNT(*) FROM apps WHERE riskLevel='CRITICAL'")
-    suspend fun countCriticalApps(): Int
+    @Query("SELECT COUNT(*) FROM apps WHERE riskLevel='CRITICAL' AND (:onlyUser = 0 OR isSystem = 0)")
+    suspend fun countCriticalApps(onlyUser: Boolean = false): Int
 
 }

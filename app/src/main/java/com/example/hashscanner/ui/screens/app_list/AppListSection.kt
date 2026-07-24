@@ -53,11 +53,11 @@ fun AppListSection(
     LaunchedEffect(whichAppsToLoad) {
         databaseViewmodel.apply {
             when (whichAppsToLoad) {
-                RiskLevelsUI.HIGH -> getHighRiskApps()
-                RiskLevelsUI.MEDIUM -> getMediumRiskApps()
-                RiskLevelsUI.LOW -> getLowRiskApps()
-                RiskLevelsUI.SAFE -> getSafeApps()
-                RiskLevelsUI.CRITICAL -> getCriticalApps()
+                RiskLevelsUI.HIGH -> getHighRiskApps(onlyUser = true)
+                RiskLevelsUI.MEDIUM -> getMediumRiskApps(onlyUser = true)
+                RiskLevelsUI.LOW -> getLowRiskApps(onlyUser = true)
+                RiskLevelsUI.SAFE -> getSafeApps(onlyUser = true)
+                RiskLevelsUI.CRITICAL -> getCriticalApps(onlyUser = true)
             }
         }
     }

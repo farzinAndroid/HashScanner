@@ -216,32 +216,32 @@ class AppDatabaseViewmodel @Inject constructor(
         _suspiciousApps.value = appDataBaseRepo.getSuspiciousApps()
     }
 
-    fun getSafeApps() = viewModelScope.launch(Dispatchers.IO) {
-        val result = appDataBaseRepo.getSafeApps()
+    fun getSafeApps(onlyUser: Boolean = false) = viewModelScope.launch(Dispatchers.IO) {
+        val result = appDataBaseRepo.getSafeApps(onlyUser)
         _allApps.value = result
         _safeApps.value = result
     }
 
-    fun getLowRiskApps() = viewModelScope.launch(Dispatchers.IO) {
-        val result = appDataBaseRepo.getLowRiskApps()
+    fun getLowRiskApps(onlyUser: Boolean = false) = viewModelScope.launch(Dispatchers.IO) {
+        val result = appDataBaseRepo.getLowRiskApps(onlyUser)
         _allApps.value = result
         _lowRiskApps.value = result
     }
 
-    fun getMediumRiskApps() = viewModelScope.launch(Dispatchers.IO) {
-        val result = appDataBaseRepo.getMediumRiskApps()
+    fun getMediumRiskApps(onlyUser: Boolean = false) = viewModelScope.launch(Dispatchers.IO) {
+        val result = appDataBaseRepo.getMediumRiskApps(onlyUser)
         _allApps.value = result
         _mediumRiskApps.value = result
     }
 
-    fun getHighRiskApps() = viewModelScope.launch(Dispatchers.IO) {
-        val result = appDataBaseRepo.getHighRiskApps()
+    fun getHighRiskApps(onlyUser: Boolean = false) = viewModelScope.launch(Dispatchers.IO) {
+        val result = appDataBaseRepo.getHighRiskApps(onlyUser)
         _allApps.value = result
         _highRiskApps.value = result
     }
 
-    fun getCriticalApps() = viewModelScope.launch(Dispatchers.IO) {
-        val result = appDataBaseRepo.getCriticalApps()
+    fun getCriticalApps(onlyUser: Boolean = false) = viewModelScope.launch(Dispatchers.IO) {
+        val result = appDataBaseRepo.getCriticalApps(onlyUser)
         _allApps.value = result
         _criticalApps.value = result
     }
@@ -345,28 +345,28 @@ class AppDatabaseViewmodel @Inject constructor(
         _suspiciousAppsCount.value = result
     }
 
-    fun countSafeApps() = viewModelScope.launch(Dispatchers.IO) {
-        val result = appDataBaseRepo.countSafeApps()
+    fun countSafeApps(onlyUser: Boolean = false) = viewModelScope.launch(Dispatchers.IO) {
+        val result = appDataBaseRepo.countSafeApps(onlyUser)
         _safeAppsCount.value = result
     }
 
-    fun countLowRiskApps() = viewModelScope.launch(Dispatchers.IO) {
-        val result = appDataBaseRepo.countLowRiskApps()
+    fun countLowRiskApps(onlyUser: Boolean = false) = viewModelScope.launch(Dispatchers.IO) {
+        val result = appDataBaseRepo.countLowRiskApps(onlyUser)
         _lowRiskAppsCount.value = result
     }
 
-    fun countMediumRiskApps() = viewModelScope.launch(Dispatchers.IO) {
-        val result = appDataBaseRepo.countMediumRiskApps()
+    fun countMediumRiskApps(onlyUser: Boolean = false) = viewModelScope.launch(Dispatchers.IO) {
+        val result = appDataBaseRepo.countMediumRiskApps(onlyUser)
         _mediumRiskAppsCount.value = result
     }
 
-    fun countHighRiskApps() = viewModelScope.launch(Dispatchers.IO) {
-        val result = appDataBaseRepo.countHighRiskApps()
+    fun countHighRiskApps(onlyUser: Boolean = false) = viewModelScope.launch(Dispatchers.IO) {
+        val result = appDataBaseRepo.countHighRiskApps(onlyUser)
         _highRiskAppsCount.value = result
     }
 
-    fun countCriticalApps() = viewModelScope.launch(Dispatchers.IO) {
-        val result = appDataBaseRepo.countCriticalApps()
+    fun countCriticalApps(onlyUser: Boolean = false) = viewModelScope.launch(Dispatchers.IO) {
+        val result = appDataBaseRepo.countCriticalApps(onlyUser)
         _criticalAppsCount.value = result
     }
 

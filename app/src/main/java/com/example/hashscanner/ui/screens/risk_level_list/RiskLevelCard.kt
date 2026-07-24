@@ -91,6 +91,7 @@ fun RiskLevelCard(
                     ),
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                     style = MaterialTheme.typography.bodySmall,
+                    fontWeight = FontWeight.Bold,
                     fontSize = 11.sp
                 )
             }

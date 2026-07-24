@@ -55,11 +55,11 @@ fun RiskLevelListScreen(
 
     LaunchedEffect(true) {
         databaseViewmodel.apply {
-            countSafeApps()
-            countLowRiskApps()
-            countMediumRiskApps()
-            countHighRiskApps()
-            countCriticalApps()
+            countSafeApps(onlyUser = true)
+            countLowRiskApps(onlyUser = true)
+            countMediumRiskApps(onlyUser = true)
+            countHighRiskApps(onlyUser = true)
+            countCriticalApps(onlyUser = true)
         }
     }
 
