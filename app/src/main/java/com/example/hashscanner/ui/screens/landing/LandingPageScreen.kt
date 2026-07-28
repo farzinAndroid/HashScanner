@@ -1,6 +1,5 @@
 package com.example.hashscanner.ui.screens.landing
 
-import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -17,21 +16,17 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.hashscanner.R
-import com.example.hashscanner.data.network.ConnectivityObserver
 import com.example.hashscanner.ui.theme.AccentPurpleColor
 import com.example.hashscanner.ui.theme.BackgroundColor
 import com.example.hashscanner.ui.theme.BlackWhiteColor
@@ -41,19 +36,13 @@ import com.example.hashscanner.ui.theme.spacing
 import com.example.hashscanner.ui.ui_utils.CreateNewUUID
 import com.example.hashscanner.ui.ui_utils.MainPurpleButton
 import com.example.hashscanner.utils.Constants
-import com.example.hashscanner.viewmodel.ConnectivityViewModel
 import com.example.hashscanner.viewmodel.DataStoreViewModel
 
 @Composable
 fun LandingPageScreen(
     onButtonClick: () -> Unit,
-    dataStoreViewModel: DataStoreViewModel = hiltViewModel(),
-    connectivityViewModel: ConnectivityViewModel = hiltViewModel()
+    dataStoreViewModel: DataStoreViewModel = hiltViewModel()
 ) {
-
-    val context = LocalContext.current
-    val status by connectivityViewModel.connectivityStatus.collectAsStateWithLifecycle()
-    val isNetworkAvailable = status == ConnectivityObserver.Status.Available
 
     CreateNewUUID(dataStoreViewModel) { myUUID ->
         Constants.UUID = myUUID
@@ -155,21 +144,9 @@ fun LandingPageScreen(
                     Spacer(modifier = Modifier.height(MaterialTheme.spacing.dp16))
 
                     MainPurpleButton(
-                        text = if (isNetworkAvailable) {
-                            stringResource(R.string.button_start_scan)
-                        } else {
-                            stringResource(R.string.check_network_connection)
-                        },
+                        text = stringResource(R.string.button_start_scan),
                         onClick = {
-                            if (isNetworkAvailable) {
-                                onButtonClick()
-                            } else {
-                                Toast.makeText(
-                                    context,
-                                    context.getString(R.string.check_network_connection),
-                                    Toast.LENGTH_LONG
-                                ).show()
-                            }
+                            onButtonClick()
                         }
                     )
                 }

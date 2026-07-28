@@ -5,11 +5,19 @@ import kotlinx.serialization.Serializable
 interface Screens {
 
     @Serializable
+    object Authentication : Screens
+
+
+
+    @Serializable
     object Landing : Screens
 
 
     @Serializable
     object Scan : Screens
+
+    @Serializable
+    object NoInternet : Screens
 
     @Serializable
     data class Details(

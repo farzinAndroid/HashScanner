@@ -21,16 +21,20 @@ fun MainPurpleButton(
     text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    enabled: Boolean = true
 ) {
     Button(
         onClick = onClick,
         modifier = modifier
             .fillMaxWidth()
             .height(56.dp),
+        enabled = enabled,
         shape = RoundedCornerShape(MaterialTheme.spacing.dp16),
         colors = ButtonDefaults.buttonColors(
             containerColor = MaterialTheme.colorScheme.AccentPurpleColor,
             contentColor = Color.White,
+            disabledContainerColor = MaterialTheme.colorScheme.AccentPurpleColor.copy(alpha = 0.5f),
+            disabledContentColor = Color.White.copy(alpha = 0.5f)
         )
     ) {
         Text(

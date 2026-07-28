@@ -56,13 +56,13 @@ class NetworkConnectivityObserver @Inject constructor(
                 .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
                 .build()
             
-            // Send initial status
+            // Send initial status immediately and synchronously
             val currentStatus = if (CheckConnection.isNetworkAvailable(context)) {
                 ConnectivityObserver.Status.Available
             } else {
                 ConnectivityObserver.Status.Unavailable
             }
-            launch { send(currentStatus) }
+            trySend(currentStatus)
 
             connectivityManager.registerNetworkCallback(request, callback)
             

@@ -14,32 +14,51 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.compose.rememberNavController
 import com.example.hashscanner.ui.navigation.NavGraph
 import com.example.hashscanner.ui.theme.BackgroundColor
 import com.example.hashscanner.ui.theme.HashScannerTheme
 import com.example.hashscanner.ui.ui_utils.ChangeStatusBarAndNavigationBarColor
+import com.example.hashscanner.viewmodel.ConnectivityViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import androidx.activity.viewModels
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
+    private val connectivityViewModel: ConnectivityViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
+
+        splashScreen.setKeepOnScreenCondition {
+            !connectivityViewModel.isReady.value
+        }
+
 //        enableEdgeToEdge()
         setContent {
             HashScannerTheme {
                 val navController = rememberNavController()
+                val isReady by connectivityViewModel.isReady.collectAsStateWithLifecycle()
+                val startDestination by connectivityViewModel.startDestination.collectAsStateWithLifecycle()
+                val isChecking by connectivityViewModel.isChecking.collectAsStateWithLifecycle()
 
-
+                val scope = rememberCoroutineScope()
                 ChangeStatusBarAndNavigationBarColor(
                     context = this,
                     isDarkMode = isSystemInDarkTheme()
                 )
 
-                CompositionLocalProvider(LocalLayoutDirection.provides(LayoutDirection.Rtl)){
+                CompositionLocalProvider(LocalLayoutDirection.provides(LayoutDirection.Rtl)) {
                     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
                     Scaffold(
                         modifier = Modifier
@@ -49,7 +68,17 @@ class MainActivity : ComponentActivity() {
                         containerColor = MaterialTheme.colorScheme.BackgroundColor
                     ) { innerPadding ->
 
-                        NavGraph(navController)
+                        if (isReady) {
+                            NavGraph(
+                                navController = navController,
+                                startDestination = startDestination,
+                                isChecking = isChecking,
+                                onRetry = {
+                                    connectivityViewModel.retry()
+
+                                }
+                            )
+                        }
 
                         /*Column(
                             modifier = Modifier

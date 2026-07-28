@@ -135,4 +135,21 @@
     <string name="report_label_checked">بررسی شده</string>
     <string name="report_label_result">نتیجه</string>
     <string name="report_header_scan">اسکن</string>
+
+    <!-- Authentication -->
+    <string name="topbar_title_authentication">فعالسازی</string>
+    <string name="label_activation_key">کلید فعالسازی</string>
+    <string name="placeholder_activation_key">XXXX-XXXX-XXXX-XXXX</string>
+    <string name="button_check_key">بررسی کلید</string>
+
+    <!-- No Internet -->
+    <string name="no_internet_title">عدم اتصال به اینترنت</string>
+    <string name="no_internet_description">برای استفاده از برنامه لطفا اتصال اینترنت خود را بررسی کنید.</string>
+    <string name="button_retry">تلاش مجدد</string>
+    <string name="status_checking">در حال بررسی…</string>
+    <string name="status_please_wait">لطفا صبر کنید</string>
+
+    <!-- Content Descriptions -->
+    <string name="content_desc_valid">معتبر</string>
+    <string name="content_desc_invalid">نامعتبر</string>
 </resources>

@@ -21,6 +21,7 @@ workRuntimeKtx = "2.10.0"
 activityCompose = "1.9.3"
 composeBom = "2024.10.01"
 lifecycleRuntimeKtx = "2.8.7"
+coreSplashScreen = "1.2.0"
 
 jetbrainsKotlinJvm = "2.0.21"
 kotlin = "2.0.21"
@@ -70,6 +71,7 @@ androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-man
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
+androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "coreSplashScreen" }
 
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroid" }
 hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hiltAndroid" }

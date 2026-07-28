@@ -7,20 +7,37 @@ import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import com.example.hashscanner.ui.screens.app_details.AppDetailsScreen
 import com.example.hashscanner.ui.screens.app_list.AppListScreen
+import com.example.hashscanner.ui.screens.authentication.AuthenticationScreen
+import com.example.hashscanner.ui.screens.error.NoInternetScreen
 import com.example.hashscanner.ui.screens.landing.LandingPageScreen
 import com.example.hashscanner.ui.screens.risk_level_list.RiskLevelListScreen
 import com.example.hashscanner.ui.screens.scan.ScanScreen
 
 @Composable
 fun NavGraph(
-    navController: NavHostController
+    navController: NavHostController,
+    startDestination: Screens,
+    isChecking: Boolean,
+    onRetry: () -> Unit
 ) {
-
 
     NavHost(
         navController = navController,
-        startDestination = Screens.Landing
+        startDestination = startDestination
     ) {
+
+        composable<Screens.NoInternet> {
+            NoInternetScreen(
+                isChecking = isChecking,
+                onRetry = onRetry
+            )
+        }
+
+        composable<Screens.Authentication> {
+            AuthenticationScreen(
+                navController = navController
+            )
+        }
 
         composable<Screens.Landing> {
             LandingPageScreen(
@@ -36,8 +53,6 @@ fun NavGraph(
             )
         }
 
-
-
         composable<Screens.AppList> { backStackEntry ->
             val appList = backStackEntry.toRoute<Screens.AppList>()
             AppListScreen(
@@ -46,12 +61,9 @@ fun NavGraph(
             )
         }
 
-
-
         composable<Screens.RiskLevelList> {
             RiskLevelListScreen(navController = navController)
         }
-
 
         composable<Screens.Details> { backStackEntry ->
             val details = backStackEntry.toRoute<Screens.Details>()
@@ -60,8 +72,5 @@ fun NavGraph(
                 packageName = details.packageName
             )
         }
-
     }
-
-
 }

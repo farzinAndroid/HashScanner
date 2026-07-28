@@ -36,7 +36,8 @@ import com.example.hashscanner.ui.theme.spacing
 @Composable
 fun AppTopBar(
     topBarText: String,
-    onClick: () -> Unit = {}
+    onClick: () -> Unit = {},
+    shouldHaveBackIcon: Boolean = true
 ) {
 
 
@@ -50,16 +51,18 @@ fun AppTopBar(
                     .fillMaxWidth(),
             ) {
 
-                Icon(
-                    imageVector = Icons.AutoMirrored.Rounded.ArrowForward,
-                    modifier = Modifier
-                        .padding(end = MaterialTheme.spacing.dp8)
-                        .size(24.dp)
-                        .align(Alignment.CenterEnd)
-                        .clickable { onClick() },
-                    contentDescription = "",
-                    tint = Color.White
-                )
+                if (shouldHaveBackIcon) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Rounded.ArrowForward,
+                        modifier = Modifier
+                            .padding(end = MaterialTheme.spacing.dp8)
+                            .size(24.dp)
+                            .align(Alignment.CenterEnd)
+                            .clickable { onClick() },
+                        contentDescription = "",
+                        tint = Color.White
+                    )
+                }
 
 
 
