@@ -3,39 +3,23 @@ package com.example.hashscanner.data.scanner
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
+import com.example.hashscanner.data.model.CertificateInfo
 import java.io.ByteArrayInputStream
 import java.security.cert.CertificateFactory
 import java.security.cert.X509Certificate
+import javax.inject.Inject
 
-class CertificateScanner(
-
-    private val context: Context
-
+class CertificateScanner @Inject constructor(
+    private val pm: PackageManager
 ) {
 
-    data class CertificateInfo(
 
-        val issuer: String,
-
-        val subject: String,
-
-        val serial: String,
-
-        val validFrom: Long,
-
-        val validTo: Long,
-
-        val algorithm: String
-
-    )
 
     fun getCertificate(
 
         packageName: String
 
     ): CertificateInfo {
-
-        val pm = context.packageManager
 
         return try {
 

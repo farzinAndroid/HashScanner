@@ -3,6 +3,7 @@ package com.example.hashscanner.data.export
 import android.content.Context
 import android.os.Environment
 import com.example.hashscanner.data.database.AppDatabase
+import com.example.hashscanner.utils.Constants
 import com.google.gson.GsonBuilder
 import java.io.File
 import java.text.SimpleDateFormat
@@ -36,7 +37,7 @@ class JsonExporter(
         }
 
         val time = SimpleDateFormat(
-            "yyyy-MM-dd_HH-mm-ss",
+            Constants.DATE_FORMAT_EXPORT,
             Locale.getDefault()
         ).format(Date())
 

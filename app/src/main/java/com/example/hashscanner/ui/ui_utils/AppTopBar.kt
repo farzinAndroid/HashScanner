@@ -1,10 +1,17 @@
 package com.example.hashscanner.ui.ui_utils
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.automirrored.rounded.ArrowForward
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -17,14 +24,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.hashscanner.R
 import com.example.hashscanner.ui.theme.AccentPurpleColor
+import com.example.hashscanner.ui.theme.BackgroundColor
+import com.example.hashscanner.ui.theme.spacing
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AppTopBar() {
+fun AppTopBar(
+    topBarText: String,
+    onClick: () -> Unit = {}
+) {
 
 
     TopAppBar(
@@ -32,35 +45,32 @@ fun AppTopBar() {
             containerColor = MaterialTheme.colorScheme.AccentPurpleColor
         ),
         title = {
-            Row(
+            Box(
                 modifier = Modifier
                     .fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
             ) {
 
                 Icon(
-                    imageVector = Icons.Default.Done,
+                    imageVector = Icons.AutoMirrored.Rounded.ArrowForward,
                     modifier = Modifier
-                        .size(18.dp),
+                        .padding(end = MaterialTheme.spacing.dp8)
+                        .size(24.dp)
+                        .align(Alignment.CenterEnd)
+                        .clickable { onClick() },
                     contentDescription = "",
-                    tint = Color.Red
+                    tint = Color.White
                 )
+
+
 
                 Text(
-                    text = stringResource(R.string.topbar_title_scan_apps),
+                    text = topBarText,
                     style = MaterialTheme.typography.titleLarge,
-                    color = Color.White
-                )
-
-                Icon(
-                    imageVector = Icons.Default.Done,
+                    color = Color.White,
                     modifier = Modifier
-                        .size(18.dp),
-                    contentDescription = "",
-                    tint = Color.Red
+                        .align(Alignment.Center),
+                    fontWeight = FontWeight.Bold
                 )
-
 
 
             }
@@ -73,5 +83,5 @@ fun AppTopBar() {
 @Preview
 @Composable
 fun AppTopBarPrev() {
-    AppTopBar()
+    AppTopBar(stringResource(R.string.topbar_title_scan_apps))
 }

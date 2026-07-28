@@ -1,36 +1,40 @@
 package com.example.hashscanner.data.scanner
 
 import android.Manifest
-import android.content.Context
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.os.Build
+import androidx.core.graphics.drawable.toBitmap
 import com.example.hashscanner.data.analyzer.RiskAnalyzer
 import com.example.hashscanner.data.crypto.HashUtil
-import com.example.hashscanner.data.database.AppDatabase
 import com.example.hashscanner.data.database.dao.AppDao
 import com.example.hashscanner.data.database.dao.PermissionDao
 import com.example.hashscanner.data.database.dao.SuspiciousDao
-import com.example.hashscanner.data.database.entity.AppInfo
-import com.example.hashscanner.data.database.entity.PermissionInfo
-import com.example.hashscanner.data.database.entity.SuspiciousApp
+import com.example.hashscanner.data.model.db_entities.AppInfo
+import com.example.hashscanner.data.model.db_entities.PermissionInfo
+import com.example.hashscanner.data.model.db_entities.SuspiciousApp
+import com.example.hashscanner.utils.DateTimeUtils
+import com.example.hashscanner.utils.IconConverter
 import java.io.File
-import java.time.LocalDate
-import java.time.LocalTime
+import javax.inject.Inject
 
-class PackageScanner(
-    private val context: Context,
-    private val db: AppDatabase
+class PackageScanner @Inject constructor(
+    private val appDao: AppDao,
+    private val permissionDao: PermissionDao,
+    private val suspiciousDao: SuspiciousDao,
+    private val pm: PackageManager,
+    private val signatureScanner: SignatureScanner,
+    private val certificateScanner: CertificateScanner,
+    private val riskAnalyzer: RiskAnalyzer,
 ) {
 
-    private val pm = context.packageManager
 
-    suspend fun startScan() {
+    suspend fun startScan(
+        onProgress: (scanned: Int, total: Int, suspicious: Int, remaining: Int, appName: String, icon: Bitmap) -> Unit
+    ) {
 
-        val appDao = db.appDao()
-        val permissionDao = db.permissionDao()
-        val suspiciousDao = db.suspiciousDao()
 
         val packages =
 
@@ -54,35 +58,55 @@ class PackageScanner(
 
             }
 
+        val totalApps = packages.size
+        var scannedCount = 0
+        var suspiciousCount = 0
+        var iconBitmap : Bitmap? = null
+
         for (pkg in packages) {
 
-            //this is for later
-            /*
-            currentAppCount++
-            val appName = pkg.applicationInfo?.let { pm.getApplicationLabel(it).toString() } ?: pkg.packageName
-
-
-            onProgress(currentAppCount, totalApps, appName)*/
-
-            /*val iconBitmap = try {
-                val drawable = pkg?.let { pm.getApplicationIcon(it.applicationInfo!!) } ?: pm.defaultActivityIcon
-                drawable.toBitmap() // Converts Android Drawable to a standard Bitmap
-            } catch (e: Exception) {
-                null // If an app has a corrupted icon, we safely ignore it
-            }*/
+            val appName = pkg.applicationInfo?.let { pm.getApplicationLabel(it).toString() }
+                ?: pkg.packageName
 
             try {
 
-                scanPackage(
-                    pkg,
-                    appDao,
-                    permissionDao,
-                    suspiciousDao
+                iconBitmap = try {
+                    val drawable = pkg?.let { pm.getApplicationIcon(it.applicationInfo!!) }
+                        ?: pm.defaultActivityIcon
+                    drawable.toBitmap() // Converts Android Drawable to a standard Bitmap
+                } catch (e: Exception) {
+                    null // If an app has a corrupted icon, we safely ignore it
+                }
+
+                val isSuspicious = scanPackage(pkg, iconBitmap)
+
+                scannedCount++
+                if (isSuspicious) suspiciousCount++
+
+                val remaining = totalApps - scannedCount
+                onProgress(
+                    scannedCount,
+                    totalApps,
+                    suspiciousCount,
+                    remaining,
+                    appName,
+                    iconBitmap!!
                 )
 
             } catch (e: Exception) {
 
                 e.printStackTrace()
+
+                scannedCount++
+                val remaining = totalApps - scannedCount
+                onProgress(
+                    scannedCount,
+                    totalApps,
+                    suspiciousCount,
+                    remaining,
+                    appName,
+                    iconBitmap!!
+                )
 
             }
 
@@ -91,18 +115,11 @@ class PackageScanner(
     }
 
     private suspend fun scanPackage(
-
         pkg: PackageInfo,
+        icon: Bitmap? = null
+    ): Boolean {
 
-        appDao: AppDao,
-
-        permissionDao: PermissionDao,
-
-        suspiciousDao: SuspiciousDao
-
-    ) {
-
-        val app = pkg.applicationInfo ?: return
+        val app = pkg.applicationInfo ?: return false
 
         val appName =
             pm.getApplicationLabel(app).toString()
@@ -124,7 +141,7 @@ class PackageScanner(
             File(app.sourceDir)
 
         if (!apk.exists())
-            return
+            return false
 
         val md5 =
             HashUtil.md5(apk)
@@ -156,9 +173,8 @@ class PackageScanner(
 
         }
 
-        val analyzer = RiskAnalyzer()
 
-        val result = analyzer.analyze(
+        val result = riskAnalyzer.analyze(
 
             pkg,
 
@@ -171,8 +187,6 @@ class PackageScanner(
         val risk = result.score
 
         val level = result.level
-        val signatureScanner = SignatureScanner(context)
-        val certificateScanner = CertificateScanner(context)
 
         val signature = signatureScanner.getSignature(packageName)
         val certificate = certificateScanner.getCertificate(packageName)
@@ -181,6 +195,8 @@ class PackageScanner(
         val appInfo = AppInfo(
 
             appName = appName,
+
+            iconData = IconConverter.bitmapToByteArray(icon),
 
             packageName = packageName,
 
@@ -263,9 +279,9 @@ class PackageScanner(
 
             vtResult = "",
 
-            scanDate = LocalDate.now().toString(),
+            scanDate = DateTimeUtils.getCurrentDate(),
 
-            scanTime = LocalTime.now().toString()
+            scanTime = DateTimeUtils.getCurrentTime()
 
         )
 
@@ -332,13 +348,15 @@ class PackageScanner(
 
                     sha256 = sha256,
 
+                    apkPath = apk.absolutePath,
+
                     riskScore = risk,
 
                     riskLevel = level,
 
                     reason = result.reasons,
 
-                    reportDate = LocalDate.now().toString(),
+                    reportDate = DateTimeUtils.getCurrentDate(),
 
                     sentToServer = false,
 
@@ -386,6 +404,8 @@ class PackageScanner(
             }
 
         }
+
+        return risk >= 60
 
     }
 

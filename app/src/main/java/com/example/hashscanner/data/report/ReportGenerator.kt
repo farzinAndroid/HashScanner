@@ -1,8 +1,8 @@
 package com.example.hashscanner.data.report
 
 import com.example.hashscanner.data.database.AppDatabase
-import java.time.LocalDate
-import java.time.LocalTime
+import com.example.hashscanner.data.model.ScanReport
+import com.example.hashscanner.utils.DateTimeUtils
 
 class ReportGenerator(
 
@@ -72,9 +72,9 @@ class ReportGenerator(
 
             safeApps = safe,
 
-            scanDate = LocalDate.now().toString(),
+            scanDate = DateTimeUtils.getCurrentDate(),
 
-            scanTime = LocalTime.now().toString()
+            scanTime = DateTimeUtils.getCurrentTime()
 
         )
 
