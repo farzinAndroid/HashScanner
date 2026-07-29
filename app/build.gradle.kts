@@ -20,10 +20,8 @@ android {
         localProperties.load(localPropertiesFile.inputStream())
     }
 
-    val reportBaseUrl = localProperties.getProperty("REPORT_BASE_URL")?.removeSurrounding("\"") ?: ""
-    val apkBaseUrl = localProperties.getProperty("APK_BASE_URL")?.removeSurrounding("\"") ?: ""
-    val encodedReportBaseUrl = Base64.getEncoder().encodeToString(reportBaseUrl.toByteArray())
-    val encodedApkBaseUrl = Base64.getEncoder().encodeToString(apkBaseUrl.toByteArray())
+    val baseUrl = localProperties.getProperty("BASE_URL")?.removeSurrounding("\"") ?: ""
+    val encodedBaseUrl = Base64.getEncoder().encodeToString(baseUrl.toByteArray())
 
     defaultConfig {
         applicationId = "com.example.hashscanner"
@@ -32,8 +30,7 @@ android {
         versionCode = 1
         versionName = "1.0"
 
-        buildConfigField("String", "ENCODED_REPORT_BASE_URL", "\"$encodedReportBaseUrl\"")
-        buildConfigField("String", "ENCODED_APK_BASE_URL", "\"$encodedApkBaseUrl\"")
+        buildConfigField("String", "ENCODED_REPORT_BASE_URL", "\"$encodedBaseUrl\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -98,6 +95,10 @@ dependencies {
     implementation(libs.okhttp)
     //interceptor
     implementation(libs.okhttp3.logging.interceptor)
+
+    // Retrofit
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.converter.gson)
 
 
     // serialization

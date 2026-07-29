@@ -18,11 +18,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.hashscanner.R
-import com.example.hashscanner.data.model.RiskLevels
+import com.example.hashscanner.data.model.other.RiskLevels
 import com.example.hashscanner.ui.theme.GreenColor
 import com.example.hashscanner.ui.theme.RedColor
 import com.example.hashscanner.ui.theme.StrongYellowColor
-import com.example.hashscanner.ui.theme.YellowColor
 import com.example.hashscanner.ui.theme.spacing
 import com.example.hashscanner.utils.Constants
 

@@ -8,12 +8,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import androidx.navigation.NavHostController
 import com.example.hashscanner.R
-import com.example.hashscanner.data.model.ScanReport
 import com.example.hashscanner.ui.theme.BackgroundColor
 import com.example.hashscanner.ui.ui_utils.AppTopBar
-import com.example.hashscanner.viewmodel.AppDatabaseViewmodel
 import com.example.hashscanner.viewmodel.ScannerViewmodel
 
 

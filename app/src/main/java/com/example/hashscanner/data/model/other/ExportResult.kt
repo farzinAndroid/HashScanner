@@ -1,4 +1,4 @@
-package com.example.hashscanner.data.model
+package com.example.hashscanner.data.model.other
 
 import java.io.File
 

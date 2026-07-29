@@ -1,7 +1,7 @@
 package com.example.hashscanner.data.report
 
 import com.example.hashscanner.data.database.AppDatabase
-import com.example.hashscanner.data.model.ScanReport
+import com.example.hashscanner.data.model.other.ScanReport
 import com.example.hashscanner.utils.DateTimeUtils
 
 class ReportGenerator(

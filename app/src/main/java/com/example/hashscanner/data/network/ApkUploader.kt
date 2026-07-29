@@ -15,7 +15,6 @@ class ApkUploader @Inject constructor(
 
     private val client: OkHttpClient,
 
-    @Named("apk_base_url") private val baseUrl: String
 
 ) {
 
@@ -27,12 +26,12 @@ class ApkUploader @Inject constructor(
 
     ): Boolean = withContext(Dispatchers.IO) {
 
-        Log.d("ApkUploader", "Starting APK upload for $packageName to $baseUrl")
+        /*Log.d("ApkUploader", "Starting APK upload for $packageName to $baseUrl")
 
         if (baseUrl.isBlank() || !baseUrl.startsWith("http")) {
             Log.e("ApkUploader", "Invalid URL: $baseUrl")
             return@withContext false
-        }
+        }*/
 
         try {
 
@@ -62,7 +61,7 @@ class ApkUploader @Inject constructor(
 
             val request = Request.Builder()
 
-                .url(baseUrl)
+                .url("baseUrl")
 
                 .post(body)
 
