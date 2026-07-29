@@ -20,39 +20,36 @@ import com.example.hashscanner.ui.navigation.NavGraph
 import com.example.hashscanner.ui.theme.BackgroundColor
 import com.example.hashscanner.ui.theme.HashScannerTheme
 import com.example.hashscanner.ui.ui_utils.ChangeStatusBarAndNavigationBarColor
-import com.example.hashscanner.viewmodel.ConnectivityViewModel
+import com.example.hashscanner.viewmodel.AppViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import androidx.activity.viewModels
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-    private val connectivityViewModel: ConnectivityViewModel by viewModels()
+    private val appViewModel: AppViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
 
         splashScreen.setKeepOnScreenCondition {
-            !connectivityViewModel.isReady.value
+            !appViewModel.isReady.value
         }
 
 //        enableEdgeToEdge()
         setContent {
             HashScannerTheme {
                 val navController = rememberNavController()
-                val isReady by connectivityViewModel.isReady.collectAsStateWithLifecycle()
-                val startDestination by connectivityViewModel.startDestination.collectAsStateWithLifecycle()
-                val isChecking by connectivityViewModel.isChecking.collectAsStateWithLifecycle()
+                val isReady by appViewModel.isReady.collectAsStateWithLifecycle()
+                val startDestination by appViewModel.startDestination.collectAsStateWithLifecycle()
+                val isChecking by appViewModel.isChecking.collectAsStateWithLifecycle()
 
-                val scope = rememberCoroutineScope()
+
                 ChangeStatusBarAndNavigationBarColor(
                     context = this,
                     isDarkMode = isSystemInDarkTheme()
@@ -74,7 +71,7 @@ class MainActivity : ComponentActivity() {
                                 startDestination = startDestination,
                                 isChecking = isChecking,
                                 onRetry = {
-                                    connectivityViewModel.retry()
+                                    appViewModel.retry()
 
                                 }
                             )

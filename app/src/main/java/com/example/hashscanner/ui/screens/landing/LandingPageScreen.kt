@@ -36,15 +36,15 @@ import com.example.hashscanner.ui.theme.spacing
 import com.example.hashscanner.ui.ui_utils.CreateNewUUID
 import com.example.hashscanner.ui.ui_utils.MainPurpleButton
 import com.example.hashscanner.utils.Constants
-import com.example.hashscanner.viewmodel.DataStoreViewModel
+import com.example.hashscanner.viewmodel.AppViewModel
 
 @Composable
 fun LandingPageScreen(
     onButtonClick: () -> Unit,
-    dataStoreViewModel: DataStoreViewModel = hiltViewModel()
+    appViewModel: AppViewModel = hiltViewModel()
 ) {
 
-    CreateNewUUID(dataStoreViewModel) { myUUID ->
+    CreateNewUUID(appViewModel) { myUUID ->
         Constants.UUID = myUUID
     }
 

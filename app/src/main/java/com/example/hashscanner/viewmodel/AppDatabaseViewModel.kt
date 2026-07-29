@@ -16,7 +16,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class AppDatabaseViewmodel @Inject constructor(
+class AppDatabaseViewModel @Inject constructor(
     private val appDataBaseRepo: AppDatabaseRepo
 ) : ViewModel() {
 
@@ -39,7 +39,7 @@ class AppDatabaseViewmodel @Inject constructor(
     private val _allSuspiciousApps = MutableStateFlow<List<SuspiciousApp>>(emptyList())
     val allSuspiciousApps: StateFlow<List<SuspiciousApp>> = _allSuspiciousApps.asStateFlow()
 
-    // --- New Specific Flows for AppInfo ---
+    // --- Specific Flows for AppInfo ---
     private val _appByPackage = MutableStateFlow<AppInfo?>(null)
     val appByPackage: StateFlow<AppInfo?> = _appByPackage.asStateFlow()
 
@@ -106,7 +106,7 @@ class AppDatabaseViewmodel @Inject constructor(
     private val _recommendedSuspiciousApps = MutableStateFlow<List<AppInfo>>(emptyList())
     val recommendedSuspiciousApps: StateFlow<List<AppInfo>> = _recommendedSuspiciousApps.asStateFlow()
 
-    // --- New Specific Flows for Counts ---
+    // --- Specific Flows for Counts ---
     private val _appsCount = MutableStateFlow<Int>(0)
     val appsCount: StateFlow<Int> = _appsCount.asStateFlow()
 
@@ -137,7 +137,7 @@ class AppDatabaseViewmodel @Inject constructor(
     private val _criticalAppsCount = MutableStateFlow<Int>(0)
     val criticalAppsCount: StateFlow<Int> = _criticalAppsCount.asStateFlow()
 
-    // --- New Specific Flows for SuspiciousApps ---
+    // --- Specific Flows for SuspiciousApps ---
     private val _suspiciousAppByPackage = MutableStateFlow<SuspiciousApp?>(null)
     val suspiciousAppByPackage: StateFlow<SuspiciousApp?> = _suspiciousAppByPackage.asStateFlow()
 

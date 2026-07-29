@@ -24,23 +24,23 @@ import com.example.hashscanner.ui.theme.BackgroundColor
 import com.example.hashscanner.ui.theme.HashScannerTheme
 import com.example.hashscanner.ui.ui_utils.EmptyStateView
 import com.example.hashscanner.ui.ui_utils.RiskLevelsUI
-import com.example.hashscanner.viewmodel.AppDatabaseViewmodel
+import com.example.hashscanner.viewmodel.AppDatabaseViewModel
 
 @Composable
 fun AppListSection(
     paddingValues: PaddingValues,
     initialRiskLevel: RiskLevelsUI,
-    databaseViewmodel: AppDatabaseViewmodel = hiltViewModel(),
+    databaseViewModel: AppDatabaseViewModel = hiltViewModel(),
     onAppClick: (String) -> Unit
 ) {
     var whichAppsToLoad by rememberSaveable { mutableStateOf(initialRiskLevel) }
 
     // Lists
-    val lowRiskApps by databaseViewmodel.lowRiskApps.collectAsStateWithLifecycle()
-    val mediumRiskApps by databaseViewmodel.mediumRiskApps.collectAsStateWithLifecycle()
-    val highRiskApps by databaseViewmodel.highRiskApps.collectAsStateWithLifecycle()
-    val safeApps by databaseViewmodel.safeApps.collectAsStateWithLifecycle()
-    val criticalApps by databaseViewmodel.criticalApps.collectAsStateWithLifecycle()
+    val lowRiskApps by databaseViewModel.lowRiskApps.collectAsStateWithLifecycle()
+    val mediumRiskApps by databaseViewModel.mediumRiskApps.collectAsStateWithLifecycle()
+    val highRiskApps by databaseViewModel.highRiskApps.collectAsStateWithLifecycle()
+    val safeApps by databaseViewModel.safeApps.collectAsStateWithLifecycle()
+    val criticalApps by databaseViewModel.criticalApps.collectAsStateWithLifecycle()
 
     val currentApps = when (whichAppsToLoad) {
         RiskLevelsUI.SAFE -> safeApps
@@ -51,7 +51,7 @@ fun AppListSection(
     }
 
     LaunchedEffect(whichAppsToLoad) {
-        databaseViewmodel.apply {
+        databaseViewModel.apply {
             when (whichAppsToLoad) {
                 RiskLevelsUI.HIGH -> getHighRiskApps(onlyUser = true)
                 RiskLevelsUI.MEDIUM -> getMediumRiskApps(onlyUser = true)

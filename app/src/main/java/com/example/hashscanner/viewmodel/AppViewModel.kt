@@ -2,9 +2,12 @@ package com.example.hashscanner.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.hashscanner.data.datastore.DataStoreRepoImpl
 import com.example.hashscanner.data.network.ConnectivityObserver
 import com.example.hashscanner.ui.navigation.Screens
+import com.example.hashscanner.utils.Constants.UUID_DATASTORE_ID
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -13,16 +16,18 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeoutOrNull
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.milliseconds
 
 @HiltViewModel
-class ConnectivityViewModel @Inject constructor(
-    private val connectivityObserver: ConnectivityObserver
+class AppViewModel @Inject constructor(
+    private val connectivityObserver: ConnectivityObserver,
+    private val dataStoreRepo: DataStoreRepoImpl
 ) : ViewModel() {
 
-    // Real-time connectivity status
+    // --- Connectivity States ---
     val connectivityStatus: StateFlow<ConnectivityObserver.Status> =
         connectivityObserver.observe().stateIn(
             scope = viewModelScope,
@@ -30,7 +35,7 @@ class ConnectivityViewModel @Inject constructor(
             initialValue = ConnectivityObserver.Status.Unavailable
         )
 
-    // Splash screen  Startup logic states
+    // --- Splash / Startup States ---
     private val _isReady = MutableStateFlow(false)
     val isReady = _isReady.asStateFlow()
 
@@ -56,7 +61,6 @@ class ConnectivityViewModel @Inject constructor(
                 if (status != ConnectivityObserver.Status.Available) {
                     _startDestination.value = Screens.NoInternet
                 } else {
-                    // TODO: Add Auth and Server Health checks here later
                     _startDestination.value = Screens.Authentication
                 }
             } catch (e: Exception) {
@@ -79,11 +83,21 @@ class ConnectivityViewModel @Inject constructor(
 
             val status = connectivityObserver.observe().first()
             if (status == ConnectivityObserver.Status.Available) {
-                // TODO: Add Auth and Server Health checks here later
                 _startDestination.value = Screens.Authentication
             }
 
             _isChecking.value = false
         }
+    }
+
+    // --- Identity / DataStore Logic ---
+    fun saveUUID(value: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            dataStoreRepo.putString(value, UUID_DATASTORE_ID)
+        }
+    }
+
+    fun getUUID(): String? = runBlocking {
+        dataStoreRepo.getString(UUID_DATASTORE_ID)
     }
 }

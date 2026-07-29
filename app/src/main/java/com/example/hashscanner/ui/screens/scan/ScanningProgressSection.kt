@@ -29,22 +29,22 @@ import com.example.hashscanner.ui.theme.BackgroundColor
 import com.example.hashscanner.ui.theme.HashScannerTheme
 import com.example.hashscanner.ui.theme.WhitePurple
 import com.example.hashscanner.ui.theme.spacing
-import com.example.hashscanner.viewmodel.ScannerViewmodel
+import com.example.hashscanner.viewmodel.ScannerViewModel
 
 @Composable
 fun ScanningProgressSection(
     paddingValues: PaddingValues,
-    scannerViewmodel: ScannerViewmodel = hiltViewModel()
+    scannerViewModel: ScannerViewModel = hiltViewModel()
 ) {
 
     var progress by remember { mutableFloatStateOf(0f) }
     
-    val totalCount by scannerViewmodel.totalCount.collectAsStateWithLifecycle()
-    val suspiciousCount by scannerViewmodel.suspiciousCount.collectAsStateWithLifecycle()
-    val scannedCount by scannerViewmodel.scannedCount.collectAsStateWithLifecycle()
-    val remainingCount by scannerViewmodel.remainingCount.collectAsStateWithLifecycle()
-    val appName by scannerViewmodel.appName.collectAsStateWithLifecycle()
-    val icon by scannerViewmodel.iconBitmap.collectAsStateWithLifecycle()
+    val totalCount by scannerViewModel.totalCount.collectAsStateWithLifecycle()
+    val suspiciousCount by scannerViewModel.suspiciousCount.collectAsStateWithLifecycle()
+    val scannedCount by scannerViewModel.scannedCount.collectAsStateWithLifecycle()
+    val remainingCount by scannerViewModel.remainingCount.collectAsStateWithLifecycle()
+    val appName by scannerViewModel.appName.collectAsStateWithLifecycle()
+    val icon by scannerViewModel.iconBitmap.collectAsStateWithLifecycle()
 
     val percentage by remember(scannedCount, totalCount) {
         mutableIntStateOf(if (totalCount > 0) (scannedCount.toFloat() / totalCount.toFloat() * 100).toInt() else 0)
@@ -54,12 +54,12 @@ fun ScanningProgressSection(
         progress = if (totalCount > 0) scannedCount.toFloat() / totalCount.toFloat() else 0f
     }
 
-    val scanState by scannerViewmodel.isScanCompleted.collectAsStateWithLifecycle()
+    val scanState by scannerViewModel.isScanCompleted.collectAsStateWithLifecycle()
 
 
-    LaunchedEffect(true) {
+    LaunchedEffect(Unit) {
         if (scanState == ScanPageState.SCANNING) {
-            scannerViewmodel.startScan()
+            scannerViewModel.startScan()
         }
     }
 

@@ -39,22 +39,22 @@ import com.example.hashscanner.ui.ui_utils.AppTopBar
 import com.example.hashscanner.ui.ui_utils.RiskLevelItem
 import com.example.hashscanner.ui.ui_utils.RiskLevelsUI
 import com.example.hashscanner.utils.Constants
-import com.example.hashscanner.viewmodel.AppDatabaseViewmodel
+import com.example.hashscanner.viewmodel.AppDatabaseViewModel
 
 @Composable
 fun RiskLevelListScreen(
     navController: NavController,
-    databaseViewmodel: AppDatabaseViewmodel = hiltViewModel()
+    databaseViewModel: AppDatabaseViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
-    val safeCount by databaseViewmodel.safeAppsCount.collectAsStateWithLifecycle()
-    val lowCount by databaseViewmodel.lowRiskAppsCount.collectAsStateWithLifecycle()
-    val mediumCount by databaseViewmodel.mediumRiskAppsCount.collectAsStateWithLifecycle()
-    val highCount by databaseViewmodel.highRiskAppsCount.collectAsStateWithLifecycle()
-    val criticalCount by databaseViewmodel.criticalAppsCount.collectAsStateWithLifecycle()
+    val safeCount by databaseViewModel.safeAppsCount.collectAsStateWithLifecycle()
+    val lowCount by databaseViewModel.lowRiskAppsCount.collectAsStateWithLifecycle()
+    val mediumCount by databaseViewModel.mediumRiskAppsCount.collectAsStateWithLifecycle()
+    val highCount by databaseViewModel.highRiskAppsCount.collectAsStateWithLifecycle()
+    val criticalCount by databaseViewModel.criticalAppsCount.collectAsStateWithLifecycle()
 
     LaunchedEffect(true) {
-        databaseViewmodel.apply {
+        databaseViewModel.apply {
             countSafeApps(onlyUser = true)
             countLowRiskApps(onlyUser = true)
             countMediumRiskApps(onlyUser = true)

@@ -11,17 +11,17 @@ import androidx.navigation.NavController
 import com.example.hashscanner.R
 import com.example.hashscanner.ui.theme.BackgroundColor
 import com.example.hashscanner.ui.ui_utils.AppTopBar
-import com.example.hashscanner.viewmodel.ScannerViewmodel
+import com.example.hashscanner.viewmodel.ScannerViewModel
 
 
 @Composable
 fun ScanScreen(
-    scannerViewmodel: ScannerViewmodel = hiltViewModel(),
+    scannerViewModel: ScannerViewModel = hiltViewModel(),
     navController: NavController
 ) {
 
 
-    val isScanCompeted by scannerViewmodel.isScanCompleted.collectAsStateWithLifecycle()
+    val isScanCompeted by scannerViewModel.isScanCompleted.collectAsStateWithLifecycle()
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.BackgroundColor,

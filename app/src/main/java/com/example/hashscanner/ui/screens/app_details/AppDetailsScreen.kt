@@ -31,27 +31,27 @@ import com.example.hashscanner.ui.theme.BackgroundColor
 import com.example.hashscanner.ui.theme.HashScannerTheme
 import com.example.hashscanner.ui.theme.spacing
 import com.example.hashscanner.ui.ui_utils.AppTopBar
-import com.example.hashscanner.viewmodel.AppDatabaseViewmodel
-import com.example.hashscanner.viewmodel.NetworkViewmodel
+import com.example.hashscanner.viewmodel.AppDatabaseViewModel
+import com.example.hashscanner.viewmodel.ScannerViewModel
 
 @Composable
 fun AppDetailsScreen(
-    databaseViewmodel: AppDatabaseViewmodel = hiltViewModel(),
-    networkViewmodel: NetworkViewmodel = hiltViewModel(),
+    databaseViewModel: AppDatabaseViewModel = hiltViewModel(),
+    scannerViewModel: ScannerViewModel = hiltViewModel(),
     packageName: String,
     navController: NavController
 ) {
 
     val context = LocalContext.current
-    val appDetails by databaseViewmodel.appByPackage.collectAsStateWithLifecycle()
-    val isUploading by networkViewmodel.isUploading.collectAsStateWithLifecycle()
+    val appDetails by databaseViewModel.appByPackage.collectAsStateWithLifecycle()
+    val isUploading by scannerViewModel.isUploading.collectAsStateWithLifecycle()
 
     val uninstallLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult(),
         onResult = { _ ->
             if (!isPackageInstalled(context, packageName)) {
                 appDetails?.let {
-                    databaseViewmodel.deleteApp(it)
+                    databaseViewModel.deleteApp(it)
                     navController.popBackStack()
                 }
             }
@@ -59,14 +59,14 @@ fun AppDetailsScreen(
     )
 
     LaunchedEffect(packageName, isUploading) {
-        databaseViewmodel.getAppByPackage(packageName)
+        databaseViewModel.getAppByPackage(packageName)
     }
 
     // Callbacks wrapped in remember to prevent unnecessary recompositions of the bottom bar
     val onUploadClick: () -> Unit = remember(appDetails) {
         {
             appDetails?.let {
-                networkViewmodel.uploadAPK(it.apkPath, it.packageName)
+                scannerViewModel.uploadAPK(it.apkPath, it.packageName)
             }
         }
     }
