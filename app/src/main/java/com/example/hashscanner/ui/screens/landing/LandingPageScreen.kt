@@ -33,9 +33,7 @@ import com.example.hashscanner.ui.theme.BlackWhiteColor
 import com.example.hashscanner.ui.theme.LightGray
 import com.example.hashscanner.ui.theme.Typography
 import com.example.hashscanner.ui.theme.spacing
-import com.example.hashscanner.ui.ui_utils.CreateNewUUID
 import com.example.hashscanner.ui.ui_utils.MainPurpleButton
-import com.example.hashscanner.utils.Constants
 import com.example.hashscanner.viewmodel.AppViewModel
 
 @Composable

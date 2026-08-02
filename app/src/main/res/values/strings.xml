@@ -141,6 +141,10 @@
     <string name="label_activation_key">کلید فعالسازی</string>
     <string name="placeholder_activation_key">XXXX-XXXX-XXXX-XXXX</string>
     <string name="button_check_key">بررسی کلید</string>
+    <string name="toast_activation_code_active">این کد فعال است.</string>
+    <string name="toast_activation_code_used_other_device">این کد در دستگاه دیگری فعال است.</string>
+    <string name="toast_device_activated">فعال شد</string>
+    <string name="toast_invalid_activation_code">کد فعالسازی نامعتبر است</string>
 
     <!-- No Internet -->
     <string name="no_internet_title">عدم اتصال به اینترنت</string>
@@ -148,6 +152,11 @@
     <string name="button_retry">تلاش مجدد</string>
     <string name="status_checking">در حال بررسی…</string>
     <string name="status_please_wait">لطفا صبر کنید</string>
+    <string name="error_server_connection">خطا در برقراری ارتباط با سرور</string>
+
+    <!-- App Details / Upload -->
+    <string name="toast_upload_success">آپلود موفقیت‌آمیز بود</string>
+    <string name="toast_upload_error">خطا در آپلود</string>
 
     <!-- Content Descriptions -->
     <string name="content_desc_valid">معتبر</string>

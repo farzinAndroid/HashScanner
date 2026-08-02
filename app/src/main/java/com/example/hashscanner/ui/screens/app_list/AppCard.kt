@@ -30,8 +30,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.hashscanner.R
-import com.example.hashscanner.data.model.other.RiskLevels
 import com.example.hashscanner.data.model.db_entities.AppInfo
+import com.example.hashscanner.data.model.other.RiskLevels
 import com.example.hashscanner.ui.theme.BlackWhiteColor
 import com.example.hashscanner.ui.theme.GreenColor
 import com.example.hashscanner.ui.theme.HashScannerTheme

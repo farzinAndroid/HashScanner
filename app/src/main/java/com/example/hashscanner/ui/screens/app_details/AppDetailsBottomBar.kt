@@ -37,7 +37,7 @@ import com.example.hashscanner.ui.theme.spacing
 fun AppDetailsBottomBar(
     isSystem: Boolean = false,
     isUploaded: Boolean = false,
-    isUploading: Boolean = false,
+    isLoading: Boolean = false,
     onUploadApkClicked: () -> Unit,
     onDeleteClicked: () -> Unit
 ) {
@@ -56,7 +56,7 @@ fun AppDetailsBottomBar(
             OutlinedButton(
                 onClick = onDeleteClicked,
                 modifier = Modifier.weight(1f),
-                enabled = !isUploading,
+                enabled = !isLoading,
                 shape = RoundedCornerShape(MaterialTheme.spacing.dp16),
                 colors = ButtonDefaults.outlinedButtonColors(
                     contentColor = MaterialTheme.colorScheme.RedColor
@@ -102,14 +102,14 @@ fun AppDetailsBottomBar(
                 Button(
                     onClick = onUploadApkClicked,
                     modifier = Modifier.weight(1f),
-                    enabled = !isUploading,
+                    enabled = !isLoading,
                     shape = RoundedCornerShape(MaterialTheme.spacing.dp16),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.RedColor,
                         contentColor = Color.White
                     )
                 ) {
-                    if (isUploading) {
+                    if (isLoading) {
                         CircularProgressIndicator(
                             modifier = Modifier.size(20.dp),
                             color = Color.White,

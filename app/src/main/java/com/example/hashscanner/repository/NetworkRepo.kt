@@ -3,23 +3,26 @@ package com.example.hashscanner.repository
 import android.util.Log
 import com.example.hashscanner.data.database.dao.SuspiciousDao
 import com.example.hashscanner.data.datastore.DataStoreRepo
+import com.example.hashscanner.data.model.api.ApkUploadResponse
 import com.example.hashscanner.data.model.api.AppReport
 import com.example.hashscanner.data.model.api.AuthenticationResponse
 import com.example.hashscanner.data.model.api.UserAuthentication
 import com.example.hashscanner.data.network.ApiService
-import com.example.hashscanner.data.network.ApkUploader
 import com.example.hashscanner.data.network.BaseApiResponse
 import com.example.hashscanner.data.network.NetworkResult
 import com.example.hashscanner.utils.Constants
 import com.example.hashscanner.utils.DateTimeUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.File
 import javax.inject.Inject
 
 class NetworkRepo @Inject constructor(
     private val apiService: ApiService,
-    private val apkUploader: ApkUploader,
     private val dao: SuspiciousDao,
     private val dataStoreRepo: DataStoreRepo
 ) : BaseApiResponse() {
@@ -51,7 +54,13 @@ class NetworkRepo @Inject constructor(
         return safeApiCall { apiService.sendScanReport(appReport) }
     }
 
-    suspend fun uploadAPK(apk: File, packageName: String) = apkUploader.upload(apk, packageName)
+    suspend fun uploadAPK(apk: File, packageName: String): NetworkResult<ApkUploadResponse> {
+        val requestFile = apk.asRequestBody("application/vnd.android.package-archive".toMediaTypeOrNull())
+        val apkPart = MultipartBody.Part.createFormData("apk", apk.name, requestFile)
+        val packagePart = packageName.toRequestBody("text/plain".toMediaTypeOrNull())
+        
+        return safeApiCall { apiService.uploadApk(packagePart, apkPart) }
+    }
 
 
     suspend fun authenticate(userAuthentication: UserAuthentication) : NetworkResult<AuthenticationResponse>{

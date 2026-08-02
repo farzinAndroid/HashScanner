@@ -3,6 +3,7 @@ package com.example.hashscanner.viewmodel
 import android.graphics.Bitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.hashscanner.data.model.api.ApkUploadResponse
 import com.example.hashscanner.data.model.api.AuthenticationResponse
 import com.example.hashscanner.data.model.api.UserAuthentication
 import com.example.hashscanner.data.network.NetworkResult
@@ -14,7 +15,6 @@ import com.example.hashscanner.utils.DateTimeUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.io.File
@@ -35,10 +35,6 @@ class ScannerViewModel @Inject constructor(
     val appName = MutableStateFlow<String>("")
     val iconBitmap = MutableStateFlow<Bitmap?>(null)
     val isScanCompleted = MutableStateFlow<ScanPageState>(ScanPageState.SCANNING)
-
-    // --- Uploading States ---
-    private val _isUploading = MutableStateFlow(false)
-    val isUploading: StateFlow<Boolean> = _isUploading.asStateFlow()
 
     fun startScan() = viewModelScope.launch(Dispatchers.IO) {
         isScanCompleted.value = ScanPageState.SCANNING
@@ -62,17 +58,22 @@ class ScannerViewModel @Inject constructor(
         networkRepo.uploadPending()
     }
 
+
+    private val _apkUploadResponse = MutableStateFlow<NetworkResult<ApkUploadResponse>>(NetworkResult.Idle())
+    val apkUploadResponse = _apkUploadResponse.asStateFlow()
+
     fun uploadAPK(apkPath: String, packageName: String) = viewModelScope.launch(Dispatchers.IO) {
-        _isUploading.value = true
+        _apkUploadResponse.emit(NetworkResult.Loading())
+
         val file = File(apkPath)
-        val success = networkRepo.uploadAPK(file, packageName)
-        
-        if (success) {
+        val result = networkRepo.uploadAPK(file, packageName)
+
+        if (result is NetworkResult.Success) {
             val date = DateTimeUtils.getCurrentDateTime()
             appDatabaseRepo.markApkUploaded(packageName, date)
         }
-        
-        _isUploading.value = false
+
+        _apkUploadResponse.emit(result)
     }
 
     // --- Authentication ---

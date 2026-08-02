@@ -18,7 +18,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -27,6 +29,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.example.hashscanner.R
+import com.example.hashscanner.data.network.NetworkResult
 import com.example.hashscanner.ui.theme.BackgroundColor
 import com.example.hashscanner.ui.theme.HashScannerTheme
 import com.example.hashscanner.ui.theme.spacing
@@ -41,11 +44,39 @@ fun AppDetailsScreen(
     packageName: String,
     navController: NavController
 ) {
-
     val context = LocalContext.current
     val appDetails by databaseViewModel.appByPackage.collectAsStateWithLifecycle()
-    val isUploading by scannerViewModel.isUploading.collectAsStateWithLifecycle()
+    val apkUploadResponse by scannerViewModel.apkUploadResponse.collectAsStateWithLifecycle()
 
+    var isLoading by remember { mutableStateOf(false) }
+
+    // --- Side Effects ---
+    LaunchedEffect(packageName) {
+        databaseViewModel.getAppByPackage(packageName)
+    }
+
+    LaunchedEffect(apkUploadResponse) {
+        when (val result = apkUploadResponse) {
+            is NetworkResult.Success -> {
+                isLoading = false
+                Toast.makeText(context, result.data?.message ?: context.getString(R.string.toast_upload_success), Toast.LENGTH_SHORT).show()
+                databaseViewModel.getAppByPackage(packageName)
+            }
+            is NetworkResult.Error -> {
+                isLoading = false
+                Toast.makeText(context, result.message ?: context.getString(R.string.toast_upload_error), Toast.LENGTH_LONG).show()
+            }
+            is NetworkResult.Loading->{
+                isLoading = true
+            }
+            is NetworkResult.Idle->{
+                isLoading = false
+            }
+            else -> {}
+        }
+    }
+
+    // --- Launchers ---
     val uninstallLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult(),
         onResult = { _ ->
@@ -58,53 +89,38 @@ fun AppDetailsScreen(
         }
     )
 
-    LaunchedEffect(packageName, isUploading) {
-        databaseViewModel.getAppByPackage(packageName)
+    // --- Actions ---
+    val onUploadClick = {
+        appDetails?.let { scannerViewModel.uploadAPK(it.apkPath, it.packageName) }
     }
 
-    // Callbacks wrapped in remember to prevent unnecessary recompositions of the bottom bar
-    val onUploadClick: () -> Unit = remember(appDetails) {
-        {
-            appDetails?.let {
-                scannerViewModel.uploadAPK(it.apkPath, it.packageName)
-            }
-        }
-    }
-
-    val onDeleteClick: () -> Unit = remember(appDetails, packageName) {
-        {
-            appDetails?.let { app ->
-                try {
-                    if (app.isSystem) {
-                        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                            data = Uri.parse("package:$packageName")
-                        }
-                        context.startActivity(intent)
-                    } else {
-                        val intent = Intent(Intent.ACTION_DELETE).apply {
-                            data = Uri.parse("package:$packageName")
-                        }
-                        uninstallLauncher.launch(intent)
+    val onDeleteClick = {
+        appDetails?.let { app ->
+            try {
+                if (app.isSystem) {
+                    val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                        data = Uri.parse("package:$packageName")
                     }
-                } catch (_: Exception) {
-                    Toast.makeText(
-                        context,
-                        context.getString(R.string.error_action_not_supported),
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    context.startActivity(intent)
+                } else {
+                    val intent = Intent(Intent.ACTION_DELETE).apply {
+                        data = Uri.parse("package:$packageName")
+                    }
+                    uninstallLauncher.launch(intent)
                 }
+            } catch (_: Exception) {
+                Toast.makeText(context, context.getString(R.string.error_action_not_supported), Toast.LENGTH_SHORT).show()
             }
         }
     }
 
+    // --- UI Layout ---
     Scaffold(
         containerColor = MaterialTheme.colorScheme.BackgroundColor,
         topBar = {
             AppTopBar(
                 topBarText = stringResource(R.string.topbar_title_app_details),
-                onClick = {
-                    navController.popBackStack()
-                }
+                onClick = { navController.popBackStack() }
             )
         },
         bottomBar = {
@@ -112,27 +128,35 @@ fun AppDetailsScreen(
                 AppDetailsBottomBar(
                     isSystem = app.isSystem,
                     isUploaded = app.apkUploaded,
-                    isUploading = isUploading,
-                    onUploadApkClicked = onUploadClick,
-                    onDeleteClicked = onDeleteClick
+                    isLoading = isLoading,
+                    onUploadApkClicked = { onUploadClick() },
+                    onDeleteClicked = { onDeleteClick() }
                 )
             }
         }
     ) { innerPadding ->
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .padding(horizontal = MaterialTheme.spacing.dp16),
-            verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.dp16),
-            contentPadding = PaddingValues(vertical = MaterialTheme.spacing.dp16)
-        ) {
-            appDetails?.let { app ->
-                item { AppHeaderSection(appInfo = app) }
-                item { RiskScoreCard(score = app.riskScore) }
-                item { SuspiciousReasonsCard(appInfo = app) }
-                item { TechnicalDetailsCard(appInfo = app) }
-            }
+        AppDetailsContent(innerPadding, appDetails)
+    }
+}
+
+@Composable
+private fun AppDetailsContent(
+    paddingValues: PaddingValues,
+    appInfo: com.example.hashscanner.data.model.db_entities.AppInfo?
+) {
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(paddingValues)
+            .padding(horizontal = MaterialTheme.spacing.dp16),
+        verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.dp16),
+        contentPadding = PaddingValues(vertical = MaterialTheme.spacing.dp16)
+    ) {
+        appInfo?.let { app ->
+            item { AppHeaderSection(appInfo = app) }
+            item { RiskScoreCard(score = app.riskScore) }
+            item { SuspiciousReasonsCard(appInfo = app) }
+            item { TechnicalDetailsCard(appInfo = app) }
         }
     }
 }

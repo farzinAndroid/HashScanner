@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -11,10 +12,12 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.rememberNavController
 import com.example.hashscanner.ui.navigation.NavGraph
 import com.example.hashscanner.ui.theme.BackgroundColor
@@ -22,13 +25,6 @@ import com.example.hashscanner.ui.theme.HashScannerTheme
 import com.example.hashscanner.ui.ui_utils.ChangeStatusBarAndNavigationBarColor
 import com.example.hashscanner.viewmodel.AppViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import androidx.activity.viewModels
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.example.hashscanner.ui.ui_utils.CreateNewUUID
-import com.example.hashscanner.utils.Constants
 
 
 @AndroidEntryPoint

@@ -1,7 +1,6 @@
 package com.example.hashscanner.ui.screens.authentication
 
 import android.content.Context
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -11,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
@@ -20,44 +20,38 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.navigation.NavHostController
-import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavHostController
 import com.example.hashscanner.R
 import com.example.hashscanner.data.model.api.UserAuthentication
 import com.example.hashscanner.data.network.NetworkResult
 import com.example.hashscanner.ui.navigation.Screens
 import com.example.hashscanner.ui.theme.GreenColor
 import com.example.hashscanner.ui.theme.HashScannerTheme
-import com.example.hashscanner.ui.theme.RedColor
 import com.example.hashscanner.ui.theme.spacing
 import com.example.hashscanner.ui.ui_utils.AppTopBar
 import com.example.hashscanner.ui.ui_utils.MainPurpleButton
 import com.example.hashscanner.utils.Constants
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.text.TextRange
-import com.example.hashscanner.data.model.api.AuthenticationResponse
 import com.example.hashscanner.viewmodel.AppViewModel
 import com.example.hashscanner.viewmodel.ScannerViewModel
-import kotlinx.coroutines.flow.collectLatest
 
 @Composable
 fun AuthenticationScreen(
@@ -78,7 +72,7 @@ fun AuthenticationScreen(
                 }
             }
         } else if (authenticationResponse is NetworkResult.Error) {
-            Toast.makeText(context, "خطا در برقراری ارتباط با سرور", Toast.LENGTH_LONG).show()
+            Toast.makeText(context, context.getString(R.string.error_server_connection), Toast.LENGTH_LONG).show()
         }
     }
 
@@ -245,22 +239,22 @@ fun AuthenticationScreenPreview() {
 fun checkActivationStatus(text: String, context: Context): Boolean {
     return when (text) {
         "Already Activated" -> {
-            Toast.makeText(context, "این کد فعال است.", Toast.LENGTH_LONG).show()
+            Toast.makeText(context, context.getString(R.string.toast_activation_code_active), Toast.LENGTH_LONG).show()
             true
         }
 
         "Activation Code Already Used" -> {
-            Toast.makeText(context, "این کد در دستگاه دیگری فعال است.", Toast.LENGTH_LONG).show()
+            Toast.makeText(context, context.getString(R.string.toast_activation_code_used_other_device), Toast.LENGTH_LONG).show()
             true
         }
 
         "Device Activated" -> {
-            Toast.makeText(context, "فعال شد", Toast.LENGTH_LONG).show()
+            Toast.makeText(context, context.getString(R.string.toast_device_activated), Toast.LENGTH_LONG).show()
             true
         }
 
         else -> {
-            Toast.makeText(context, "کد فعالسازی نامعتبر است", Toast.LENGTH_LONG).show()
+            Toast.makeText(context, context.getString(R.string.toast_invalid_activation_code), Toast.LENGTH_LONG).show()
             false
         }
     }
