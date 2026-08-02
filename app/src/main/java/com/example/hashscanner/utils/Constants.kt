@@ -11,6 +11,7 @@ object Constants {
 
 
     const val UUID_DATASTORE_ID = "uuid_id"
+    const val IS_ACTIVATED_DATASTORE_ID = "is_activated"
     var UUID = ""
 
     // Installers

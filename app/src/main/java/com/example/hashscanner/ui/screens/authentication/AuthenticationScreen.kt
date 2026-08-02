@@ -1,5 +1,8 @@
 package com.example.hashscanner.ui.screens.authentication
 
+import android.content.Context
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -32,7 +35,11 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
 import androidx.compose.ui.platform.LocalContext
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.hashscanner.R
+import com.example.hashscanner.data.model.api.UserAuthentication
+import com.example.hashscanner.data.network.NetworkResult
 import com.example.hashscanner.ui.navigation.Screens
 import com.example.hashscanner.ui.theme.GreenColor
 import com.example.hashscanner.ui.theme.HashScannerTheme
@@ -40,12 +47,42 @@ import com.example.hashscanner.ui.theme.RedColor
 import com.example.hashscanner.ui.theme.spacing
 import com.example.hashscanner.ui.ui_utils.AppTopBar
 import com.example.hashscanner.ui.ui_utils.MainPurpleButton
-import com.example.hashscanner.ui.ui_utils.SerialKeyVisualTransformation
+import com.example.hashscanner.utils.Constants
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.TextRange
+import com.example.hashscanner.data.model.api.AuthenticationResponse
+import com.example.hashscanner.viewmodel.AppViewModel
+import com.example.hashscanner.viewmodel.ScannerViewModel
+import kotlinx.coroutines.flow.collectLatest
 
 @Composable
 fun AuthenticationScreen(
-    navController: NavHostController
+    navController: NavHostController,
+    scannerViewModel: ScannerViewModel = hiltViewModel(),
+    appViewModel: AppViewModel = hiltViewModel()
 ) {
+    val context = LocalContext.current
+    val authenticationResponse by scannerViewModel.authenticationResponse.collectAsStateWithLifecycle()
+
+    LaunchedEffect(authenticationResponse) {
+        if (authenticationResponse is NetworkResult.Success) {
+            val message = authenticationResponse.data?.message ?: ""
+            if (checkActivationStatus(message, context)) {
+                appViewModel.saveActivationStatus(true)
+                navController.navigate(Screens.Landing) {
+                    popUpTo(Screens.Authentication) { inclusive = true }
+                }
+            }
+        } else if (authenticationResponse is NetworkResult.Error) {
+            Toast.makeText(context, "خطا در برقراری ارتباط با سرور", Toast.LENGTH_LONG).show()
+        }
+    }
+
+
     Scaffold(
         topBar = {
             AppTopBar(
@@ -56,8 +93,14 @@ fun AuthenticationScreen(
         content = { paddingValues ->
             AuthenticationContent(
                 paddingValues = paddingValues,
-                onCLick = {
-                    navController.navigate(Screens.Landing)
+                isLoading = authenticationResponse is NetworkResult.Loading,
+                onCLick = { code ->
+                   scannerViewModel.authenticate(
+                       UserAuthentication(
+                           activationCode = code,
+                           deviceId = Constants.UUID
+                       )
+                   )
                 }
             )
         }
@@ -67,11 +110,13 @@ fun AuthenticationScreen(
 @Composable
 fun AuthenticationContent(
     paddingValues: PaddingValues,
-    onCLick:()-> Unit,
+    isLoading: Boolean,
+    onCLick: (String) -> Unit,
 ) {
-    var keyText by remember { mutableStateOf("") }
-    val isComplete = keyText.length == 16
-    val isError = keyText.isNotEmpty() && !isComplete
+    var textFieldValue by remember { mutableStateOf(TextFieldValue("")) }
+    val isComplete = textFieldValue.text.length == 19
+    val isError = textFieldValue.text.isNotEmpty() && !isComplete
+    val keyboardController = LocalSoftwareKeyboardController.current
 
     Column(
         modifier = Modifier
@@ -82,22 +127,76 @@ fun AuthenticationContent(
         verticalArrangement = Arrangement.Top
     ) {
         OutlinedTextField(
-            value = keyText,
-            onValueChange = {
+            value = textFieldValue,
+            enabled = !isLoading,
+            onValueChange = { newValue ->
+                val oldText = textFieldValue.text
+                val newText = newValue.text
 
-                val sanitized = it.filter { char -> char.isLetterOrDigit() }.take(16).uppercase()
-                keyText = sanitized
+                // 1. Strictly block spaces and newlines
+                if (newText.any { it.isWhitespace() }) return@OutlinedTextField
+
+                // 2. Extract digits only and limit to 16
+                val digitsOnly = newText.filter { it.isLetterOrDigit() }.take(16).uppercase()
+
+                // 3. Format with hyphens
+                val formatted = digitsOnly.chunked(4).joinToString("-")
+
+                // 4. Calculate new cursor position
+                // Logic: Count how many digits are before the old cursor, then find that digit's position in the new formatted string
+                val digitsBeforeCursor = oldText.take(textFieldValue.selection.start).count { it.isLetterOrDigit() }
+                
+                // If we added a character, we might have added a hyphen too
+                var newSelectionIndex = 0
+                var digitsFound = 0
+                for (i in formatted.indices) {
+                    if (digitsFound == digitsBeforeCursor) {
+                        // If the user typed a new character, we want to move past it
+                        if (newText.length > oldText.length && digitsFound < digitsOnly.length) {
+                             // Skip the hyphen if we are exactly at its position
+                             newSelectionIndex = i
+                             if (formatted.getOrNull(i) == '-') newSelectionIndex++
+                        } else {
+                            newSelectionIndex = i
+                        }
+                        break
+                    }
+                    if (formatted[i].isLetterOrDigit()) digitsFound++
+                    newSelectionIndex = i + 1
+                }
+
+                // Simpler cursor logic for standard typing at the end
+                val finalSelection = if (newValue.selection.start == newText.length) {
+                    TextRange(formatted.length)
+                } else {
+                    TextRange(newSelectionIndex.coerceIn(0, formatted.length))
+                }
+
+                textFieldValue = TextFieldValue(
+                    text = formatted,
+                    selection = finalSelection
+                )
             },
             label = { Text(stringResource(R.string.label_activation_key)) },
             placeholder = { Text(stringResource(R.string.placeholder_activation_key)) },
-            visualTransformation = SerialKeyVisualTransformation(),
             isError = isError,
+            singleLine = true,
+            maxLines = 1,
             keyboardOptions = KeyboardOptions(
                 capitalization = KeyboardCapitalization.Characters,
-                keyboardType = KeyboardType.Ascii
+                keyboardType = KeyboardType.Password,
+                imeAction = ImeAction.Done
+            ),
+            keyboardActions = KeyboardActions(
+                onDone = {
+                    if (isComplete && !isLoading) {
+                        onCLick(textFieldValue.text)
+                        keyboardController?.hide()
+                    }
+                }
             ),
             trailingIcon = {
-                if (keyText.isNotEmpty()) {
+                if (textFieldValue.text.isNotEmpty()) {
                     if (isComplete) {
                         Icon(
                             imageVector = Icons.Default.CheckCircle,
@@ -120,10 +219,11 @@ fun AuthenticationContent(
         Spacer(modifier = Modifier.height(MaterialTheme.spacing.dp24))
 
         MainPurpleButton(
-            text = stringResource(R.string.button_check_key),
+            text = if (isLoading) stringResource(R.string.status_checking) else stringResource(R.string.button_check_key),
+            enabled = !isLoading,
             onClick = {
-                if (keyText.isNotEmpty() || keyText.isNotBlank()){
-                    onCLick()
+                if (textFieldValue.text.isNotEmpty() && textFieldValue.text.isNotBlank()){
+                    onCLick(textFieldValue.text)
                 }
             }
         )
@@ -137,5 +237,31 @@ fun AuthenticationScreenPreview() {
         AuthenticationScreen(
             navController = NavHostController(LocalContext.current)
         )
+    }
+}
+
+
+
+fun checkActivationStatus(text: String, context: Context): Boolean {
+    return when (text) {
+        "Already Activated" -> {
+            Toast.makeText(context, "این کد فعال است.", Toast.LENGTH_LONG).show()
+            true
+        }
+
+        "Activation Code Already Used" -> {
+            Toast.makeText(context, "این کد در دستگاه دیگری فعال است.", Toast.LENGTH_LONG).show()
+            true
+        }
+
+        "Device Activated" -> {
+            Toast.makeText(context, "فعال شد", Toast.LENGTH_LONG).show()
+            true
+        }
+
+        else -> {
+            Toast.makeText(context, "کد فعالسازی نامعتبر است", Toast.LENGTH_LONG).show()
+            false
+        }
     }
 }

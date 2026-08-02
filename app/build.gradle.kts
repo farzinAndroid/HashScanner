@@ -30,7 +30,7 @@ android {
         versionCode = 1
         versionName = "1.0"
 
-        buildConfigField("String", "ENCODED_REPORT_BASE_URL", "\"$encodedBaseUrl\"")
+        buildConfigField("String", "BASE_URL", "\"$encodedBaseUrl\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

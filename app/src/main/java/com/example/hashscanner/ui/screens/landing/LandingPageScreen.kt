@@ -44,11 +44,6 @@ fun LandingPageScreen(
     appViewModel: AppViewModel = hiltViewModel()
 ) {
 
-    CreateNewUUID(appViewModel) { myUUID ->
-        Constants.UUID = myUUID
-    }
-
-
     Column(
         modifier = Modifier
             .fillMaxSize()

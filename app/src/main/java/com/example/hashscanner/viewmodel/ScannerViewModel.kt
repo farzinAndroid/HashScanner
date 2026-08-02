@@ -3,6 +3,9 @@ package com.example.hashscanner.viewmodel
 import android.graphics.Bitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.hashscanner.data.model.api.AuthenticationResponse
+import com.example.hashscanner.data.model.api.UserAuthentication
+import com.example.hashscanner.data.network.NetworkResult
 import com.example.hashscanner.repository.AppDatabaseRepo
 import com.example.hashscanner.repository.NetworkRepo
 import com.example.hashscanner.repository.ScannerRepository
@@ -70,5 +73,18 @@ class ScannerViewModel @Inject constructor(
         }
         
         _isUploading.value = false
+    }
+
+    // --- Authentication ---
+
+    private val _authenticationResponse = MutableStateFlow<NetworkResult<AuthenticationResponse>>(NetworkResult.Idle())
+    val authenticationResponse = _authenticationResponse.asStateFlow()
+
+    fun authenticate(userAuthentication: UserAuthentication){
+        viewModelScope.launch(Dispatchers.IO) {
+            _authenticationResponse.emit(NetworkResult.Loading())
+            val result = networkRepo.authenticate(userAuthentication)
+            _authenticationResponse.emit(result)
+        }
     }
 }

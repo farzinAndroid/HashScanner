@@ -24,8 +24,11 @@ import com.example.hashscanner.viewmodel.AppViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import androidx.activity.viewModels
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.hashscanner.ui.ui_utils.CreateNewUUID
+import com.example.hashscanner.utils.Constants
 
 
 @AndroidEntryPoint
@@ -48,7 +51,6 @@ class MainActivity : ComponentActivity() {
                 val isReady by appViewModel.isReady.collectAsStateWithLifecycle()
                 val startDestination by appViewModel.startDestination.collectAsStateWithLifecycle()
                 val isChecking by appViewModel.isChecking.collectAsStateWithLifecycle()
-
 
                 ChangeStatusBarAndNavigationBarColor(
                     context = this,

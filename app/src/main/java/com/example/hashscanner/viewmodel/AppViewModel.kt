@@ -5,6 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.example.hashscanner.data.datastore.DataStoreRepoImpl
 import com.example.hashscanner.data.network.ConnectivityObserver
 import com.example.hashscanner.ui.navigation.Screens
+import com.example.hashscanner.utils.Constants
+import com.example.hashscanner.utils.Constants.IS_ACTIVATED_DATASTORE_ID
 import com.example.hashscanner.utils.Constants.UUID_DATASTORE_ID
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -54,6 +56,17 @@ class AppViewModel @Inject constructor(
             try {
                 _isChecking.value = true
 
+                // 1. UUID Initialization
+                val existingUuid = dataStoreRepo.getString(UUID_DATASTORE_ID)
+                if (existingUuid == null) {
+                    val newUuid = java.util.UUID.randomUUID().toString()
+                    dataStoreRepo.putString(newUuid, UUID_DATASTORE_ID)
+                    Constants.UUID = newUuid
+                } else {
+                    Constants.UUID = existingUuid
+                }
+
+                // 2. Check Internet Connectivity with a 3-second timeout
                 val status = withTimeoutOrNull(3000.milliseconds) {
                     connectivityObserver.observe().first()
                 } ?: ConnectivityObserver.Status.Unavailable
@@ -61,7 +74,14 @@ class AppViewModel @Inject constructor(
                 if (status != ConnectivityObserver.Status.Available) {
                     _startDestination.value = Screens.NoInternet
                 } else {
-                    _startDestination.value = Screens.Authentication
+                    // 3. Activation Check (Local only)
+                    val isLocallyActivated = dataStoreRepo.getBoolean(IS_ACTIVATED_DATASTORE_ID) ?: false
+                    
+                    if (isLocallyActivated) {
+                        _startDestination.value = Screens.Landing
+                    } else {
+                        _startDestination.value = Screens.Authentication
+                    }
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -99,5 +119,11 @@ class AppViewModel @Inject constructor(
 
     fun getUUID(): String? = runBlocking {
         dataStoreRepo.getString(UUID_DATASTORE_ID)
+    }
+
+    fun saveActivationStatus(isActivated: Boolean) {
+        viewModelScope.launch(Dispatchers.IO) {
+            dataStoreRepo.putBoolean(isActivated, IS_ACTIVATED_DATASTORE_ID)
+        }
     }
 }

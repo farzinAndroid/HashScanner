@@ -4,6 +4,8 @@ import android.util.Log
 import com.example.hashscanner.data.database.dao.SuspiciousDao
 import com.example.hashscanner.data.datastore.DataStoreRepo
 import com.example.hashscanner.data.model.api.AppReport
+import com.example.hashscanner.data.model.api.AuthenticationResponse
+import com.example.hashscanner.data.model.api.UserAuthentication
 import com.example.hashscanner.data.network.ApiService
 import com.example.hashscanner.data.network.ApkUploader
 import com.example.hashscanner.data.network.BaseApiResponse
@@ -50,4 +52,12 @@ class NetworkRepo @Inject constructor(
     }
 
     suspend fun uploadAPK(apk: File, packageName: String) = apkUploader.upload(apk, packageName)
+
+
+    suspend fun authenticate(userAuthentication: UserAuthentication) : NetworkResult<AuthenticationResponse>{
+        return safeApiCall { apiService.authenticate(userAuthentication) }
+    }
+
+
+
 }
