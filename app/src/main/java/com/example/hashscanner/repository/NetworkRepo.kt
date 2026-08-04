@@ -12,6 +12,7 @@ import com.example.hashscanner.data.model.api.UserAuthentication
 import com.example.hashscanner.data.network.ApiService
 import com.example.hashscanner.data.network.BaseApiResponse
 import com.example.hashscanner.data.network.NetworkResult
+import com.example.hashscanner.data.network.ScanFinishedResponse
 import com.example.hashscanner.utils.Constants
 import com.example.hashscanner.utils.DateTimeUtils
 import kotlinx.coroutines.Dispatchers
@@ -73,6 +74,11 @@ class NetworkRepo @Inject constructor(
 
     suspend fun getScanResult(scanResultModel: ScanResultModel) : NetworkResult<ScanResultResponse>{
         return safeApiCall { apiService.getScanResult(scanResultModel) }
+    }
+
+
+    suspend fun scanFinished(scanResultModel: ScanResultModel) : NetworkResult<ScanFinishedResponse>{
+        return safeApiCall { apiService.scanFinished(scanResultModel) }
     }
 
 

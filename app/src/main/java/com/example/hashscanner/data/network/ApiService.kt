@@ -34,6 +34,12 @@ interface ApiService {
 
 
 
+    @POST("api/scan_finished")
+    suspend fun scanFinished(
+        @Body  scanResultModel: ScanResultModel
+    ): Response<ScanFinishedResponse>
+
+
     @POST("api/scan_result")
     suspend fun getScanResult(
         @Body scanResultModel: ScanResultModel

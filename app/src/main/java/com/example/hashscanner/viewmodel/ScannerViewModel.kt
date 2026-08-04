@@ -10,10 +10,12 @@ import com.example.hashscanner.data.model.api.ScanResultModel
 import com.example.hashscanner.data.model.api.ScanResultResponse
 import com.example.hashscanner.data.model.api.UserAuthentication
 import com.example.hashscanner.data.network.NetworkResult
+import com.example.hashscanner.data.network.ScanFinishedResponse
 import com.example.hashscanner.repository.AppDatabaseRepo
 import com.example.hashscanner.repository.NetworkRepo
 import com.example.hashscanner.repository.ScannerRepository
 import com.example.hashscanner.ui.screens.scan.ScanPageState
+import com.example.hashscanner.utils.Constants
 import com.example.hashscanner.utils.DateTimeUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -57,6 +59,7 @@ class ScannerViewModel @Inject constructor(
         )
         isScanCompleted.value = ScanPageState.UPLOADING
         networkRepo.uploadPending()
+        networkRepo.scanFinished(ScanResultModel(Constants.UUID))
         isScanCompleted.value = ScanPageState.SCAN_COMPLETE
     }
 
