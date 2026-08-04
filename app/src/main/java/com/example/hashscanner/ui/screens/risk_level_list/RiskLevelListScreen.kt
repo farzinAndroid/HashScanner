@@ -24,7 +24,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.hashscanner.ui.theme.HashScannerTheme
 import androidx.navigation.NavController
 import com.example.hashscanner.R
 import com.example.hashscanner.ui.navigation.Screens
@@ -43,9 +45,8 @@ import com.example.hashscanner.viewmodel.AppDatabaseViewModel
 @Composable
 fun RiskLevelListScreen(
     navController: NavController,
-    databaseViewModel: AppDatabaseViewModel = hiltViewModel()
+    databaseViewModel: AppDatabaseViewModel
 ) {
-    val context = LocalContext.current
     val safeCount by databaseViewModel.safeAppsCount.collectAsStateWithLifecycle()
     val lowCount by databaseViewModel.lowRiskAppsCount.collectAsStateWithLifecycle()
     val mediumCount by databaseViewModel.mediumRiskAppsCount.collectAsStateWithLifecycle()
@@ -62,6 +63,47 @@ fun RiskLevelListScreen(
         }
     }
 
+    RiskLevelListContent(
+        paddingValues = PaddingValues(),
+        safeCount = safeCount,
+        lowCount = lowCount,
+        mediumCount = mediumCount,
+        highCount = highCount,
+        criticalCount = criticalCount,
+        onRobotClick = { context ->
+            try {
+                val intent = Intent(Intent.ACTION_VIEW, Constants.BALE_BOT_URL.toUri())
+                context.startActivity(intent)
+            } catch (_: Exception) {
+                Toast.makeText(
+                    context,
+                    context.getString(R.string.error_opening_url),
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        },
+        onRiskLevelClick = { item ->
+            navController.navigate(Screens.AppList(item.riskLevel))
+        },
+        onBackClick = {
+            navController.popBackStack()
+        }
+    )
+}
+
+@Composable
+fun RiskLevelListContent(
+    paddingValues: PaddingValues,
+    safeCount: Int,
+    lowCount: Int,
+    mediumCount: Int,
+    highCount: Int,
+    criticalCount: Int,
+    onRobotClick: (android.content.Context) -> Unit,
+    onRiskLevelClick: (RiskLevelItem) -> Unit,
+    onBackClick: () -> Unit
+) {
+    val context = LocalContext.current
     val riskLevels = listOf(
         RiskLevelItem(
             title = stringResource(R.string.badge_risk_level_very_high),
@@ -118,17 +160,15 @@ fun RiskLevelListScreen(
         topBar = {
             AppTopBar(
                 topBarText = stringResource(R.string.topbar_title_suspicious_apps),
-                onClick = {
-                    navController.popBackStack()
-                }
+                onClick = onBackClick
             )
         }
-    ) { paddingValues ->
+    ) { innerPadding ->
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues),
+                .padding(innerPadding),
             contentPadding = PaddingValues(MaterialTheme.spacing.dp16),
             horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.dp16),
             verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.dp16)
@@ -138,18 +178,9 @@ fun RiskLevelListScreen(
                     item = item,
                     onClick = { isRobot ->
                         if (isRobot) {
-                            try {
-                                val intent = Intent(Intent.ACTION_VIEW, Constants.BALE_BOT_URL.toUri())
-                                context.startActivity(intent)
-                            } catch (_: Exception) {
-                                Toast.makeText(
-                                    context,
-                                    context.getString(R.string.error_opening_url),
-                                    Toast.LENGTH_LONG
-                                ).show()
-                            }
+                            onRobotClick(context)
                         } else {
-                            navController.navigate(Screens.AppList(item.riskLevel))
+                            onRiskLevelClick(item)
                         }
                     }
                 )
@@ -157,3 +188,22 @@ fun RiskLevelListScreen(
         }
     }
 }
+
+@Preview(showBackground = true)
+@Composable
+fun RiskLevelListScreenPreview() {
+    HashScannerTheme {
+        RiskLevelListContent(
+            paddingValues = PaddingValues(),
+            safeCount = 10,
+            lowCount = 5,
+            mediumCount = 2,
+            highCount = 1,
+            criticalCount = 0,
+            onRobotClick = {},
+            onRiskLevelClick = {},
+            onBackClick = {}
+        )
+    }
+}
+

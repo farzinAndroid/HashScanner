@@ -6,7 +6,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -22,6 +21,8 @@ import com.example.hashscanner.ui.screens.risk_level_list.RiskLevelListScreen
 import com.example.hashscanner.ui.screens.scan.ScanScreen
 import com.example.hashscanner.ui.ui_utils.GlobalScanOverlay
 import com.example.hashscanner.utils.Constants
+import com.example.hashscanner.viewmodel.AppDatabaseViewModel
+import com.example.hashscanner.viewmodel.AppViewModel
 import com.example.hashscanner.viewmodel.ScannerViewModel
 
 
@@ -32,7 +33,9 @@ fun NavGraph(
     startDestination: Screens,
     isChecking: Boolean,
     onRetry: () -> Unit,
-    scannerViewModel: ScannerViewModel = hiltViewModel()
+    appViewModel: AppViewModel,
+    scannerViewModel: ScannerViewModel,
+    appDatabaseViewModel: AppDatabaseViewModel
 ) {
 
 
@@ -68,36 +71,51 @@ fun NavGraph(
             }
 
             composable<Screens.Authentication> {
-                AuthenticationScreen(navController = navController)
+                AuthenticationScreen(
+                    navController = navController,
+                    scannerViewModel = scannerViewModel,
+                    appViewModel = appViewModel
+                )
             }
 
             composable<Screens.Landing> {
                 LandingPageScreen(
-                    onButtonClick = { navController.navigate(Screens.Scan) }
+                    onButtonClick = { navController.navigate(Screens.Scan) },
+                    appViewModel = appViewModel
                 )
             }
 
             composable<Screens.Scan> {
-                ScanScreen(navController = navController)
+                ScanScreen(
+                    navController = navController,
+                    scannerViewModel = scannerViewModel,
+                    appDatabaseViewModel = appDatabaseViewModel
+                )
             }
 
             composable<Screens.AppList> { backStackEntry ->
                 val appList = backStackEntry.toRoute<Screens.AppList>()
                 AppListScreen(
                     navController = navController,
-                    riskLevel = appList.riskLevel
+                    riskLevel = appList.riskLevel,
+                    databaseViewModel = appDatabaseViewModel
                 )
             }
 
             composable<Screens.RiskLevelList> {
-                RiskLevelListScreen(navController = navController)
+                RiskLevelListScreen(
+                    navController = navController,
+                    databaseViewModel = appDatabaseViewModel
+                )
             }
 
             composable<Screens.Details> { backStackEntry ->
                 val details = backStackEntry.toRoute<Screens.Details>()
                 AppDetailsScreen(
                     navController = navController,
-                    packageName = details.packageName
+                    packageName = details.packageName,
+                    databaseViewModel = appDatabaseViewModel,
+                    scannerViewModel = scannerViewModel
                 )
             }
         }

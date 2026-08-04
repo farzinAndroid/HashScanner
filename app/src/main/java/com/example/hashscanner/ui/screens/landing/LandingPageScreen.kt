@@ -39,7 +39,7 @@ import com.example.hashscanner.viewmodel.AppViewModel
 @Composable
 fun LandingPageScreen(
     onButtonClick: () -> Unit,
-    appViewModel: AppViewModel = hiltViewModel()
+    appViewModel: AppViewModel
 ) {
 
     Column(

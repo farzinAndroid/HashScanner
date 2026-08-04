@@ -17,7 +17,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.hashscanner.data.model.db_entities.AppInfo
 import com.example.hashscanner.ui.theme.BackgroundColor
@@ -30,7 +29,7 @@ import com.example.hashscanner.viewmodel.AppDatabaseViewModel
 fun AppListSection(
     paddingValues: PaddingValues,
     initialRiskLevel: RiskLevelsUI,
-    databaseViewModel: AppDatabaseViewModel = hiltViewModel(),
+    databaseViewModel: AppDatabaseViewModel,
     onAppClick: (String) -> Unit
 ) {
     var whichAppsToLoad by rememberSaveable { mutableStateOf(initialRiskLevel) }

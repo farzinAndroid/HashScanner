@@ -37,7 +37,7 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.example.hashscanner.R
@@ -56,8 +56,8 @@ import com.example.hashscanner.viewmodel.ScannerViewModel
 @Composable
 fun AuthenticationScreen(
     navController: NavHostController,
-    scannerViewModel: ScannerViewModel = hiltViewModel(),
-    appViewModel: AppViewModel = hiltViewModel()
+    scannerViewModel: ScannerViewModel,
+    appViewModel: AppViewModel
 ) {
     val context = LocalContext.current
     val authenticationResponse by scannerViewModel.authenticationResponse.collectAsStateWithLifecycle()
@@ -228,8 +228,10 @@ fun AuthenticationContent(
 @Composable
 fun AuthenticationScreenPreview() {
     HashScannerTheme {
-        AuthenticationScreen(
-            navController = NavHostController(LocalContext.current)
+        AuthenticationContent(
+            paddingValues = PaddingValues(16.dp),
+            isLoading = false,
+            onCLick = {}
         )
     }
 }

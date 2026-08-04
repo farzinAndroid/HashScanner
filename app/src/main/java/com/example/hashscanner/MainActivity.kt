@@ -23,7 +23,9 @@ import com.example.hashscanner.ui.navigation.NavGraph
 import com.example.hashscanner.ui.theme.BackgroundColor
 import com.example.hashscanner.ui.theme.HashScannerTheme
 import com.example.hashscanner.ui.ui_utils.ChangeStatusBarAndNavigationBarColor
+import com.example.hashscanner.viewmodel.AppDatabaseViewModel
 import com.example.hashscanner.viewmodel.AppViewModel
+import com.example.hashscanner.viewmodel.ScannerViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 
@@ -31,6 +33,8 @@ import dagger.hilt.android.AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     private val appViewModel: AppViewModel by viewModels()
+    private val scannerViewModel: ScannerViewModel by viewModels()
+    private val appDatabaseViewModel: AppDatabaseViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
@@ -68,6 +72,9 @@ class MainActivity : ComponentActivity() {
                                 navController = navController,
                                 startDestination = startDestination,
                                 isChecking = isChecking,
+                                appViewModel = appViewModel,
+                                scannerViewModel = scannerViewModel,
+                                appDatabaseViewModel = appDatabaseViewModel,
                                 onRetry = {
                                     appViewModel.retry()
 

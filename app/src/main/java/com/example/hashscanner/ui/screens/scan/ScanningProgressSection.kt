@@ -22,11 +22,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.hashscanner.R
 import com.example.hashscanner.ui.theme.BackgroundColor
-import com.example.hashscanner.ui.theme.HashScannerTheme
 import com.example.hashscanner.ui.theme.WhitePurple
 import com.example.hashscanner.ui.theme.spacing
 import com.example.hashscanner.viewmodel.ScannerViewModel
@@ -34,17 +32,46 @@ import com.example.hashscanner.viewmodel.ScannerViewModel
 @Composable
 fun ScanningProgressSection(
     paddingValues: PaddingValues,
-    scannerViewModel: ScannerViewModel = hiltViewModel()
+    scannerViewModel: ScannerViewModel
 ) {
-
-    var progress by remember { mutableFloatStateOf(0f) }
-    
     val totalCount by scannerViewModel.totalCount.collectAsStateWithLifecycle()
     val suspiciousCount by scannerViewModel.suspiciousCount.collectAsStateWithLifecycle()
     val scannedCount by scannerViewModel.scannedCount.collectAsStateWithLifecycle()
     val remainingCount by scannerViewModel.remainingCount.collectAsStateWithLifecycle()
     val appName by scannerViewModel.appName.collectAsStateWithLifecycle()
     val icon by scannerViewModel.iconBitmap.collectAsStateWithLifecycle()
+    val scanState by scannerViewModel.isScanCompleted.collectAsStateWithLifecycle()
+
+    LaunchedEffect(Unit) {
+        if (scanState == ScanPageState.SCANNING) {
+            scannerViewModel.startScan()
+        }
+    }
+
+    ScanningProgressSectionContent(
+        paddingValues = paddingValues,
+        totalCount = totalCount,
+        suspiciousCount = suspiciousCount,
+        scannedCount = scannedCount,
+        remainingCount = remainingCount,
+        appName = appName,
+        icon = icon,
+        scanState = scanState
+    )
+}
+
+@Composable
+fun ScanningProgressSectionContent(
+    paddingValues: PaddingValues,
+    totalCount: Int,
+    suspiciousCount: Int,
+    scannedCount: Int,
+    remainingCount: Int,
+    appName: String,
+    icon: android.graphics.Bitmap?,
+    scanState: ScanPageState
+) {
+    var progress by remember { mutableFloatStateOf(0f) }
 
     val percentage by remember(scannedCount, totalCount) {
         mutableIntStateOf(if (totalCount > 0) (scannedCount.toFloat() / totalCount.toFloat() * 100).toInt() else 0)
@@ -52,15 +79,6 @@ fun ScanningProgressSection(
 
     LaunchedEffect(scannedCount) {
         progress = if (totalCount > 0) scannedCount.toFloat() / totalCount.toFloat() else 0f
-    }
-
-    val scanState by scannerViewModel.isScanCompleted.collectAsStateWithLifecycle()
-
-
-    LaunchedEffect(Unit) {
-        if (scanState == ScanPageState.SCANNING) {
-            scannerViewModel.startScan()
-        }
     }
 
     LazyColumn(
@@ -130,24 +148,20 @@ fun ScanningProgressSection(
     }
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 @Preview(showBackground = true)
 @Composable
 fun ScanningProgressSectionPreview() {
-    HashScannerTheme {
-        ScanningProgressSection(PaddingValues())
+    com.example.hashscanner.ui.theme.HashScannerTheme {
+        ScanningProgressSectionContent(
+            paddingValues = PaddingValues(),
+            totalCount = 100,
+            suspiciousCount = 5,
+            scannedCount = 45,
+            remainingCount = 55,
+            appName = "Sample App",
+            icon = null,
+            scanState = ScanPageState.SCANNING
+        )
     }
 }
+

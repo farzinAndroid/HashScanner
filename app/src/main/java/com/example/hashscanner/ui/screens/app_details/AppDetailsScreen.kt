@@ -25,7 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.example.hashscanner.R
@@ -39,8 +39,8 @@ import com.example.hashscanner.viewmodel.ScannerViewModel
 
 @Composable
 fun AppDetailsScreen(
-    databaseViewModel: AppDatabaseViewModel = hiltViewModel(),
-    scannerViewModel: ScannerViewModel = hiltViewModel(),
+    databaseViewModel: AppDatabaseViewModel,
+    scannerViewModel: ScannerViewModel,
     packageName: String,
     navController: NavController
 ) {
@@ -158,9 +158,9 @@ private fun AppDetailsContent(
 @Composable
 fun AppDetailsScreenPreview() {
     HashScannerTheme {
-        AppDetailsScreen(
-            packageName = "com.example.hashscanner",
-            navController = NavController(LocalContext.current)
+        AppDetailsContent(
+            paddingValues = PaddingValues(16.dp),
+            appInfo = null // You could provide sample AppInfo here
         )
     }
 }
