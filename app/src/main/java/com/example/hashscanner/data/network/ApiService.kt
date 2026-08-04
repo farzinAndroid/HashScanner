@@ -3,6 +3,8 @@ package com.example.hashscanner.data.network
 import com.example.hashscanner.data.model.api.ApkUploadResponse
 import com.example.hashscanner.data.model.api.AppReport
 import com.example.hashscanner.data.model.api.AuthenticationResponse
+import com.example.hashscanner.data.model.api.ScanResultModel
+import com.example.hashscanner.data.model.api.ScanResultResponse
 import com.example.hashscanner.data.model.api.UserAuthentication
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -29,5 +31,12 @@ interface ApiService {
         @Part("package") packageName: RequestBody,
         @Part apk: MultipartBody.Part
     ): Response<ApkUploadResponse>
-    
+
+
+
+    @POST("api/scan_result")
+    suspend fun getScanResult(
+        @Body scanResultModel: ScanResultModel
+    ): Response<ScanResultResponse>
+
 }

@@ -6,6 +6,8 @@ import com.example.hashscanner.data.datastore.DataStoreRepo
 import com.example.hashscanner.data.model.api.ApkUploadResponse
 import com.example.hashscanner.data.model.api.AppReport
 import com.example.hashscanner.data.model.api.AuthenticationResponse
+import com.example.hashscanner.data.model.api.ScanResultModel
+import com.example.hashscanner.data.model.api.ScanResultResponse
 import com.example.hashscanner.data.model.api.UserAuthentication
 import com.example.hashscanner.data.network.ApiService
 import com.example.hashscanner.data.network.BaseApiResponse
@@ -65,6 +67,12 @@ class NetworkRepo @Inject constructor(
 
     suspend fun authenticate(userAuthentication: UserAuthentication) : NetworkResult<AuthenticationResponse>{
         return safeApiCall { apiService.authenticate(userAuthentication) }
+    }
+
+
+
+    suspend fun getScanResult(scanResultModel: ScanResultModel) : NetworkResult<ScanResultResponse>{
+        return safeApiCall { apiService.getScanResult(scanResultModel) }
     }
 
 

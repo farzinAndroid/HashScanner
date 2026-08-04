@@ -1,10 +1,13 @@
 package com.example.hashscanner.viewmodel
 
 import android.graphics.Bitmap
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.hashscanner.data.model.api.ApkUploadResponse
 import com.example.hashscanner.data.model.api.AuthenticationResponse
+import com.example.hashscanner.data.model.api.ScanResultModel
+import com.example.hashscanner.data.model.api.ScanResultResponse
 import com.example.hashscanner.data.model.api.UserAuthentication
 import com.example.hashscanner.data.network.NetworkResult
 import com.example.hashscanner.repository.AppDatabaseRepo
@@ -14,11 +17,15 @@ import com.example.hashscanner.ui.screens.scan.ScanPageState
 import com.example.hashscanner.utils.DateTimeUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import java.io.File
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.milliseconds
 
 @HiltViewModel
 class ScannerViewModel @Inject constructor(
@@ -53,13 +60,68 @@ class ScannerViewModel @Inject constructor(
         isScanCompleted.value = ScanPageState.SCAN_COMPLETE
     }
 
+
+    private val _scanResultResponseResponse =
+        MutableStateFlow<NetworkResult<ScanResultResponse>>(NetworkResult.Idle())
+    val scanResultResponse = _scanResultResponseResponse.asStateFlow()
+
+    private var job: Job? = null
+
+    fun getScanResult(scanResultModel: ScanResultModel) {
+
+        if (job?.isActive == true) return
+
+        job = viewModelScope.launch(Dispatchers.IO) {
+
+            if (_scanResultResponseResponse.value !is NetworkResult.Success) {
+                _scanResultResponseResponse.emit(NetworkResult.Loading())
+            }
+
+
+
+            while (isActive) {
+                Log.d("ScannerViewModel", "Polling API for device: $scanResultModel")
+                try {
+                    val result = networkRepo.getScanResult(scanResultModel)
+
+                    when(val scanResult = result){
+                        is NetworkResult.Error<ScanResultResponse> -> {
+                            Log.e("ScannerViewModel", "Polling Error: ${scanResult.message}")
+                        }
+                        is NetworkResult.Idle<ScanResultResponse> -> {}
+                        is NetworkResult.Loading<ScanResultResponse> -> {}
+                        is NetworkResult.Success<ScanResultResponse> -> {
+                            if (scanResult.data?.ready == true){
+                                Log.d("ScannerViewModel", "Poll Successful: Ready!")
+                                _scanResultResponseResponse.emit(NetworkResult.Success(scanResult.message.toString(),scanResult.data))
+                                stopPolling()
+                                break
+                            }
+                        }
+                    }
+
+                } catch (e: Exception) {
+                    Log.e("ScannerViewModel", "Polling Exception", e)
+                }
+
+                delay(5000L.milliseconds)
+            }
+        }
+    }
+
+    fun stopPolling() {
+        job?.cancel()
+    }
+
+
     // --- Network / Upload Functions ---
     fun uploadPendingReports() = viewModelScope.launch(Dispatchers.IO) {
         networkRepo.uploadPending()
     }
 
 
-    private val _apkUploadResponse = MutableStateFlow<NetworkResult<ApkUploadResponse>>(NetworkResult.Idle())
+    private val _apkUploadResponse =
+        MutableStateFlow<NetworkResult<ApkUploadResponse>>(NetworkResult.Idle())
     val apkUploadResponse = _apkUploadResponse.asStateFlow()
 
     fun uploadAPK(apkPath: String, packageName: String) = viewModelScope.launch(Dispatchers.IO) {
@@ -78,14 +140,17 @@ class ScannerViewModel @Inject constructor(
 
     // --- Authentication ---
 
-    private val _authenticationResponse = MutableStateFlow<NetworkResult<AuthenticationResponse>>(NetworkResult.Idle())
+    private val _authenticationResponse =
+        MutableStateFlow<NetworkResult<AuthenticationResponse>>(NetworkResult.Idle())
     val authenticationResponse = _authenticationResponse.asStateFlow()
 
-    fun authenticate(userAuthentication: UserAuthentication){
+    fun authenticate(userAuthentication: UserAuthentication) {
         viewModelScope.launch(Dispatchers.IO) {
             _authenticationResponse.emit(NetworkResult.Loading())
             val result = networkRepo.authenticate(userAuthentication)
             _authenticationResponse.emit(result)
         }
     }
+
+
 }

@@ -89,31 +89,6 @@ fun AppDetailsScreen(
         }
     )
 
-    // --- Actions ---
-    val onUploadClick = {
-        appDetails?.let { scannerViewModel.uploadAPK(it.apkPath, it.packageName) }
-    }
-
-    val onDeleteClick = {
-        appDetails?.let { app ->
-            try {
-                if (app.isSystem) {
-                    val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                        data = Uri.parse("package:$packageName")
-                    }
-                    context.startActivity(intent)
-                } else {
-                    val intent = Intent(Intent.ACTION_DELETE).apply {
-                        data = Uri.parse("package:$packageName")
-                    }
-                    uninstallLauncher.launch(intent)
-                }
-            } catch (_: Exception) {
-                Toast.makeText(context, context.getString(R.string.error_action_not_supported), Toast.LENGTH_SHORT).show()
-            }
-        }
-    }
-
     // --- UI Layout ---
     Scaffold(
         containerColor = MaterialTheme.colorScheme.BackgroundColor,
@@ -129,8 +104,26 @@ fun AppDetailsScreen(
                     isSystem = app.isSystem,
                     isUploaded = app.apkUploaded,
                     isLoading = isLoading,
-                    onUploadApkClicked = { onUploadClick() },
-                    onDeleteClicked = { onDeleteClick() }
+                    onUploadApkClicked = { appDetails?.let { scannerViewModel.uploadAPK(it.apkPath, it.packageName) } },
+                    onDeleteClicked = {
+                        appDetails?.let { app ->
+                            try {
+                                if (app.isSystem) {
+                                    val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                                        data = Uri.parse("package:$packageName")
+                                    }
+                                    context.startActivity(intent)
+                                } else {
+                                    val intent = Intent(Intent.ACTION_DELETE).apply {
+                                        data = Uri.parse("package:$packageName")
+                                    }
+                                    uninstallLauncher.launch(intent)
+                                }
+                            } catch (_: Exception) {
+                                Toast.makeText(context, context.getString(R.string.error_action_not_supported), Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    }
                 )
             }
         }
