@@ -10,7 +10,6 @@ import com.example.hashscanner.data.model.api.ScanResultModel
 import com.example.hashscanner.data.model.api.ScanResultResponse
 import com.example.hashscanner.data.model.api.UserAuthentication
 import com.example.hashscanner.data.network.NetworkResult
-import com.example.hashscanner.data.network.ScanFinishedResponse
 import com.example.hashscanner.repository.AppDatabaseRepo
 import com.example.hashscanner.repository.NetworkRepo
 import com.example.hashscanner.repository.ScannerRepository
@@ -59,7 +58,7 @@ class ScannerViewModel @Inject constructor(
         )
         isScanCompleted.value = ScanPageState.UPLOADING
         networkRepo.uploadPending()
-        networkRepo.scanFinished(ScanResultModel(Constants.UUID))
+        networkRepo.scanFinished(ScanResultModel(Constants.DEVICE_ID))
         isScanCompleted.value = ScanPageState.SCAN_COMPLETE
     }
 

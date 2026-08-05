@@ -53,7 +53,7 @@ fun NavGraph(
 
     LaunchedEffect(currentRoute) {
         if (currentRoute != null && !isExcluded) {
-            scannerViewModel.getScanResult(ScanResultModel(Constants.UUID))
+            scannerViewModel.getScanResult(ScanResultModel(Constants.DEVICE_ID))
         } else {
             scannerViewModel.stopPolling()
         }

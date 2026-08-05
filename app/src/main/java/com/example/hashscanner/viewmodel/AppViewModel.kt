@@ -1,5 +1,8 @@
 package com.example.hashscanner.viewmodel
 
+import android.annotation.SuppressLint
+import android.content.Context
+import android.provider.Settings
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.hashscanner.data.datastore.DataStoreRepoImpl
@@ -7,8 +10,9 @@ import com.example.hashscanner.data.network.ConnectivityObserver
 import com.example.hashscanner.ui.navigation.Screens
 import com.example.hashscanner.utils.Constants
 import com.example.hashscanner.utils.Constants.IS_ACTIVATED_DATASTORE_ID
-import com.example.hashscanner.utils.Constants.UUID_DATASTORE_ID
+import com.example.hashscanner.utils.Constants.DEVICE_ID_DATASTORE_ID
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,13 +24,15 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeoutOrNull
+import java.util.UUID
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.milliseconds
 
 @HiltViewModel
 class AppViewModel @Inject constructor(
     private val connectivityObserver: ConnectivityObserver,
-    private val dataStoreRepo: DataStoreRepoImpl
+    private val dataStoreRepo: DataStoreRepoImpl,
+    @param:ApplicationContext private val context: Context
 ) : ViewModel() {
 
     // --- Connectivity States ---
@@ -51,22 +57,25 @@ class AppViewModel @Inject constructor(
         performInitialCheck()
     }
 
+    @SuppressLint("HardwareIds")
+    private fun createDeviceId(): String {
+        return Settings.Secure.getString(
+            context.contentResolver,
+            Settings.Secure.ANDROID_ID
+        ) ?: UUID.randomUUID().toString()
+    }
+
     private fun performInitialCheck() {
         viewModelScope.launch {
             try {
                 _isChecking.value = true
 
-                // 1. UUID Initialization
-                val existingUuid = dataStoreRepo.getString(UUID_DATASTORE_ID)
-                if (existingUuid == null) {
-                    val newUuid = java.util.UUID.randomUUID().toString()
-                    dataStoreRepo.putString(newUuid, UUID_DATASTORE_ID)
-                    Constants.UUID = newUuid
-                } else {
-                    Constants.UUID = existingUuid
-                }
 
-                // 2. Check Internet Connectivity with a 3-second timeout
+                val androidId = createDeviceId()
+                Constants.DEVICE_ID = androidId
+                dataStoreRepo.putString(androidId, DEVICE_ID_DATASTORE_ID)
+
+                //Check Internet Connectivity with a 3-second timeout
                 val status = withTimeoutOrNull(3000.milliseconds) {
                     connectivityObserver.observe().first()
                 } ?: ConnectivityObserver.Status.Unavailable
@@ -74,7 +83,7 @@ class AppViewModel @Inject constructor(
                 if (status != ConnectivityObserver.Status.Available) {
                     _startDestination.value = Screens.NoInternet
                 } else {
-                    // 3. Activation Check (Local only)
+                    //Activation Check (Local only)
                     val isLocallyActivated = dataStoreRepo.getBoolean(IS_ACTIVATED_DATASTORE_ID) ?: false
                     
                     if (isLocallyActivated) {
@@ -88,7 +97,7 @@ class AppViewModel @Inject constructor(
                 _startDestination.value = Screens.NoInternet
             } finally {
                 _isChecking.value = false
-                delay(500)
+                delay(500.milliseconds)
                 _isReady.value = true
             }
         }
@@ -99,7 +108,7 @@ class AppViewModel @Inject constructor(
             if (_isChecking.value) return@launch
 
             _isChecking.value = true
-            delay(1000)
+            delay(1000.milliseconds)
 
             val status = connectivityObserver.observe().first()
             if (status == ConnectivityObserver.Status.Available) {
@@ -111,14 +120,14 @@ class AppViewModel @Inject constructor(
     }
 
     // --- Identity / DataStore Logic ---
-    fun saveUUID(value: String) {
+    fun saveDeviceId(value: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            dataStoreRepo.putString(value, UUID_DATASTORE_ID)
+            dataStoreRepo.putString(value, DEVICE_ID_DATASTORE_ID)
         }
     }
 
-    fun getUUID(): String? = runBlocking {
-        dataStoreRepo.getString(UUID_DATASTORE_ID)
+    fun getDeviceId(): String? = runBlocking {
+        dataStoreRepo.getString(DEVICE_ID_DATASTORE_ID)
     }
 
     fun saveActivationStatus(isActivated: Boolean) {

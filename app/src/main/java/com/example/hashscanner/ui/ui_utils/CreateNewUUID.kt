@@ -12,10 +12,10 @@ fun CreateNewUUID(
 ) {
 
     LaunchedEffect(Unit) {
-        val existingUuid = appViewModel.getUUID()
+        val existingUuid = appViewModel.getDeviceId()
         if (existingUuid == null) {
             val newUuid = UUID.randomUUID().toString()
-            appViewModel.saveUUID(newUuid)
+            appViewModel.saveDeviceId(newUuid)
             onUUIDCreated(newUuid)
         } else {
             onUUIDCreated(existingUuid)

@@ -76,6 +76,16 @@ fun AuthenticationScreen(
         }
     }
 
+    /*LaunchedEffect(authenticationResponse) {
+        if (authenticationResponse is NetworkResult.Success) {
+            val message = authenticationResponse.data?.message ?: ""
+            appViewModel.saveActivationStatus(true)
+            navController.navigate(Screens.Landing) {
+                popUpTo(Screens.Authentication) { inclusive = true }
+            }//ebb8a1001409e7ad
+        }
+    }*/
+
 
     Scaffold(
         topBar = {
@@ -92,7 +102,7 @@ fun AuthenticationScreen(
                    scannerViewModel.authenticate(
                        UserAuthentication(
                            activationCode = code,
-                           deviceId = Constants.UUID
+                           deviceId = Constants.DEVICE_ID
                        )
                    )
                 }

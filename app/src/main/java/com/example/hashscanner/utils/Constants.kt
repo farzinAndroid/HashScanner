@@ -10,9 +10,9 @@ object Constants {
     const val DATASTORE_NAME = "hash_scanner_datastore"
 
 
-    const val UUID_DATASTORE_ID = "uuid_id"
+    const val DEVICE_ID_DATASTORE_ID = "deviceId_id"
     const val IS_ACTIVATED_DATASTORE_ID = "is_activated"
-    var UUID = ""
+    var DEVICE_ID = ""
 
     // Installers
     const val INSTALLER_UNKNOWN = "Unknown"

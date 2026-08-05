@@ -34,7 +34,7 @@ class NetworkRepo @Inject constructor(
         val list = dao.getNotSent()
         if (list.isEmpty()) return@withContext
 
-        val deviceId = dataStoreRepo.getString(Constants.UUID_DATASTORE_ID) ?: "unknown_device"
+        val deviceId = dataStoreRepo.getString(Constants.DEVICE_ID_DATASTORE_ID) ?: "unknown_device"
         val uploadTime = DateTimeUtils.getCurrentDateTime()
 
         list.forEach { app ->
