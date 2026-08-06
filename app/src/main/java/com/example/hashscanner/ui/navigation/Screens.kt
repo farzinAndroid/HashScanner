@@ -36,6 +36,10 @@ interface Screens {
     object RiskLevelList : Screens
 
 
+    @Serializable
+    object ScanHistory : Screens
+
+
 
     /*
         @Serializable

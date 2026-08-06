@@ -158,6 +158,29 @@
     <string name="toast_upload_success">آپلود موفقیت‌آمیز بود</string>
     <string name="toast_upload_error">خطا در آپلود</string>
 
+    <!-- Dashboard -->
+    <string name="dashboard_welcome">خوش آمدید</string>
+    <string name="dashboard_recent_scans">اسکن‌های اخیر</string>
+    <string name="dashboard_quick_actions">دسترسی سریع</string>
+    <string name="dashboard_no_history">هنوز هیچ اسکنی انجام نشده است</string>
+    <string name="dashboard_last_scan">آخرین اسکن:</string>
+    <string name="dashboard_action_history">تاریخچه اسکن</string>
+    <string name="dashboard_action_settings">تنظیمات</string>
+    <string name="dashboard_view_all">مشاهده همه</string>
+
+    <!-- Scan History -->
+    <string name="topbar_title_scan_history">تاریخچه اسکن</string>
+    <string name="history_search_placeholder">جستجو در تاریخچه…</string>
+    <string name="history_empty_state">تاریخچه‌ای یافت نشد</string>
+    <string name="history_group_today">امروز</string>
+    <string name="history_group_yesterday">دیروز</string>
+    <string name="history_group_older">قدیمی‌تر</string>
+
+    <!-- Authentication Redesign -->
+    <string name="auth_welcome_back">خوش آمدید</string>
+    <string name="auth_subtitle">لطفا برای ادامه کلید فعالسازی خود را وارد کنید</string>
+    <string name="auth_invalid_format">فرمت کلید نامعتبر است</string>
+
     <!-- Content Descriptions -->
     <string name="content_desc_valid">معتبر</string>
     <string name="content_desc_invalid">نامعتبر</string>

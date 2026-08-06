@@ -9,6 +9,7 @@ import com.example.hashscanner.data.model.api.AuthenticationResponse
 import com.example.hashscanner.data.model.api.ScanResultModel
 import com.example.hashscanner.data.model.api.ScanResultResponse
 import com.example.hashscanner.data.model.api.UserAuthentication
+import com.example.hashscanner.data.model.db_entities.ScanHistory
 import com.example.hashscanner.data.network.NetworkResult
 import com.example.hashscanner.repository.AppDatabaseRepo
 import com.example.hashscanner.repository.NetworkRepo
@@ -45,6 +46,7 @@ class ScannerViewModel @Inject constructor(
     val isScanCompleted = MutableStateFlow<ScanPageState>(ScanPageState.SCANNING)
 
     fun startScan() = viewModelScope.launch(Dispatchers.IO) {
+        val startTime = System.currentTimeMillis()
         isScanCompleted.value = ScanPageState.SCANNING
         scannerRepository.startScan(
             onProgress = { scanned, total, suspicious, remaining, app, icon ->
@@ -59,6 +61,23 @@ class ScannerViewModel @Inject constructor(
         isScanCompleted.value = ScanPageState.UPLOADING
         networkRepo.uploadPending()
         networkRepo.scanFinished(ScanResultModel(Constants.DEVICE_ID))
+        
+        // Save Scan History
+        val endTime = System.currentTimeMillis()
+        val history = ScanHistory(
+            scanDate = DateTimeUtils.getCurrentDate(),
+            scanTime = DateTimeUtils.getCurrentTime(),
+            totalApps = totalCount.value,
+            scannedApps = scannedCount.value,
+            safeApps = appDatabaseRepo.countSafeApps(),
+            lowRisk = appDatabaseRepo.countLowRiskApps(),
+            mediumRisk = appDatabaseRepo.countMediumRiskApps(),
+            highRisk = appDatabaseRepo.countHighRiskApps(),
+            criticalRisk = appDatabaseRepo.countCriticalApps(),
+            duration = endTime - startTime
+        )
+        appDatabaseRepo.insertScanHistory(history)
+        
         isScanCompleted.value = ScanPageState.SCAN_COMPLETE
     }
 

@@ -16,6 +16,7 @@ import com.example.hashscanner.ui.screens.app_details.AppDetailsScreen
 import com.example.hashscanner.ui.screens.app_list.AppListScreen
 import com.example.hashscanner.ui.screens.authentication.AuthenticationScreen
 import com.example.hashscanner.ui.screens.error.NoInternetScreen
+import com.example.hashscanner.ui.screens.history.ScanHistoryScreen
 import com.example.hashscanner.ui.screens.landing.LandingPageScreen
 import com.example.hashscanner.ui.screens.risk_level_list.RiskLevelListScreen
 import com.example.hashscanner.ui.screens.scan.ScanScreen
@@ -80,8 +81,17 @@ fun NavGraph(
 
             composable<Screens.Landing> {
                 LandingPageScreen(
-                    onButtonClick = { navController.navigate(Screens.Scan) },
-                    appViewModel = appViewModel
+                    onScanClick = { navController.navigate(Screens.Scan) },
+                    onHistoryClick = { navController.navigate(Screens.ScanHistory) },
+                    appViewModel = appViewModel,
+                    databaseViewModel = appDatabaseViewModel
+                )
+            }
+
+            composable<Screens.ScanHistory> {
+                ScanHistoryScreen(
+                    onBackClick = { navController.popBackStack() },
+                    databaseViewModel = appDatabaseViewModel
                 )
             }
 

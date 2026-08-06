@@ -9,8 +9,8 @@ import com.example.hashscanner.data.datastore.DataStoreRepoImpl
 import com.example.hashscanner.data.network.ConnectivityObserver
 import com.example.hashscanner.ui.navigation.Screens
 import com.example.hashscanner.utils.Constants
-import com.example.hashscanner.utils.Constants.IS_ACTIVATED_DATASTORE_ID
 import com.example.hashscanner.utils.Constants.DEVICE_ID_DATASTORE_ID
+import com.example.hashscanner.utils.Constants.IS_ACTIVATED_DATASTORE_ID
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers

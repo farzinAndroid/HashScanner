@@ -1,22 +1,21 @@
 package com.example.hashscanner.ui.screens.scan
 
+
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.example.hashscanner.R
 import com.example.hashscanner.ui.theme.BackgroundColor
+import com.example.hashscanner.ui.theme.HashScannerTheme
 import com.example.hashscanner.ui.ui_utils.AppTopBar
 import com.example.hashscanner.viewmodel.AppDatabaseViewModel
 import com.example.hashscanner.viewmodel.ScannerViewModel
-
-
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.ui.tooling.preview.Preview
-import com.example.hashscanner.ui.theme.HashScannerTheme
 
 @Composable
 fun ScanScreen(
