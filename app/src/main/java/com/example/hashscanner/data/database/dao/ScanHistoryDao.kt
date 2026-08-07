@@ -5,6 +5,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.example.hashscanner.data.model.db_entities.ScanHistory
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ScanHistoryDao {
@@ -13,11 +14,15 @@ interface ScanHistoryDao {
     suspend fun insert(history: ScanHistory)
 
     @Query("SELECT * FROM scan_history ORDER BY id DESC")
-    suspend fun getAll(): List<ScanHistory>
+    fun getAll(): Flow<List<ScanHistory>>
 
     @Query("SELECT * FROM scan_history ORDER BY id DESC LIMIT 1")
-    suspend fun getLastScan(): ScanHistory?
+    fun getLastScan(): Flow<ScanHistory?>
 
     @Query("DELETE FROM scan_history")
     suspend fun deleteAll()
+
+
+    @Query("DELETE FROM scan_history WHERE id=:id")
+    suspend fun deleteScanHistory(id: Long)
 }

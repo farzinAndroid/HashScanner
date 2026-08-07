@@ -1,6 +1,7 @@
 package com.example.hashscanner.ui.screens.risk_level_list
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -47,6 +48,7 @@ fun RiskLevelCard(
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.BoxGrayColor
         ),
+        border = BorderStroke(1.dp, item.color.copy(alpha = 0.25f)),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Column(
@@ -54,17 +56,26 @@ fun RiskLevelCard(
             verticalArrangement = Arrangement.Center
         ) {
             Box {
-                Icon(
-                    imageVector = item.icon,
-                    contentDescription = null,
-                    tint = item.color,
-                    modifier = Modifier.size(36.dp)
-                )
-                if (item.riskLevel == RiskLevelsUI.CRITICAL && !item.isGoToRobot) {
+                Box(
+                    modifier = Modifier
+                        .size(52.dp)
+                        .clip(CircleShape)
+                        .background(item.color.copy(alpha = 0.15f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = item.icon,
+                        contentDescription = null,
+                        tint = item.color,
+                        modifier = Modifier.size(28.dp)
+                    )
+                }
+
+                if (item.riskLevel == RiskLevelsUI.CRITICAL && !item.isGoToRobot && item.count > 0) {
                     Box(
                         modifier = Modifier
                             .align(Alignment.TopEnd)
-                            .size(10.dp)
+                            .size(12.dp)
                             .clip(CircleShape)
                             .background(Color.Red)
                     )

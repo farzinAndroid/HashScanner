@@ -12,6 +12,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -20,147 +21,101 @@ class AppDatabaseViewModel @Inject constructor(
     private val appDataBaseRepo: AppDatabaseRepo
 ) : ViewModel() {
 
-    // --- State Flows for Observation ---
+    // --- State Sources (Internal) ---
     private val _allApps = MutableStateFlow<List<AppInfo>>(emptyList())
-    val allApps: StateFlow<List<AppInfo>> = _allApps.asStateFlow()
-
-    private val _suspiciousApps = MutableStateFlow<List<AppInfo>>(emptyList())
-    val suspiciousApps: StateFlow<List<AppInfo>> = _suspiciousApps.asStateFlow()
-
-    private val _scanHistory = MutableStateFlow<List<ScanHistory>>(emptyList())
-    val scanHistory: StateFlow<List<ScanHistory>> = _scanHistory.asStateFlow()
-
-    private val _lastScan = MutableStateFlow<ScanHistory?>(null)
-    val lastScan: StateFlow<ScanHistory?> = _lastScan.asStateFlow()
+    val allApps = _allApps.asStateFlow()
 
     private val _allPermissions = MutableStateFlow<List<PermissionInfo>>(emptyList())
-    val allPermissions: StateFlow<List<PermissionInfo>> = _allPermissions.asStateFlow()
+    val allPermissions = _allPermissions.asStateFlow()
 
-    private val _allSuspiciousApps = MutableStateFlow<List<SuspiciousApp>>(emptyList())
-    val allSuspiciousApps: StateFlow<List<SuspiciousApp>> = _allSuspiciousApps.asStateFlow()
-
-    // --- Specific Flows for AppInfo ---
     private val _appByPackage = MutableStateFlow<AppInfo?>(null)
-    val appByPackage: StateFlow<AppInfo?> = _appByPackage.asStateFlow()
+    val appByPackage = _appByPackage.asStateFlow()
 
     private val _appBySha256 = MutableStateFlow<AppInfo?>(null)
-    val appBySha256: StateFlow<AppInfo?> = _appBySha256.asStateFlow()
+    val appBySha256 = _appBySha256.asStateFlow()
 
     private val _appByMd5 = MutableStateFlow<AppInfo?>(null)
-    val appByMd5: StateFlow<AppInfo?> = _appByMd5.asStateFlow()
+    val appByMd5 = _appByMd5.asStateFlow()
 
     private val _appBySha1 = MutableStateFlow<AppInfo?>(null)
-    val appBySha1: StateFlow<AppInfo?> = _appBySha1.asStateFlow()
-
-    private val _safeApps = MutableStateFlow<List<AppInfo>>(emptyList())
-    val safeApps: StateFlow<List<AppInfo>> = _safeApps.asStateFlow()
-
-    private val _lowRiskApps = MutableStateFlow<List<AppInfo>>(emptyList())
-    val lowRiskApps: StateFlow<List<AppInfo>> = _lowRiskApps.asStateFlow()
-
-    private val _mediumRiskApps = MutableStateFlow<List<AppInfo>>(emptyList())
-    val mediumRiskApps: StateFlow<List<AppInfo>> = _mediumRiskApps.asStateFlow()
-
-    private val _highRiskApps = MutableStateFlow<List<AppInfo>>(emptyList())
-    val highRiskApps: StateFlow<List<AppInfo>> = _highRiskApps.asStateFlow()
-
-    private val _criticalApps = MutableStateFlow<List<AppInfo>>(emptyList())
-    val criticalApps: StateFlow<List<AppInfo>> = _criticalApps.asStateFlow()
-
-    private val _appsByRisk = MutableStateFlow<List<AppInfo>>(emptyList())
-    val appsByRisk: StateFlow<List<AppInfo>> = _appsByRisk.asStateFlow()
-
-    private val _newestApps = MutableStateFlow<List<AppInfo>>(emptyList())
-    val newestApps: StateFlow<List<AppInfo>> = _newestApps.asStateFlow()
-
-    private val _recentlyUpdatedApps = MutableStateFlow<List<AppInfo>>(emptyList())
-    val recentlyUpdatedApps: StateFlow<List<AppInfo>> = _recentlyUpdatedApps.asStateFlow()
-
-    private val _appsByInstaller = MutableStateFlow<List<AppInfo>>(emptyList())
-    val appsByInstaller: StateFlow<List<AppInfo>> = _appsByInstaller.asStateFlow()
-
-    private val _debuggableApps = MutableStateFlow<List<AppInfo>>(emptyList())
-    val debuggableApps: StateFlow<List<AppInfo>> = _debuggableApps.asStateFlow()
-
-    private val _disabledApps = MutableStateFlow<List<AppInfo>>(emptyList())
-    val disabledApps: StateFlow<List<AppInfo>> = _disabledApps.asStateFlow()
-
-    private val _oldTargetSdkApps = MutableStateFlow<List<AppInfo>>(emptyList())
-    val oldTargetSdkApps: StateFlow<List<AppInfo>> = _oldTargetSdkApps.asStateFlow()
+    val appBySha1 = _appBySha1.asStateFlow()
 
     private val _appsByCertificateSha256 = MutableStateFlow<List<AppInfo>>(emptyList())
-    val appsByCertificateSha256: StateFlow<List<AppInfo>> = _appsByCertificateSha256.asStateFlow()
+    val appsByCertificateSha256 = _appsByCertificateSha256.asStateFlow()
 
     private val _searchResultApps = MutableStateFlow<List<AppInfo>>(emptyList())
-    val searchResultApps: StateFlow<List<AppInfo>> = _searchResultApps.asStateFlow()
+    val searchResultApps = _searchResultApps.asStateFlow()
 
-    private val _largestApps = MutableStateFlow<List<AppInfo>>(emptyList())
-    val largestApps: StateFlow<List<AppInfo>> = _largestApps.asStateFlow()
-
-    private val _smallestApps = MutableStateFlow<List<AppInfo>>(emptyList())
-    val smallestApps: StateFlow<List<AppInfo>> = _smallestApps.asStateFlow()
-
-    private val _recommendedForUpload = MutableStateFlow<List<AppInfo>>(emptyList())
-    val recommendedForUpload: StateFlow<List<AppInfo>> = _recommendedForUpload.asStateFlow()
-
-    private val _recommendedSuspiciousApps = MutableStateFlow<List<AppInfo>>(emptyList())
-    val recommendedSuspiciousApps: StateFlow<List<AppInfo>> = _recommendedSuspiciousApps.asStateFlow()
-
-    // --- Specific Flows for Counts ---
-    private val _appsCount = MutableStateFlow<Int>(0)
-    val appsCount: StateFlow<Int> = _appsCount.asStateFlow()
-
-    private val _recommendedUploadsCount = MutableStateFlow<Int>(0)
-    val recommendedUploadsCount: StateFlow<Int> = _recommendedUploadsCount.asStateFlow()
-
-    private val _systemAppsCount = MutableStateFlow<Int>(0)
-    val systemAppsCount: StateFlow<Int> = _systemAppsCount.asStateFlow()
-
-    private val _userAppsCount = MutableStateFlow<Int>(0)
-    val userAppsCount: StateFlow<Int> = _userAppsCount.asStateFlow()
-
-    private val _suspiciousAppsCount = MutableStateFlow<Int>(0)
-    val suspiciousAppsCount: StateFlow<Int> = _suspiciousAppsCount.asStateFlow()
-
-    private val _safeAppsCount = MutableStateFlow<Int>(0)
-    val safeAppsCount: StateFlow<Int> = _safeAppsCount.asStateFlow()
-
-    private val _lowRiskAppsCount = MutableStateFlow<Int>(0)
-    val lowRiskAppsCount: StateFlow<Int> = _lowRiskAppsCount.asStateFlow()
-
-    private val _mediumRiskAppsCount = MutableStateFlow<Int>(0)
-    val mediumRiskAppsCount: StateFlow<Int> = _mediumRiskAppsCount.asStateFlow()
-
-    private val _highRiskAppsCount = MutableStateFlow<Int>(0)
-    val highRiskAppsCount: StateFlow<Int> = _highRiskAppsCount.asStateFlow()
-
-    private val _criticalAppsCount = MutableStateFlow<Int>(0)
-    val criticalAppsCount: StateFlow<Int> = _criticalAppsCount.asStateFlow()
-
-    // --- Specific Flows for SuspiciousApps ---
     private val _suspiciousAppByPackage = MutableStateFlow<SuspiciousApp?>(null)
-    val suspiciousAppByPackage: StateFlow<SuspiciousApp?> = _suspiciousAppByPackage.asStateFlow()
+    val suspiciousAppByPackage = _suspiciousAppByPackage.asStateFlow()
 
-    private val _notSentSuspiciousApps = MutableStateFlow<List<SuspiciousApp>>(emptyList())
-    val notSentSuspiciousApps: StateFlow<List<SuspiciousApp>> = _notSentSuspiciousApps.asStateFlow()
+    private val _appsByRiskAndDate = MutableStateFlow<List<AppInfo>>(emptyList())
+    val appsByRiskAndDate = _appsByRiskAndDate.asStateFlow()
 
-    private val _recommendedSuspicious = MutableStateFlow<List<SuspiciousApp>>(emptyList())
-    val recommendedSuspicious: StateFlow<List<SuspiciousApp>> = _recommendedSuspicious.asStateFlow()
+    private val _safeAppsCount = MutableStateFlow(0)
+    val safeAppsCount = _safeAppsCount.asStateFlow()
 
-    private val _suspiciousTotalCount = MutableStateFlow<Int>(0)
-    val suspiciousTotalCount: StateFlow<Int> = _suspiciousTotalCount.asStateFlow()
+    private val _lowRiskAppsCount = MutableStateFlow(0)
+    val lowRiskAppsCount = _lowRiskAppsCount.asStateFlow()
 
-    private val _recommendedSuspiciousCount = MutableStateFlow<Int>(0)
-    val recommendedSuspiciousCount: StateFlow<Int> = _recommendedSuspiciousCount.asStateFlow()
+    private val _mediumRiskAppsCount = MutableStateFlow(0)
+    val mediumRiskAppsCount = _mediumRiskAppsCount.asStateFlow()
 
-    private val _notSentSuspiciousCount = MutableStateFlow<Int>(0)
-    val notSentSuspiciousCount: StateFlow<Int> = _notSentSuspiciousCount.asStateFlow()
+    private val _highRiskAppsCount = MutableStateFlow(0)
+    val highRiskAppsCount = _highRiskAppsCount.asStateFlow()
 
-    private val _sentSuspiciousCount = MutableStateFlow<Int>(0)
-    val sentSuspiciousCount: StateFlow<Int> = _sentSuspiciousCount.asStateFlow()
+    private val _criticalAppsCount = MutableStateFlow(0)
+    val criticalAppsCount = _criticalAppsCount.asStateFlow()
+
+    private val _suspiciousTotalCount = MutableStateFlow(0)
+    val suspiciousTotalCount = _suspiciousTotalCount.asStateFlow()
+
+    private val _recommendedSuspiciousCount = MutableStateFlow(0)
+    val recommendedSuspiciousCount = _recommendedSuspiciousCount.asStateFlow()
+
+    private val _notSentSuspiciousCount = MutableStateFlow(0)
+    val notSentSuspiciousCount = _notSentSuspiciousCount.asStateFlow()
+
+    private val _sentSuspiciousCount = MutableStateFlow(0)
+    val sentSuspiciousCount = _sentSuspiciousCount.asStateFlow()
+
+    // --- Direct Exposure Flows (from Repo) ---
+    val suspiciousApps = appDataBaseRepo.suspiciousApps
+    val scanHistory = appDataBaseRepo.allScanHistory
+    val lastScan = appDataBaseRepo.lastScan
+    val allSuspiciousApps = appDataBaseRepo.allSuspiciousApps
+    val safeApps = appDataBaseRepo.getSafeApps()
+    val lowRiskApps = appDataBaseRepo.getLowRiskApps()
+    val mediumRiskApps = appDataBaseRepo.getMediumRiskApps()
+    val highRiskApps = appDataBaseRepo.getHighRiskApps()
+    val criticalApps = appDataBaseRepo.getCriticalApps()
+    val appsByRisk = appDataBaseRepo.appsByRisk
+    val newestApps = appDataBaseRepo.newestApps
+    val recentlyUpdatedApps = appDataBaseRepo.recentlyUpdatedApps
+    val debuggableApps = appDataBaseRepo.debuggableApps
+    val disabledApps = appDataBaseRepo.disabledApps
+    val oldTargetSdkApps = appDataBaseRepo.oldTargetSdkApps
+    val largestApps = appDataBaseRepo.largestApps
+    val smallestApps = appDataBaseRepo.smallestApps
+    val recommendedForUpload = appDataBaseRepo.recommendedForUpload
+    val recommendedUploadsCount = appDataBaseRepo.recommendedUploadsCount
+    val recommendedSuspiciousApps = appDataBaseRepo.recommendedSuspiciousApps
+    val appsCount = appDataBaseRepo.appsCount
+    val recommendedUploadsCountFromRepo = appDataBaseRepo.recommendedUploadsCount
+    val systemAppsCount = appDataBaseRepo.systemAppsCount
+    val userAppsCount = appDataBaseRepo.userAppsCount
+    val suspiciousAppsCount = appDataBaseRepo.suspiciousAppsCount
+    val notSentSuspiciousApps = appDataBaseRepo.notSentSuspiciousApps
+    val recommendedSuspicious = appDataBaseRepo.recommendedSuspicious
 
 
-    // --- AppDao Functions ---
+    fun getAllApps() {
+        viewModelScope.launch {
+            appDataBaseRepo.allApps.collectLatest {
+                _allApps.emit(it)
+            }
+        }
+    }
 
     fun insertApp(app: AppInfo) = viewModelScope.launch(Dispatchers.IO) {
         appDataBaseRepo.insertApp(app)
@@ -182,192 +137,260 @@ class AppDatabaseViewModel @Inject constructor(
         appDataBaseRepo.deleteAllApps()
     }
 
-    fun getAllApps() = viewModelScope.launch(Dispatchers.IO) {
-        _allApps.value = appDataBaseRepo.getAllApps()
+    fun getAppByPackage(pkg: String) {
+        viewModelScope.launch {
+            appDataBaseRepo.getAppByPackage(pkg).collectLatest {
+                _appByPackage.emit(it)
+            }
+        }
     }
 
-    fun getAppByPackage(pkg: String) = viewModelScope.launch(Dispatchers.IO) {
-        val result = appDataBaseRepo.getAppByPackage(pkg)
-        _appByPackage.value = result
+    fun getAppBySha256(hash: String) {
+        viewModelScope.launch {
+            appDataBaseRepo.getAppBySha256(hash).collectLatest {
+                _appBySha256.emit(it)
+            }
+        }
     }
 
-    fun getAppBySha256(hash: String,) = viewModelScope.launch(Dispatchers.IO) {
-        val result = appDataBaseRepo.getAppBySha256(hash)
-        _appBySha256.value = result
+    fun getAppByMd5(md5: String) {
+        viewModelScope.launch {
+            appDataBaseRepo.getAppByMd5(md5).collectLatest {
+                _appByMd5.emit(it)
+            }
+        }
     }
 
-    fun getAppByMd5(md5: String) = viewModelScope.launch(Dispatchers.IO) {
-        val result = appDataBaseRepo.getAppByMd5(md5)
-        _appByMd5.value = result
+    fun getAppBySha1(sha1: String) {
+        viewModelScope.launch {
+            appDataBaseRepo.getAppBySha1(sha1).collectLatest {
+                _appBySha1.emit(it)
+            }
+        }
     }
 
-    fun getAppBySha1(sha1: String) = viewModelScope.launch(Dispatchers.IO) {
-        val result = appDataBaseRepo.getAppBySha1(sha1)
-        _appBySha1.value = result
+    fun countApps(onResult: (Int) -> Unit) {
+        viewModelScope.launch {
+            appDataBaseRepo.appsCount.collectLatest {
+                onResult(it)
+            }
+        }
     }
 
-    fun countApps(onResult: (Int) -> Unit) = viewModelScope.launch(Dispatchers.IO) {
-        val result = appDataBaseRepo.countApps()
-        _appsCount.value = result
-        onResult(result)
+    fun countSafeApps(onlyUser: Boolean = false) {
+        viewModelScope.launch {
+            appDataBaseRepo.countSafeApps(onlyUser).collectLatest {
+                _safeAppsCount.emit(it)
+            }
+        }
     }
 
-    fun getSuspiciousApps() = viewModelScope.launch(Dispatchers.IO) {
-        _suspiciousApps.value = appDataBaseRepo.getSuspiciousApps()
+    fun countLowRiskApps(onlyUser: Boolean = false) {
+        viewModelScope.launch {
+            appDataBaseRepo.countLowRiskApps(onlyUser).collectLatest {
+                _lowRiskAppsCount.emit(it)
+            }
+        }
     }
 
-    fun getSafeApps(onlyUser: Boolean = false) = viewModelScope.launch(Dispatchers.IO) {
-        val result = appDataBaseRepo.getSafeApps(onlyUser)
-        _allApps.value = result
-        _safeApps.value = result
+    fun countMediumRiskApps(onlyUser: Boolean = false) {
+        viewModelScope.launch {
+            appDataBaseRepo.countMediumRiskApps(onlyUser).collectLatest {
+                _mediumRiskAppsCount.emit(it)
+            }
+        }
     }
 
-    fun getLowRiskApps(onlyUser: Boolean = false) = viewModelScope.launch(Dispatchers.IO) {
-        val result = appDataBaseRepo.getLowRiskApps(onlyUser)
-        _allApps.value = result
-        _lowRiskApps.value = result
+    fun countHighRiskApps(onlyUser: Boolean = false) {
+        viewModelScope.launch {
+            appDataBaseRepo.countHighRiskApps(onlyUser).collectLatest {
+                _highRiskAppsCount.emit(it)
+            }
+        }
     }
 
-    fun getMediumRiskApps(onlyUser: Boolean = false) = viewModelScope.launch(Dispatchers.IO) {
-        val result = appDataBaseRepo.getMediumRiskApps(onlyUser)
-        _allApps.value = result
-        _mediumRiskApps.value = result
+    fun countCriticalApps(onlyUser: Boolean = false) {
+        viewModelScope.launch {
+            appDataBaseRepo.countCriticalApps(onlyUser).collectLatest {
+                _criticalAppsCount.emit(it)
+            }
+        }
     }
 
-    fun getHighRiskApps(onlyUser: Boolean = false) = viewModelScope.launch(Dispatchers.IO) {
-        val result = appDataBaseRepo.getHighRiskApps(onlyUser)
-        _allApps.value = result
-        _highRiskApps.value = result
+    fun getSuspiciousApps() {
+        viewModelScope.launch {
+            appDataBaseRepo.suspiciousApps.collectLatest {
+                _allApps.emit(it)
+            }
+        }
     }
 
-    fun getCriticalApps(onlyUser: Boolean = false) = viewModelScope.launch(Dispatchers.IO) {
-        val result = appDataBaseRepo.getCriticalApps(onlyUser)
-        _allApps.value = result
-        _criticalApps.value = result
+    fun getSafeApps(onlyUser: Boolean = false) {
+        viewModelScope.launch {
+            appDataBaseRepo.getSafeApps(onlyUser).collectLatest {
+                _allApps.emit(it)
+            }
+        }
     }
 
-    fun getAppsByRisk() = viewModelScope.launch(Dispatchers.IO) {
-        val result = appDataBaseRepo.getAppsByRisk()
-        _allApps.value = result
-        _appsByRisk.value = result
+    fun getLowRiskApps(onlyUser: Boolean = false) {
+        viewModelScope.launch {
+            appDataBaseRepo.getLowRiskApps(onlyUser).collectLatest {
+                _allApps.emit(it)
+            }
+        }
     }
 
-    fun getNewestApps() = viewModelScope.launch(Dispatchers.IO) {
-        val result = appDataBaseRepo.getNewestApps()
-        _allApps.value = result
-        _newestApps.value = result
+    fun getMediumRiskApps(onlyUser: Boolean = false) {
+        viewModelScope.launch {
+            appDataBaseRepo.getMediumRiskApps(onlyUser).collectLatest {
+                _allApps.emit(it)
+            }
+        }
     }
 
-    fun getRecentlyUpdatedApps() = viewModelScope.launch(Dispatchers.IO) {
-        val result = appDataBaseRepo.getRecentlyUpdatedApps()
-        _allApps.value = result
-        _recentlyUpdatedApps.value = result
+    fun getHighRiskApps(onlyUser: Boolean = false) {
+        viewModelScope.launch {
+            appDataBaseRepo.getHighRiskApps(onlyUser).collectLatest {
+                _allApps.emit(it)
+            }
+        }
     }
 
-    fun getAppsByInstaller(installer: String) = viewModelScope.launch(Dispatchers.IO) {
-        val result = appDataBaseRepo.getAppsByInstaller(installer)
-        _allApps.value = result
-        _appsByInstaller.value = result
+    fun getCriticalApps(onlyUser: Boolean = false) {
+        viewModelScope.launch {
+            appDataBaseRepo.getCriticalApps(onlyUser).collectLatest {
+                _allApps.emit(it)
+            }
+        }
     }
 
-    fun getDebuggableApps() = viewModelScope.launch(Dispatchers.IO) {
-        val result = appDataBaseRepo.getDebuggableApps()
-        _allApps.value = result
-        _debuggableApps.value = result
+    fun getAppsByRisk() {
+        viewModelScope.launch {
+            appDataBaseRepo.appsByRisk.collectLatest {
+                _allApps.emit(it)
+            }
+        }
     }
 
-    fun getDisabledApps() = viewModelScope.launch(Dispatchers.IO) {
-        val result = appDataBaseRepo.getDisabledApps()
-        _allApps.value = result
-        _disabledApps.value = result
+    fun getNewestApps() {
+        viewModelScope.launch {
+            appDataBaseRepo.newestApps.collectLatest {
+                _allApps.emit(it)
+            }
+        }
     }
 
-    fun getOldTargetSdkApps() = viewModelScope.launch(Dispatchers.IO) {
-        val result = appDataBaseRepo.getOldTargetSdkApps()
-        _allApps.value = result
-        _oldTargetSdkApps.value = result
+    fun getRecentlyUpdatedApps() {
+        viewModelScope.launch {
+            appDataBaseRepo.recentlyUpdatedApps.collectLatest {
+                _allApps.emit(it)
+            }
+        }
     }
 
-    fun getAppsByCertificateSha256(sha256: String) = viewModelScope.launch(Dispatchers.IO) {
-        val result = appDataBaseRepo.getAppsByCertificateSha256(sha256)
-        _allApps.value = result
-        _appsByCertificateSha256.value = result
+    fun getAppsByInstaller(installer: String) {
+        viewModelScope.launch {
+            appDataBaseRepo.getAppsByInstaller(installer).collectLatest {
+                _allApps.emit(it)
+            }
+        }
     }
 
-    fun searchApps(keyword: String) = viewModelScope.launch(Dispatchers.IO) {
-        val result = appDataBaseRepo.searchApps(keyword)
-        _allApps.value = result
-        _searchResultApps.value = result
+    fun getDebuggableApps() {
+        viewModelScope.launch {
+            appDataBaseRepo.debuggableApps.collectLatest {
+                _allApps.emit(it)
+            }
+        }
     }
 
-    fun getLargestApps() = viewModelScope.launch(Dispatchers.IO) {
-        val result = appDataBaseRepo.getLargestApps()
-        _allApps.value = result
-        _largestApps.value = result
+    fun getDisabledApps() {
+        viewModelScope.launch {
+            appDataBaseRepo.disabledApps.collectLatest {
+                _allApps.emit(it)
+            }
+        }
     }
 
-    fun getSmallestApps() = viewModelScope.launch(Dispatchers.IO) {
-        val result = appDataBaseRepo.getSmallestApps()
-        _allApps.value = result
-        _smallestApps.value = result
+    fun getOldTargetSdkApps() {
+        viewModelScope.launch {
+            appDataBaseRepo.oldTargetSdkApps.collectLatest {
+                _allApps.emit(it)
+            }
+        }
     }
 
-    fun getRecommendedForUpload() = viewModelScope.launch(Dispatchers.IO) {
-        val result = appDataBaseRepo.getRecommendedForUpload()
-        _allApps.value = result
-        _recommendedForUpload.value = result
+    fun getAppsByCertificateSha256(sha256: String) {
+        viewModelScope.launch {
+            appDataBaseRepo.getAppsByCertificateSha256(sha256).collectLatest {
+                _appsByCertificateSha256.emit(it)
+                _allApps.emit(it)
+            }
+        }
     }
 
-    fun countRecommendedUploads(onResult: (Int) -> Unit) = viewModelScope.launch(Dispatchers.IO) {
-        val result = appDataBaseRepo.countRecommendedUploads()
-        _recommendedUploadsCount.value = result
-        onResult(result)
+    fun getAppsByRiskAndDate(
+        onlyUser: Boolean = false,
+        riskLevel: String,
+        scanDate: String,
+        scanTime: String
+    ) {
+        viewModelScope.launch {
+            appDataBaseRepo.getAppsByRiskAndDate(onlyUser, riskLevel, scanDate, scanTime).collectLatest {
+                _appsByRiskAndDate.emit(it)
+                _allApps.emit(it)
+            }
+        }
     }
 
-    fun getRecommendedSuspiciousApps() = viewModelScope.launch(Dispatchers.IO) {
-        val result = appDataBaseRepo.getRecommendedSuspiciousApps()
-        _suspiciousApps.value = result
-        _recommendedSuspiciousApps.value = result
+    fun searchApps(keyword: String) {
+        viewModelScope.launch {
+            appDataBaseRepo.searchApps(keyword).collectLatest {
+                _searchResultApps.emit(it)
+                _allApps.emit(it)
+            }
+        }
     }
 
-    fun countSystemApps() = viewModelScope.launch(Dispatchers.IO) {
-        val result = appDataBaseRepo.countSystemApps()
-        _systemAppsCount.value = result
+    fun getLargestApps() {
+        viewModelScope.launch {
+            appDataBaseRepo.largestApps.collectLatest {
+                _allApps.emit(it)
+            }
+        }
     }
 
-    fun countUserApps() = viewModelScope.launch(Dispatchers.IO) {
-        val result = appDataBaseRepo.countUserApps()
-        _userAppsCount.value = result
+    fun getSmallestApps() {
+        viewModelScope.launch {
+            appDataBaseRepo.smallestApps.collectLatest {
+                _allApps.emit(it)
+            }
+        }
     }
 
-    fun countSuspiciousApps() = viewModelScope.launch(Dispatchers.IO) {
-        val result = appDataBaseRepo.countSuspiciousApps()
-        _suspiciousAppsCount.value = result
+    fun getRecommendedForUpload() {
+        viewModelScope.launch {
+            appDataBaseRepo.recommendedForUpload.collectLatest {
+                _allApps.emit(it)
+            }
+        }
     }
 
-    fun countSafeApps(onlyUser: Boolean = false) = viewModelScope.launch(Dispatchers.IO) {
-        val result = appDataBaseRepo.countSafeApps(onlyUser)
-        _safeAppsCount.value = result
+    fun countRecommendedUploads(onResult: (Int) -> Unit) {
+        viewModelScope.launch {
+            appDataBaseRepo.recommendedUploadsCount.collectLatest {
+                onResult(it)
+            }
+        }
     }
 
-    fun countLowRiskApps(onlyUser: Boolean = false) = viewModelScope.launch(Dispatchers.IO) {
-        val result = appDataBaseRepo.countLowRiskApps(onlyUser)
-        _lowRiskAppsCount.value = result
-    }
-
-    fun countMediumRiskApps(onlyUser: Boolean = false) = viewModelScope.launch(Dispatchers.IO) {
-        val result = appDataBaseRepo.countMediumRiskApps(onlyUser)
-        _mediumRiskAppsCount.value = result
-    }
-
-    fun countHighRiskApps(onlyUser: Boolean = false) = viewModelScope.launch(Dispatchers.IO) {
-        val result = appDataBaseRepo.countHighRiskApps(onlyUser)
-        _highRiskAppsCount.value = result
-    }
-
-    fun countCriticalApps(onlyUser: Boolean = false) = viewModelScope.launch(Dispatchers.IO) {
-        val result = appDataBaseRepo.countCriticalApps(onlyUser)
-        _criticalAppsCount.value = result
+    fun getRecommendedSuspiciousApps() {
+        viewModelScope.launch {
+            appDataBaseRepo.recommendedSuspiciousApps.collectLatest {
+                _allApps.emit(it)
+            }
+        }
     }
 
     // --- PermissionDao Functions ---
@@ -380,8 +403,12 @@ class AppDatabaseViewModel @Inject constructor(
         appDataBaseRepo.insertAllPermissions(list)
     }
 
-    fun getPermissions(pkg: String) = viewModelScope.launch(Dispatchers.IO) {
-        _allPermissions.value = appDataBaseRepo.getPermissions(pkg)
+    fun getPermissions(pkg: String) {
+        viewModelScope.launch {
+            appDataBaseRepo.getPermissions(pkg).collectLatest {
+                _allPermissions.emit(it)
+            }
+        }
     }
 
     fun deleteAllPermissions() = viewModelScope.launch(Dispatchers.IO) {
@@ -410,49 +437,45 @@ class AppDatabaseViewModel @Inject constructor(
         appDataBaseRepo.deleteAllSuspiciousApps()
     }
 
-    fun getAllSuspiciousApps() = viewModelScope.launch(Dispatchers.IO) {
-        _allSuspiciousApps.value = appDataBaseRepo.getAllSuspiciousApps()
+    fun getSuspiciousAppByPackage(pkg: String, onResult: (SuspiciousApp?) -> Unit) {
+        viewModelScope.launch {
+            appDataBaseRepo.getSuspiciousAppByPackage(pkg).collectLatest {
+                _suspiciousAppByPackage.emit(it)
+                onResult(it)
+            }
+        }
     }
 
-    fun getSuspiciousAppByPackage(pkg: String, onResult: (SuspiciousApp?) -> Unit) = viewModelScope.launch(Dispatchers.IO) {
-        val result = appDataBaseRepo.getSuspiciousAppByPackage(pkg)
-        _suspiciousAppByPackage.value = result
-        onResult(result)
+    fun countSuspiciousTotal() {
+        viewModelScope.launch {
+            appDataBaseRepo.suspiciousTotalCount.collectLatest {
+                _suspiciousTotalCount.emit(it)
+            }
+        }
     }
 
-    fun getNotSentSuspiciousApps() = viewModelScope.launch(Dispatchers.IO) {
-        val result = appDataBaseRepo.getNotSentSuspiciousApps()
-        _allSuspiciousApps.value = result
-        _notSentSuspiciousApps.value = result
+    fun countRecommendedSuspicious() {
+        viewModelScope.launch {
+            appDataBaseRepo.recommendedSuspiciousCount.collectLatest {
+                _recommendedSuspiciousCount.emit(it)
+            }
+        }
     }
 
-    fun getRecommendedSuspicious() = viewModelScope.launch(Dispatchers.IO) {
-        val result = appDataBaseRepo.getRecommendedSuspicious()
-        _allSuspiciousApps.value = result
-        _recommendedSuspicious.value = result
+    fun countNotSentSuspicious() {
+        viewModelScope.launch {
+            appDataBaseRepo.notSentSuspiciousCount.collectLatest {
+                _notSentSuspiciousCount.emit(it)
+            }
+        }
     }
 
-    fun countSuspiciousTotal(onResult: (Int) -> Unit) = viewModelScope.launch(Dispatchers.IO) {
-        val result = appDataBaseRepo.countSuspiciousTotal()
-        _suspiciousTotalCount.value = result
-        onResult(result)
-    }
-
-    fun countRecommendedSuspicious(onResult: (Int) -> Unit) = viewModelScope.launch(Dispatchers.IO) {
-        val result = appDataBaseRepo.countRecommendedSuspicious()
-        _recommendedSuspiciousCount.value = result
-        onResult(result)
-    }
-
-    fun countNotSentSuspicious(onResult: (Int) -> Unit) = viewModelScope.launch(Dispatchers.IO) {
-        val result = appDataBaseRepo.countNotSentSuspicious()
-        _notSentSuspiciousCount.value = result
-        onResult(result)
-    }
-
-    fun countSentSuspicious() = viewModelScope.launch(Dispatchers.IO) {
-        val result = appDataBaseRepo.countSentSuspicious()
-        _sentSuspiciousCount.value = result
+    fun countSentSuspicious() {
+        viewModelScope.launch {
+            appDataBaseRepo.sentSuspiciousCount.collectLatest {
+                _sentSuspiciousCount.emit(it)
+            }
+        }
     }
 
     fun markSuspiciousReportSent(pkg: String, date: String) = viewModelScope.launch(Dispatchers.IO) {
@@ -469,15 +492,11 @@ class AppDatabaseViewModel @Inject constructor(
         appDataBaseRepo.insertScanHistory(history)
     }
 
-    fun getAllScanHistory() = viewModelScope.launch(Dispatchers.IO) {
-        _scanHistory.value = appDataBaseRepo.getAllScanHistory()
-    }
-
-    fun getLastScan() = viewModelScope.launch(Dispatchers.IO) {
-        _lastScan.value = appDataBaseRepo.getLastScan()
-    }
-
     fun deleteAllScanHistory() = viewModelScope.launch(Dispatchers.IO) {
         appDataBaseRepo.deleteAllScanHistory()
+    }
+
+    fun deleteScanHistory(id: Long) = viewModelScope.launch(Dispatchers.IO) {
+        appDataBaseRepo.deleteScanHistory(id)
     }
 }

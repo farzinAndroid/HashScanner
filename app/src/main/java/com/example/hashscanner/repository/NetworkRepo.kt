@@ -16,6 +16,7 @@ import com.example.hashscanner.data.network.ScanFinishedResponse
 import com.example.hashscanner.utils.Constants
 import com.example.hashscanner.utils.DateTimeUtils
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
@@ -31,7 +32,7 @@ class NetworkRepo @Inject constructor(
 ) : BaseApiResponse() {
 
     suspend fun uploadPending() = withContext(Dispatchers.IO) {
-        val list = dao.getNotSent()
+        val list = dao.getNotSent().first()
         if (list.isEmpty()) return@withContext
 
         val deviceId = dataStoreRepo.getString(Constants.DEVICE_ID_DATASTORE_ID) ?: "unknown_device"

@@ -31,10 +31,12 @@ import com.example.hashscanner.data.model.db_entities.ScanHistory
 import com.example.hashscanner.ui.theme.AccentPurpleColor
 import com.example.hashscanner.ui.theme.BackgroundColor
 import com.example.hashscanner.ui.theme.HashScannerTheme
+import com.example.hashscanner.ui.theme.LightGray
 import com.example.hashscanner.ui.theme.spacing
 import com.example.hashscanner.ui.ui_utils.RecentScanCard
 import com.example.hashscanner.viewmodel.AppDatabaseViewModel
 import com.example.hashscanner.viewmodel.AppViewModel
+import kotlin.collections.emptyList
 
 @Composable
 fun LandingPageScreen(
@@ -43,17 +45,19 @@ fun LandingPageScreen(
     appViewModel: AppViewModel,
     databaseViewModel: AppDatabaseViewModel
 ) {
-    val scanHistory by databaseViewModel.scanHistory.collectAsStateWithLifecycle()
-
-    LaunchedEffect(Unit) {
-        databaseViewModel.getAllScanHistory()
-        databaseViewModel.getLastScan()
-    }
+    val scanHistory by databaseViewModel.scanHistory.collectAsStateWithLifecycle(emptyList())
+    val lastScan by databaseViewModel.lastScan.collectAsStateWithLifecycle(emptyList<List<ScanHistory>>())
 
     LandingPageContent(
         scanHistory = scanHistory,
         onScanClick = onScanClick,
-        onHistoryClick = onHistoryClick
+        onHistoryClick = onHistoryClick,
+        onDeleteClicked = {
+            databaseViewModel.deleteScanHistory(it.id)
+        },
+        onRecentScanCardClicked = {
+
+        }
     )
 }
 
@@ -61,7 +65,9 @@ fun LandingPageScreen(
 fun LandingPageContent(
     scanHistory: List<ScanHistory>,
     onScanClick: () -> Unit,
-    onHistoryClick: () -> Unit
+    onHistoryClick: () -> Unit,
+    onDeleteClicked: (ScanHistory) -> Unit,
+    onRecentScanCardClicked: (ScanHistory) -> Unit,
 ) {
     LazyColumn(
         modifier = Modifier
@@ -129,7 +135,8 @@ fun LandingPageContent(
                 RecentScanCard(
                     scan = scan,
                     modifier = Modifier.padding(vertical = MaterialTheme.spacing.dp6),
-                    onClick = { /* Could navigate to scan details if implemented */ }
+                    onClick = { onRecentScanCardClicked(scan) },
+                    onDeleteClicked = { onDeleteClicked(scan) }
                 )
             }
         }
@@ -146,7 +153,9 @@ fun LandingPageScreenPreview() {
                 ScanHistory(1, "2026-08-05", "18:30", 115, 115, 115, 0, 0, 0, 0, 4500)
             ),
             onScanClick = {},
-            onHistoryClick = {}
+            onHistoryClick = {},
+            onDeleteClicked = {},
+            onRecentScanCardClicked = {}
         )
     }
 }

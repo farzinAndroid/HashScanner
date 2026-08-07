@@ -44,28 +44,36 @@ fun ScanHistoryScreen(
     onBackClick: () -> Unit,
     databaseViewModel: AppDatabaseViewModel
 ) {
-    val scanHistory by databaseViewModel.scanHistory.collectAsStateWithLifecycle()
-    
-    LaunchedEffect(Unit) {
-        databaseViewModel.getAllScanHistory()
-    }
+    val scanHistory by databaseViewModel.scanHistory.collectAsStateWithLifecycle(emptyList())
+
+
 
     ScanHistoryContent(
         scanHistory = scanHistory,
-        onBackClick = onBackClick
+        onBackClick = onBackClick,
+        onDeleteClicked = {
+            databaseViewModel.deleteScanHistory(it.id)
+        },
+        onRecentScanCardClicked = {}
     )
 }
 
 @Composable
 fun ScanHistoryContent(
     scanHistory: List<ScanHistory>,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    onDeleteClicked: (ScanHistory) -> Unit,
+    onRecentScanCardClicked: (ScanHistory) -> Unit
 ) {
     var searchQuery by remember { mutableStateOf("") }
 
     val filteredHistory = remember(scanHistory, searchQuery) {
         if (searchQuery.isEmpty()) scanHistory
-        else scanHistory.filter { it.scanDate.contains(searchQuery) || it.scanTime.contains(searchQuery) }
+        else scanHistory.filter {
+            it.scanDate.contains(searchQuery) || it.scanTime.contains(
+                searchQuery
+            )
+        }
     }
 
     Scaffold(
@@ -120,7 +128,8 @@ fun ScanHistoryContent(
                     items(filteredHistory) { scan ->
                         RecentScanCard(
                             scan = scan,
-                            onClick = { /* Navigate to details if implemented */ }
+                            onClick = { onRecentScanCardClicked(scan) },
+                            onDeleteClicked = { onDeleteClicked(scan) }
                         )
                     }
                 }
@@ -138,7 +147,9 @@ fun ScanHistoryScreenPreview() {
                 ScanHistory(0, "2026-08-06", "21:00", 120, 120, 110, 5, 3, 2, 0, 5000),
                 ScanHistory(1, "2026-08-05", "18:30", 115, 115, 115, 0, 0, 0, 0, 4500)
             ),
-            onBackClick = {}
+            onBackClick = {},
+            onDeleteClicked = {},
+            onRecentScanCardClicked = {}
         )
     }
 }

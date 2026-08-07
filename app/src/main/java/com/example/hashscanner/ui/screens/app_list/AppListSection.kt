@@ -34,20 +34,7 @@ fun AppListSection(
 ) {
     var whichAppsToLoad by rememberSaveable { mutableStateOf(initialRiskLevel) }
 
-    // Lists
-    val lowRiskApps by databaseViewModel.lowRiskApps.collectAsStateWithLifecycle()
-    val mediumRiskApps by databaseViewModel.mediumRiskApps.collectAsStateWithLifecycle()
-    val highRiskApps by databaseViewModel.highRiskApps.collectAsStateWithLifecycle()
-    val safeApps by databaseViewModel.safeApps.collectAsStateWithLifecycle()
-    val criticalApps by databaseViewModel.criticalApps.collectAsStateWithLifecycle()
-
-    val currentApps = when (whichAppsToLoad) {
-        RiskLevelsUI.SAFE -> safeApps
-        RiskLevelsUI.LOW -> lowRiskApps
-        RiskLevelsUI.MEDIUM -> mediumRiskApps
-        RiskLevelsUI.HIGH -> highRiskApps
-        RiskLevelsUI.CRITICAL -> criticalApps
-    }
+    val currentApps by databaseViewModel.allApps.collectAsStateWithLifecycle()
 
     LaunchedEffect(whichAppsToLoad) {
         databaseViewModel.apply {

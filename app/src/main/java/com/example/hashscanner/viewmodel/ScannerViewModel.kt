@@ -23,6 +23,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import java.io.File
@@ -69,11 +70,11 @@ class ScannerViewModel @Inject constructor(
             scanTime = DateTimeUtils.getCurrentTime(),
             totalApps = totalCount.value,
             scannedApps = scannedCount.value,
-            safeApps = appDatabaseRepo.countSafeApps(),
-            lowRisk = appDatabaseRepo.countLowRiskApps(),
-            mediumRisk = appDatabaseRepo.countMediumRiskApps(),
-            highRisk = appDatabaseRepo.countHighRiskApps(),
-            criticalRisk = appDatabaseRepo.countCriticalApps(),
+            safeApps = appDatabaseRepo.countSafeApps().first(),
+            lowRisk = appDatabaseRepo.countLowRiskApps().first(),
+            mediumRisk = appDatabaseRepo.countMediumRiskApps().first(),
+            highRisk = appDatabaseRepo.countHighRiskApps().first(),
+            criticalRisk = appDatabaseRepo.countCriticalApps().first(),
             duration = endTime - startTime
         )
         appDatabaseRepo.insertScanHistory(history)

@@ -11,6 +11,7 @@ import android.text.TextPaint
 import com.example.hashscanner.data.database.AppDatabase
 import com.example.hashscanner.utils.Constants
 import com.example.hashscanner.utils.DateTimeUtils
+import kotlinx.coroutines.flow.first
 import java.io.File
 import java.io.FileOutputStream
 
@@ -88,17 +89,17 @@ class PdfGenerator(
         // --- Begin Drawing Document ---
 
         val dao = db.appDao()
-        val apps = dao.getAll()
+        val apps = dao.getAll().first()
 
         drawWrappedText(Constants.EXPORT_LABEL_REPORT_TITLE, isTitle = true)
         drawWrappedText("${Constants.EXPORT_LABEL_SCAN_DATE} : ${DateTimeUtils.getCurrentDate()}")
         drawWrappedText("${Constants.EXPORT_LABEL_SCAN_TIME} : ${DateTimeUtils.getCurrentTime()}")
         drawWrappedText("${Constants.EXPORT_LABEL_TOTAL_APPS} : ${apps.size}")
-        drawWrappedText("${Constants.EXPORT_LABEL_SUSPICIOUS_APPS} : ${dao.countSuspiciousApps()}")
+        drawWrappedText("${Constants.EXPORT_LABEL_SUSPICIOUS_APPS} : ${dao.countSuspiciousApps().first()}")
 
         y += 12f // Extra padding before the list
 
-        for (app in dao.getAppsByRisk()) {
+        for (app in dao.getAppsByRisk().first()) {
 
             // Draw a separator line
             checkPageBreak(10f)

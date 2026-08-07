@@ -7,6 +7,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import com.example.hashscanner.data.model.db_entities.AppInfo
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface AppDao {
@@ -27,73 +28,76 @@ interface AppDao {
     suspend fun deleteAll()
 
     @Query("SELECT * FROM apps ORDER BY appName ASC")
-    suspend fun getAll(): List<AppInfo>
+    fun getAll(): Flow<List<AppInfo>>
 
     @Query("SELECT * FROM apps WHERE packageName=:pkg LIMIT 1")
-    suspend fun getByPackage(pkg: String): AppInfo?
+    fun getByPackage(pkg: String): Flow<AppInfo?>
 
     @Query("SELECT * FROM apps WHERE sha256=:hash LIMIT 1")
-    suspend fun getBySha256(hash: String): AppInfo?
+    fun getBySha256(hash: String): Flow<AppInfo?>
 
     @Query("SELECT * FROM apps WHERE md5=:md5 LIMIT 1")
-    suspend fun getByMd5(md5: String): AppInfo?
+    fun getByMd5(md5: String): Flow<AppInfo?>
 
     @Query("SELECT * FROM apps WHERE sha1=:sha1 LIMIT 1")
-    suspend fun getBySha1(sha1: String): AppInfo?
+    fun getBySha1(sha1: String): Flow<AppInfo?>
 
     @Query("SELECT COUNT(*) FROM apps")
-    suspend fun count(): Int
+    fun count(): Flow<Int>
 
     @Query("SELECT * FROM apps WHERE suspicious=1")
-    suspend fun getSuspicious(): List<AppInfo>
+    fun getSuspicious(): Flow<List<AppInfo>>
 
     @Query("SELECT * FROM apps WHERE riskLevel='SAFE' AND (:onlyUser = 0 OR isSystem = 0)")
-    suspend fun getSafeApps(onlyUser: Boolean = false): List<AppInfo>
+    fun getSafeApps(onlyUser: Boolean = false): Flow<List<AppInfo>>
 
     @Query("SELECT * FROM apps WHERE riskLevel='LOW' AND (:onlyUser = 0 OR isSystem = 0)")
-    suspend fun getLowRiskApps(onlyUser: Boolean = false): List<AppInfo>
+    fun getLowRiskApps(onlyUser: Boolean = false): Flow<List<AppInfo>>
 
     @Query("SELECT * FROM apps WHERE riskLevel='MEDIUM' AND (:onlyUser = 0 OR isSystem = 0)")
-    suspend fun getMediumRiskApps(onlyUser: Boolean = false): List<AppInfo>
+    fun getMediumRiskApps(onlyUser: Boolean = false): Flow<List<AppInfo>>
 
     @Query("SELECT * FROM apps WHERE riskLevel='HIGH' AND (:onlyUser = 0 OR isSystem = 0)")
-    suspend fun getHighRiskApps(onlyUser: Boolean = false): List<AppInfo>
+    fun getHighRiskApps(onlyUser: Boolean = false): Flow<List<AppInfo>>
 
     @Query("SELECT * FROM apps WHERE riskLevel='CRITICAL' AND (:onlyUser = 0 OR isSystem = 0)")
-    suspend fun getCriticalApps(onlyUser: Boolean = false): List<AppInfo>
+    fun getCriticalApps(onlyUser: Boolean = false): Flow<List<AppInfo>>
 
     @Query("SELECT * FROM apps ORDER BY riskScore DESC")
-    suspend fun getAppsByRisk(): List<AppInfo>
+    fun getAppsByRisk(): Flow<List<AppInfo>>
+
+    @Query("SELECT * FROM apps WHERE riskLevel=:riskLevel AND scanDate=:scanDate AND scanTime=:scanTime AND (:onlyUser = 0 OR isSystem = 0)")
+    fun getAppsByRiskAndDate(onlyUser: Boolean = false,riskLevel: String,scanDate:String,scanTime:String): Flow<List<AppInfo>>
 
     @Query("SELECT * FROM apps ORDER BY firstInstallTime DESC")
-    suspend fun getNewestApps(): List<AppInfo>
+    fun getNewestApps(): Flow<List<AppInfo>>
 
     @Query("SELECT * FROM apps ORDER BY lastUpdateTime DESC")
-    suspend fun getRecentlyUpdatedApps(): List<AppInfo>
+    fun getRecentlyUpdatedApps(): Flow<List<AppInfo>>
 
     @Query("SELECT * FROM apps WHERE installer=:installer")
-    suspend fun getAppsByInstaller(installer: String): List<AppInfo>
+    fun getAppsByInstaller(installer: String): Flow<List<AppInfo>>
 
     @Query("SELECT * FROM apps WHERE isDebuggable=1")
-    suspend fun getDebuggableApps(): List<AppInfo>
+    fun getDebuggableApps(): Flow<List<AppInfo>>
 
     @Query("SELECT * FROM apps WHERE isEnabled=0")
-    suspend fun getDisabledApps(): List<AppInfo>
+    fun getDisabledApps(): Flow<List<AppInfo>>
 
     @Query("SELECT * FROM apps WHERE targetSdk<30")
-    suspend fun getOldTargetSdkApps(): List<AppInfo>
+    fun getOldTargetSdkApps(): Flow<List<AppInfo>>
 
     @Query("SELECT * FROM apps WHERE certificateSha256=:sha256")
-    suspend fun getByCertificateSha256(sha256: String): List<AppInfo>
+    fun getByCertificateSha256(sha256: String): Flow<List<AppInfo>>
 
     @Query("SELECT * FROM apps WHERE packageName LIKE '%' || :keyword || '%' OR appName LIKE '%' || :keyword || '%'")
-    suspend fun search(keyword: String): List<AppInfo>
+    fun search(keyword: String): Flow<List<AppInfo>>
 
     @Query("SELECT * FROM apps ORDER BY apkSize DESC")
-    suspend fun getLargestApps(): List<AppInfo>
+    fun getLargestApps(): Flow<List<AppInfo>>
 
     @Query("SELECT * FROM apps ORDER BY apkSize ASC")
-    suspend fun getSmallestApps(): List<AppInfo>
+    fun getSmallestApps(): Flow<List<AppInfo>>
 
     @Query("""
         UPDATE apps
@@ -113,14 +117,14 @@ interface AppDao {
         WHERE recommendUpload = 1
         ORDER BY riskScore DESC
     """)
-    suspend fun getRecommendedForUpload(): List<AppInfo>
+    fun getRecommendedForUpload(): Flow<List<AppInfo>>
 
     @Query("""
         SELECT COUNT(*)
         FROM apps
         WHERE recommendUpload = 1
     """)
-    suspend fun countRecommendedUploads(): Int
+    fun countRecommendedUploads(): Flow<Int>
 
     @Query("""
         SELECT * FROM apps
@@ -128,32 +132,32 @@ interface AppDao {
         AND suspicious = 1
         ORDER BY riskScore DESC
     """)
-    suspend fun getRecommendedSuspiciousApps(): List<AppInfo>
+    fun getRecommendedSuspiciousApps(): Flow<List<AppInfo>>
 
     // ---------- Statistics ----------
 
     @Query("SELECT COUNT(*) FROM apps WHERE isSystem=1")
-    suspend fun countSystemApps(): Int
+    fun countSystemApps(): Flow<Int>
 
     @Query("SELECT COUNT(*) FROM apps WHERE isSystem=0")
-    suspend fun countUserApps(): Int
+    fun countUserApps(): Flow<Int>
 
     @Query("SELECT COUNT(*) FROM apps WHERE suspicious=1")
-    suspend fun countSuspiciousApps(): Int
+    fun countSuspiciousApps(): Flow<Int>
 
     @Query("SELECT COUNT(*) FROM apps WHERE riskLevel='SAFE' AND (:onlyUser = 0 OR isSystem = 0)")
-    suspend fun countSafeApps(onlyUser: Boolean = false): Int
+    fun countSafeApps(onlyUser: Boolean = false): Flow<Int>
 
     @Query("SELECT COUNT(*) FROM apps WHERE riskLevel='LOW' AND (:onlyUser = 0 OR isSystem = 0)")
-    suspend fun countLowRiskApps(onlyUser: Boolean = false): Int
+    fun countLowRiskApps(onlyUser: Boolean = false): Flow<Int>
 
     @Query("SELECT COUNT(*) FROM apps WHERE riskLevel='MEDIUM' AND (:onlyUser = 0 OR isSystem = 0)")
-    suspend fun countMediumRiskApps(onlyUser: Boolean = false): Int
+    fun countMediumRiskApps(onlyUser: Boolean = false): Flow<Int>
 
     @Query("SELECT COUNT(*) FROM apps WHERE riskLevel='HIGH' AND (:onlyUser = 0 OR isSystem = 0)")
-    suspend fun countHighRiskApps(onlyUser: Boolean = false): Int
+    fun countHighRiskApps(onlyUser: Boolean = false): Flow<Int>
 
     @Query("SELECT COUNT(*) FROM apps WHERE riskLevel='CRITICAL' AND (:onlyUser = 0 OR isSystem = 0)")
-    suspend fun countCriticalApps(onlyUser: Boolean = false): Int
+    fun countCriticalApps(onlyUser: Boolean = false): Flow<Int>
 
 }

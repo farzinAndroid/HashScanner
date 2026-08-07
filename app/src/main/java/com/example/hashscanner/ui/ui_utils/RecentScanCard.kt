@@ -1,6 +1,7 @@
 package com.example.hashscanner.ui.ui_utils
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,6 +15,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -32,17 +35,19 @@ import com.example.hashscanner.ui.theme.BlackWhiteColor
 import com.example.hashscanner.ui.theme.GreenColor
 import com.example.hashscanner.ui.theme.RedColor
 import com.example.hashscanner.ui.theme.spacing
+import com.example.hashscanner.utils.DigitHelper
 
 @Composable
 fun RecentScanCard(
     scan: ScanHistory,
     modifier: Modifier = Modifier,
-    onClick: () -> Unit
+    onClick: (ScanHistory) -> Unit,
+    onDeleteClicked:(ScanHistory)-> Unit
 ) {
     val suspiciousApps = scan.highRisk + scan.criticalRisk
-    
+
     Card(
-        onClick = onClick,
+        onClick = { onClick(scan) },
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(MaterialTheme.spacing.dp16),
         colors = CardDefaults.cardColors(
@@ -70,15 +75,19 @@ fun RecentScanCard(
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.List,
                     contentDescription = null,
-                    tint = if (suspiciousApps > 0) MaterialTheme.colorScheme.RedColor 
-                           else MaterialTheme.colorScheme.GreenColor,
+                    tint = if (suspiciousApps > 0) MaterialTheme.colorScheme.RedColor
+                    else MaterialTheme.colorScheme.GreenColor,
                     modifier = Modifier.size(20.dp)
                 )
             }
-            
+
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = "${scan.scanDate} - ${scan.scanTime}",
+                    text = "${DigitHelper.digitByLang(scan.scanDate)} - ${
+                        DigitHelper.digitByLang(
+                            scan.scanTime
+                        )
+                    }",
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.BlackWhiteColor
@@ -89,21 +98,25 @@ fun RecentScanCard(
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                 )
             }
-            
+
             Row(verticalAlignment = Alignment.CenterVertically) {
                 if (suspiciousApps > 0) {
                     Text(
-                        text = "$suspiciousApps",
+                        text = DigitHelper.digitByLang(suspiciousApps.toString()),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.RedColor,
                         fontWeight = FontWeight.ExtraBold
                     )
-                    Spacer(Modifier.width(4.dp))
+                    Spacer(Modifier.width(MaterialTheme.spacing.dp12))
                 }
                 Icon(
-                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+                    imageVector = Icons.Default.Delete,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
+                    tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
+                    modifier = Modifier
+                        .clickable{
+                            onDeleteClicked(scan)
+                        }
                 )
             }
         }

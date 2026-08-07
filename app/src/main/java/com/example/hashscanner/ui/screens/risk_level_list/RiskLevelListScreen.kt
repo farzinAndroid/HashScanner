@@ -22,16 +22,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.net.toUri
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.hashscanner.ui.theme.HashScannerTheme
 import androidx.navigation.NavController
 import com.example.hashscanner.R
 import com.example.hashscanner.ui.navigation.Screens
 import com.example.hashscanner.ui.theme.AccentPurpleColor
 import com.example.hashscanner.ui.theme.BackgroundColor
 import com.example.hashscanner.ui.theme.GreenColor
-import com.example.hashscanner.ui.theme.HashScannerTheme
 import com.example.hashscanner.ui.theme.RedColor
 import com.example.hashscanner.ui.theme.StrongYellowColor
 import com.example.hashscanner.ui.theme.spacing
@@ -46,13 +47,13 @@ fun RiskLevelListScreen(
     navController: NavController,
     databaseViewModel: AppDatabaseViewModel
 ) {
-    val safeCount by databaseViewModel.safeAppsCount.collectAsStateWithLifecycle()
-    val lowCount by databaseViewModel.lowRiskAppsCount.collectAsStateWithLifecycle()
-    val mediumCount by databaseViewModel.mediumRiskAppsCount.collectAsStateWithLifecycle()
-    val highCount by databaseViewModel.highRiskAppsCount.collectAsStateWithLifecycle()
-    val criticalCount by databaseViewModel.criticalAppsCount.collectAsStateWithLifecycle()
+    val safeCount by databaseViewModel.safeAppsCount.collectAsStateWithLifecycle(initialValue = 0)
+    val lowCount by databaseViewModel.lowRiskAppsCount.collectAsStateWithLifecycle(initialValue = 0)
+    val mediumCount by databaseViewModel.mediumRiskAppsCount.collectAsStateWithLifecycle(initialValue = 0)
+    val highCount by databaseViewModel.highRiskAppsCount.collectAsStateWithLifecycle(initialValue = 0)
+    val criticalCount by databaseViewModel.criticalAppsCount.collectAsStateWithLifecycle(initialValue = 0)
 
-    LaunchedEffect(true) {
+    LaunchedEffect(Unit) {
         databaseViewModel.apply {
             countSafeApps(onlyUser = true)
             countLowRiskApps(onlyUser = true)
@@ -205,4 +206,3 @@ fun RiskLevelListScreenPreview() {
         )
     }
 }
-

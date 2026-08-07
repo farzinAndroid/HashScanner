@@ -27,9 +27,9 @@ fun ScanCompleteSection(
 ) {
     val totalCount by scannerViewModel.totalCount.collectAsStateWithLifecycle()
     val suspiciousCount by scannerViewModel.suspiciousCount.collectAsStateWithLifecycle()
-    val sentReportsCount by appDatabaseViewModel.sentSuspiciousCount.collectAsStateWithLifecycle()
+    val sentReportsCount by appDatabaseViewModel.sentSuspiciousCount.collectAsStateWithLifecycle(initialValue = 0)
 
-    LaunchedEffect(true) {
+    LaunchedEffect(Unit) {
         appDatabaseViewModel.countSentSuspicious()
     }
 
