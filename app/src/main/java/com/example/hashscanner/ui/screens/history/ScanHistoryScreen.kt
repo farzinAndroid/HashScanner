@@ -144,8 +144,8 @@ fun ScanHistoryScreenPreview() {
     HashScannerTheme {
         ScanHistoryContent(
             scanHistory = listOf(
-                ScanHistory(0, "2026-08-06", "21:00", 120, 120, 110, 5, 3, 2, 0, 5000),
-                ScanHistory(1, "2026-08-05", "18:30", 115, 115, 115, 0, 0, 0, 0, 4500)
+                ScanHistory("0", "2026-08-06", "21:00", 120, 120, 110, 5, 3, 2, 0, 5000),
+                ScanHistory("1", "2026-08-05", "18:30", 115, 115, 115, 0, 0, 0, 0, 4500)
             ),
             onBackClick = {},
             onDeleteClicked = {},

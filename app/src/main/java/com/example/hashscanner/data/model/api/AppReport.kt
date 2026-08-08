@@ -1,43 +1,34 @@
 package com.example.hashscanner.data.model.api
 
 import com.example.hashscanner.data.model.db_entities.SuspiciousApp
-import com.google.gson.annotations.SerializedName
 
 data class AppReport(
-    @SerializedName("deviceId")
+    val apps: List<App>,
     val deviceId: String,
-    @SerializedName("appName")
-    val appName: String,
-    @SerializedName("packageName")
-    val packageName: String,
-    @SerializedName("sha256")
-    val sha256: String,
-    @SerializedName("riskScore")
-    val riskScore: Int,
-    @SerializedName("riskLevel")
-    val riskLevel: String,
-    @SerializedName("reason")
-    val reason: String,
-    @SerializedName("reportDate")
-    val reportDate: String,
-    @SerializedName("recommendUpload")
-    val recommendUpload: Boolean,
-    @SerializedName("recommendation")
-    val recommendation: String
+    val scanId: String
 ) {
     companion object {
-        fun fromSuspiciousApp(app: SuspiciousApp, deviceId: String): AppReport {
+        fun fromSuspiciousApps(
+            list: List<SuspiciousApp>,
+            deviceId: String,
+            scanId: String
+        ): AppReport {
             return AppReport(
+                apps = list.map { suspicious ->
+                    App(
+                        appName = suspicious.appName,
+                        packageName = suspicious.packageName,
+                        reason = suspicious.reason,
+                        recommendUpload = suspicious.recommendUpload,
+                        recommendation = suspicious.recommendation,
+                        reportDate = suspicious.reportDate,
+                        riskLevel = suspicious.riskLevel,
+                        riskScore = suspicious.riskScore,
+                        sha256 = suspicious.sha256
+                    )
+                },
                 deviceId = deviceId,
-                appName = app.appName,
-                packageName = app.packageName,
-                sha256 = app.sha256,
-                riskScore = app.riskScore,
-                riskLevel = app.riskLevel,
-                reason = app.reason,
-                reportDate = app.reportDate,
-                recommendUpload = app.recommendUpload,
-                recommendation = app.recommendation
+                scanId = scanId
             )
         }
     }

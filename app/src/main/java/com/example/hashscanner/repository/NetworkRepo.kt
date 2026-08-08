@@ -23,6 +23,7 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.File
+import java.util.UUID
 import javax.inject.Inject
 
 class NetworkRepo @Inject constructor(
@@ -31,26 +32,31 @@ class NetworkRepo @Inject constructor(
     private val dataStoreRepo: DataStoreRepo
 ) : BaseApiResponse() {
 
-    suspend fun uploadPending() = withContext(Dispatchers.IO) {
+    suspend fun uploadPending(scanId: String) = withContext(Dispatchers.IO) {
         val list = dao.getNotSent().first()
         if (list.isEmpty()) return@withContext
 
         val deviceId = dataStoreRepo.getString(Constants.DEVICE_ID_DATASTORE_ID) ?: "unknown_device"
         val uploadTime = DateTimeUtils.getCurrentDateTime()
 
-        list.forEach { app ->
-            val report = AppReport.fromSuspiciousApp(app, deviceId)
-            val result = safeApiCall { apiService.sendScanReport(report) }
+        val report = AppReport.fromSuspiciousApps(
+            list = list,
+            deviceId = deviceId,
+            scanId = scanId
+        )
 
-            if (result is NetworkResult.Success) {
+        val result = safeApiCall { apiService.sendScanReport(report) }
+
+        if (result is NetworkResult.Success) {
+            list.forEach { app ->
                 dao.markReportSent(
                     pkg = app.packageName,
                     date = uploadTime
                 )
-                Log.d("NetworkRepo", "Successfully uploaded report for: ${app.packageName}")
-            } else if (result is NetworkResult.Error) {
-                Log.e("NetworkRepo", "Failed to upload report for ${app.packageName}: ${result.message}")
             }
+            Log.d("NetworkRepo", "Successfully uploaded batch report for ${list.size} apps. ScanId: $scanId")
+        } else if (result is NetworkResult.Error) {
+            Log.e("NetworkRepo", "Failed to upload batch report: ${result.message}")
         }
     }
 

@@ -11,7 +11,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.toRoute
-import com.example.hashscanner.data.model.api.ScanResultModel
 import com.example.hashscanner.ui.screens.app_details.AppDetailsScreen
 import com.example.hashscanner.ui.screens.app_list.AppListScreen
 import com.example.hashscanner.ui.screens.authentication.AuthenticationScreen
@@ -54,7 +53,7 @@ fun NavGraph(
 
     LaunchedEffect(currentRoute) {
         if (currentRoute != null && !isExcluded) {
-            scannerViewModel.getScanResult(ScanResultModel(Constants.DEVICE_ID))
+            scannerViewModel.getScanResult()
         } else {
             scannerViewModel.stopPolling()
         }
@@ -81,7 +80,10 @@ fun NavGraph(
 
             composable<Screens.Landing> {
                 LandingPageScreen(
-                    onScanClick = { navController.navigate(Screens.Scan) },
+                    onScanClick = {
+                        scannerViewModel.resetScanState()
+                        navController.navigate(Screens.Scan)
+                    },
                     onHistoryClick = { navController.navigate(Screens.ScanHistory) },
                     appViewModel = appViewModel,
                     databaseViewModel = appDatabaseViewModel

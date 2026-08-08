@@ -496,7 +496,7 @@ class AppDatabaseViewModel @Inject constructor(
         appDataBaseRepo.deleteAllScanHistory()
     }
 
-    fun deleteScanHistory(id: Long) = viewModelScope.launch(Dispatchers.IO) {
+    fun deleteScanHistory(id: String) = viewModelScope.launch(Dispatchers.IO) {
         appDataBaseRepo.deleteScanHistory(id)
     }
 }

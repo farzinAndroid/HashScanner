@@ -27,6 +27,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import java.io.File
+import java.util.UUID
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -45,41 +46,58 @@ class ScannerViewModel @Inject constructor(
     val appName = MutableStateFlow<String>("")
     val iconBitmap = MutableStateFlow<Bitmap?>(null)
     val isScanCompleted = MutableStateFlow<ScanPageState>(ScanPageState.SCANNING)
+    private var scanJob: Job? = null
 
-    fun startScan() = viewModelScope.launch(Dispatchers.IO) {
-        val startTime = System.currentTimeMillis()
+    fun resetScanState() {
+        scanJob?.cancel()
         isScanCompleted.value = ScanPageState.SCANNING
-        scannerRepository.startScan(
-            onProgress = { scanned, total, suspicious, remaining, app, icon ->
-                totalCount.value = total
-                scannedCount.value = scanned
-                suspiciousCount.value = suspicious
-                remainingCount.value = remaining
-                appName.value = app
-                iconBitmap.value = icon
-            }
-        )
-        isScanCompleted.value = ScanPageState.UPLOADING
-        networkRepo.uploadPending()
-        networkRepo.scanFinished(ScanResultModel(Constants.DEVICE_ID))
-        
-        // Save Scan History
-        val endTime = System.currentTimeMillis()
-        val history = ScanHistory(
-            scanDate = DateTimeUtils.getCurrentDate(),
-            scanTime = DateTimeUtils.getCurrentTime(),
-            totalApps = totalCount.value,
-            scannedApps = scannedCount.value,
-            safeApps = appDatabaseRepo.countSafeApps().first(),
-            lowRisk = appDatabaseRepo.countLowRiskApps().first(),
-            mediumRisk = appDatabaseRepo.countMediumRiskApps().first(),
-            highRisk = appDatabaseRepo.countHighRiskApps().first(),
-            criticalRisk = appDatabaseRepo.countCriticalApps().first(),
-            duration = endTime - startTime
-        )
-        appDatabaseRepo.insertScanHistory(history)
-        
-        isScanCompleted.value = ScanPageState.SCAN_COMPLETE
+        totalCount.value = 0
+        scannedCount.value = 0
+        suspiciousCount.value = 0
+        remainingCount.value = 0
+        appName.value = ""
+        iconBitmap.value = null
+    }
+
+    fun startScan() {
+        if (scanJob?.isActive == true) return
+        scanJob = viewModelScope.launch(Dispatchers.IO) {
+            val startTime = System.currentTimeMillis()
+            val scanId = UUID.randomUUID().toString()
+            isScanCompleted.value = ScanPageState.SCANNING
+            scannerRepository.startScan(
+                onProgress = { scanned, total, suspicious, remaining, app, icon ->
+                    totalCount.value = total
+                    scannedCount.value = scanned
+                    suspiciousCount.value = suspicious
+                    remainingCount.value = remaining
+                    appName.value = app
+                    iconBitmap.value = icon
+                }
+            )
+            isScanCompleted.value = ScanPageState.UPLOADING
+            networkRepo.uploadPending(scanId)
+            networkRepo.scanFinished(ScanResultModel(scanId = scanId, deviceId = Constants.DEVICE_ID))
+
+            // Save Scan History
+            val endTime = System.currentTimeMillis()
+            val history = ScanHistory(
+                id = scanId,
+                scanDate = DateTimeUtils.getCurrentDate(),
+                scanTime = DateTimeUtils.getCurrentTime(),
+                totalApps = totalCount.value,
+                scannedApps = scannedCount.value,
+                safeApps = appDatabaseRepo.countSafeApps().first(),
+                lowRisk = appDatabaseRepo.countLowRiskApps().first(),
+                mediumRisk = appDatabaseRepo.countMediumRiskApps().first(),
+                highRisk = appDatabaseRepo.countHighRiskApps().first(),
+                criticalRisk = appDatabaseRepo.countCriticalApps().first(),
+                duration = endTime - startTime
+            )
+            appDatabaseRepo.insertScanHistory(history)
+
+            isScanCompleted.value = ScanPageState.SCAN_COMPLETE
+        }
     }
 
 
@@ -89,33 +107,41 @@ class ScannerViewModel @Inject constructor(
 
     private var job: Job? = null
 
-    fun getScanResult(scanResultModel: ScanResultModel) {
+    fun getScanResult() {
 
         if (job?.isActive == true) return
 
         job = viewModelScope.launch(Dispatchers.IO) {
 
+            val lastScanId = appDatabaseRepo.lastScan.first()?.id ?: return@launch
+
             if (_scanResultResponseResponse.value !is NetworkResult.Success) {
                 _scanResultResponseResponse.emit(NetworkResult.Loading())
             }
 
-
+            val scanResultModel = ScanResultModel(scanId = lastScanId, deviceId = Constants.DEVICE_ID)
 
             while (isActive) {
-                Log.d("ScannerViewModel", "Polling API for device: $scanResultModel")
+                Log.d("ScannerViewModel", "Polling API for scanId: $lastScanId")
                 try {
                     val result = networkRepo.getScanResult(scanResultModel)
 
-                    when(val scanResult = result){
+                    when (val scanResult = result) {
                         is NetworkResult.Error<ScanResultResponse> -> {
                             Log.e("ScannerViewModel", "Polling Error: ${scanResult.message}")
                         }
+
                         is NetworkResult.Idle<ScanResultResponse> -> {}
                         is NetworkResult.Loading<ScanResultResponse> -> {}
                         is NetworkResult.Success<ScanResultResponse> -> {
-                            if (scanResult.data?.ready == true){
+                            if (scanResult.data?.ready == true) {
                                 Log.d("ScannerViewModel", "Poll Successful: Ready!")
-                                _scanResultResponseResponse.emit(NetworkResult.Success(scanResult.message.toString(),scanResult.data))
+                                _scanResultResponseResponse.emit(
+                                    NetworkResult.Success(
+                                        scanResult.message.toString(),
+                                        scanResult.data
+                                    )
+                                )
                                 stopPolling()
                                 break
                             }
@@ -137,8 +163,8 @@ class ScannerViewModel @Inject constructor(
 
 
     // --- Network / Upload Functions ---
-    fun uploadPendingReports() = viewModelScope.launch(Dispatchers.IO) {
-        networkRepo.uploadPending()
+    fun uploadPendingReports(scanId: String) = viewModelScope.launch(Dispatchers.IO) {
+        networkRepo.uploadPending(scanId)
     }
 
 

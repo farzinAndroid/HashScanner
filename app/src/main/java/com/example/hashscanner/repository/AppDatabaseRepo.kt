@@ -106,5 +106,5 @@ class AppDatabaseRepo @Inject constructor(
     val lastScan = scanHistoryDao.getLastScan()
     suspend fun deleteAllScanHistory() = scanHistoryDao.deleteAll()
 
-    suspend fun deleteScanHistory(id: Long) = scanHistoryDao.deleteScanHistory(id)
+    suspend fun deleteScanHistory(id: String) = scanHistoryDao.deleteScanHistory(id)
 }
