@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -34,6 +35,7 @@ import com.example.hashscanner.ui.theme.BackgroundColor
 import com.example.hashscanner.ui.theme.HashScannerTheme
 import com.example.hashscanner.ui.theme.spacing
 import com.example.hashscanner.ui.ui_utils.AppTopBar
+import com.example.hashscanner.utils.DateTimeUtils
 import com.example.hashscanner.viewmodel.AppDatabaseViewModel
 import com.example.hashscanner.viewmodel.ScannerViewModel
 
@@ -50,6 +52,12 @@ fun AppDetailsScreen(
 
     var isLoading by remember { mutableStateOf(false) }
 
+    DisposableEffect(Unit) {
+        onDispose {
+            scannerViewModel.cancelUpload()
+        }
+    }
+
     // --- Side Effects ---
     LaunchedEffect(packageName) {
         databaseViewModel.getAppByPackage(packageName)
@@ -59,20 +67,40 @@ fun AppDetailsScreen(
         when (val result = apkUploadResponse) {
             is NetworkResult.Success -> {
                 isLoading = false
-                Toast.makeText(context, result.data?.message ?: context.getString(R.string.toast_upload_success), Toast.LENGTH_SHORT).show()
-                databaseViewModel.getAppByPackage(packageName)
+                if (result.data?.success == false) {
+                    Toast.makeText(
+                        context,
+                        context.getString(R.string.toast_upload_error),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                } else {
+                    val date = DateTimeUtils.getCurrentDateTime()
+                    databaseViewModel.markApkUploaded(packageName, date)
+                    Toast.makeText(
+                        context,
+                        context.getString(R.string.toast_upload_success),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    databaseViewModel.getAppByPackage(packageName)
+                }
             }
+
             is NetworkResult.Error -> {
                 isLoading = false
-                Toast.makeText(context, result.message ?: context.getString(R.string.toast_upload_error), Toast.LENGTH_LONG).show()
+                Toast.makeText(
+                    context,
+                    result.message ?: context.getString(R.string.toast_upload_error),
+                    Toast.LENGTH_LONG
+                ).show()
             }
-            is NetworkResult.Loading->{
+
+            is NetworkResult.Loading -> {
                 isLoading = true
             }
-            is NetworkResult.Idle->{
+
+            is NetworkResult.Idle -> {
                 isLoading = false
             }
-            else -> {}
         }
     }
 
@@ -104,14 +132,24 @@ fun AppDetailsScreen(
                     isSystem = app.isSystem,
                     isUploaded = app.apkUploaded,
                     isLoading = isLoading,
-                    onUploadApkClicked = { appDetails?.let { scannerViewModel.uploadAPK(it.apkPath, it.packageName) } },
+                    onUploadApkClicked = {
+                        appDetails?.let {
+                            scannerViewModel.uploadAPK(
+                                apkPath = it.apkPath,
+                                packageName = it.packageName,
+                                appName = it.appName,
+                                sha256 = it.sha256
+                            )
+                        }
+                    },
                     onDeleteClicked = {
                         appDetails?.let { app ->
                             try {
                                 if (app.isSystem) {
-                                    val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                                        data = Uri.parse("package:$packageName")
-                                    }
+                                    val intent =
+                                        Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                                            data = Uri.parse("package:$packageName")
+                                        }
                                     context.startActivity(intent)
                                 } else {
                                     val intent = Intent(Intent.ACTION_DELETE).apply {
@@ -120,7 +158,11 @@ fun AppDetailsScreen(
                                     uninstallLauncher.launch(intent)
                                 }
                             } catch (_: Exception) {
-                                Toast.makeText(context, context.getString(R.string.error_action_not_supported), Toast.LENGTH_SHORT).show()
+                                Toast.makeText(
+                                    context,
+                                    context.getString(R.string.error_action_not_supported),
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             }
                         }
                     }

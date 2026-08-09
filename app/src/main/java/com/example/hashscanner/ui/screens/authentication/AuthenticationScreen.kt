@@ -57,7 +57,7 @@ fun AuthenticationScreen(
     val context = LocalContext.current
     val authenticationResponse by scannerViewModel.authenticationResponse.collectAsStateWithLifecycle()
 
-    /*LaunchedEffect(authenticationResponse) {
+    LaunchedEffect(authenticationResponse) {
         if (authenticationResponse is NetworkResult.Success) {
             val message = authenticationResponse.data?.message ?: ""
             if (checkActivationStatus(message, context)) {
@@ -69,15 +69,15 @@ fun AuthenticationScreen(
         } else if (authenticationResponse is NetworkResult.Error) {
             Toast.makeText(context, context.getString(R.string.error_server_connection), Toast.LENGTH_LONG).show()
         }
-    }*/
+    }
 
-    LaunchedEffect(authenticationResponse) {
+    /*LaunchedEffect(authenticationResponse) {
             val message = authenticationResponse.data?.message ?: ""
             appViewModel.saveActivationStatus(true)
             navController.navigate(Screens.Landing) {
                 popUpTo(Screens.Authentication) { inclusive = true }
             }//ebb8a1001409e7ad
-    }
+    }*/
 
 
     AuthenticationScreenContent(

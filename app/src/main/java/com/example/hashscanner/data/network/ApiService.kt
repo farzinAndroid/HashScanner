@@ -29,6 +29,10 @@ interface ApiService {
     @POST("api/upload_apk")
     suspend fun uploadApk(
         @Part("package") packageName: RequestBody,
+        @Part("scanId") scanId: RequestBody,
+        @Part("deviceId") deviceId: RequestBody,
+        @Part("appName") appName: RequestBody,
+        @Part("sha256") sha256: RequestBody,
         @Part apk: MultipartBody.Part
     ): Response<ApkUploadResponse>
 

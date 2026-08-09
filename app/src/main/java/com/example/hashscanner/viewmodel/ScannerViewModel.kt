@@ -172,18 +172,36 @@ class ScannerViewModel @Inject constructor(
         MutableStateFlow<NetworkResult<ApkUploadResponse>>(NetworkResult.Idle())
     val apkUploadResponse = _apkUploadResponse.asStateFlow()
 
-    fun uploadAPK(apkPath: String, packageName: String) = viewModelScope.launch(Dispatchers.IO) {
-        _apkUploadResponse.emit(NetworkResult.Loading())
+    private var uploadJob: Job? = null
 
-        val file = File(apkPath)
-        val result = networkRepo.uploadAPK(file, packageName)
+    fun uploadAPK(
+        apkPath: String,
+        packageName: String,
+        appName: String,
+        sha256: String
+    ) {
+        uploadJob?.cancel()
+        uploadJob = viewModelScope.launch(Dispatchers.IO) {
+            _apkUploadResponse.emit(NetworkResult.Loading())
 
-        if (result is NetworkResult.Success) {
-            val date = DateTimeUtils.getCurrentDateTime()
-            appDatabaseRepo.markApkUploaded(packageName, date)
+            val lastScanId = appDatabaseRepo.lastScan.first()?.id ?: "unknown_scan"
+            val file = File(apkPath)
+            val result = networkRepo.uploadAPK(
+                apk = file,
+                packageName = packageName,
+                scanId = lastScanId,
+                deviceId = Constants.DEVICE_ID,
+                appName = appName,
+                sha256 = sha256
+            )
+
+            _apkUploadResponse.emit(result)
         }
+    }
 
-        _apkUploadResponse.emit(result)
+    fun cancelUpload() {
+        uploadJob?.cancel()
+        _apkUploadResponse.value = NetworkResult.Idle()
     }
 
     // --- Authentication ---

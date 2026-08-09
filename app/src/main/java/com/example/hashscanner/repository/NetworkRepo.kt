@@ -64,12 +64,32 @@ class NetworkRepo @Inject constructor(
         return safeApiCall { apiService.sendScanReport(appReport) }
     }
 
-    suspend fun uploadAPK(apk: File, packageName: String): NetworkResult<ApkUploadResponse> {
+    suspend fun uploadAPK(
+        apk: File,
+        packageName: String,
+        scanId: String,
+        deviceId: String,
+        appName: String,
+        sha256: String
+    ): NetworkResult<ApkUploadResponse> {
         val requestFile = apk.asRequestBody("application/vnd.android.package-archive".toMediaTypeOrNull())
         val apkPart = MultipartBody.Part.createFormData("apk", apk.name, requestFile)
         val packagePart = packageName.toRequestBody("text/plain".toMediaTypeOrNull())
-        
-        return safeApiCall { apiService.uploadApk(packagePart, apkPart) }
+        val scanIdPart = scanId.toRequestBody("text/plain".toMediaTypeOrNull())
+        val deviceIdPart = deviceId.toRequestBody("text/plain".toMediaTypeOrNull())
+        val appNamePart = appName.toRequestBody("text/plain".toMediaTypeOrNull())
+        val sha256Part = sha256.toRequestBody("text/plain".toMediaTypeOrNull())
+
+        return safeApiCall {
+            apiService.uploadApk(
+                packageName = packagePart,
+                scanId = scanIdPart,
+                deviceId = deviceIdPart,
+                appName = appNamePart,
+                sha256 = sha256Part,
+                apk = apkPart
+            )
+        }
     }
 
 
