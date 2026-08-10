@@ -5,6 +5,7 @@ import android.os.Environment
 import com.example.hashscanner.data.database.AppDatabase
 import com.example.hashscanner.utils.Constants
 import com.google.gson.GsonBuilder
+import kotlinx.coroutines.flow.first
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -18,9 +19,9 @@ class JsonExporter(
 
 ) {
 
-    suspend fun exportJson(): File {
+    suspend fun exportJson(scanId: String): File {
 
-        val apps = db.appDao().getAll()
+        val apps = db.appDao().getAllByScanId(scanId).first()
 
         val gson = GsonBuilder()
             .setPrettyPrinting()

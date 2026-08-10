@@ -17,6 +17,7 @@ import com.example.hashscanner.viewmodel.AppDatabaseViewModel
 fun AppListScreen(
     navController: NavController,
     riskLevel: com.example.hashscanner.ui.ui_utils.RiskLevelsUI,
+    scanId: String? = null,
     databaseViewModel: AppDatabaseViewModel
 ) {
 
@@ -34,9 +35,10 @@ fun AppListScreen(
             AppListSection(
                 paddingValues = paddingValues,
                 initialRiskLevel = riskLevel,
+                scanId = scanId,
                 databaseViewModel = databaseViewModel,
                 onAppClick = { packageName ->
-                    navController.navigate(Screens.Details(packageName))
+                    navController.navigate(Screens.Details(packageName, scanId))
                 }
             )
         }

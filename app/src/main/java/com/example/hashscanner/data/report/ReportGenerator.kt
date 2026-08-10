@@ -11,9 +11,9 @@ class ReportGenerator(
 
 ) {
 
-    suspend fun generate(): ScanReport {
+    suspend fun generate(scanId: String): ScanReport {
 
-        val apps = db.appDao().getAll().first()
+        val apps = db.appDao().getAllByScanId(scanId).first()
 
         val total = apps.size
 

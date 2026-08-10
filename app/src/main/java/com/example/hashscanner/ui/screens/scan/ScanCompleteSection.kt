@@ -27,11 +27,8 @@ fun ScanCompleteSection(
 ) {
     val totalCount by scannerViewModel.totalCount.collectAsStateWithLifecycle()
     val suspiciousCount by scannerViewModel.suspiciousCount.collectAsStateWithLifecycle()
+    val currentScanId by scannerViewModel.currentScanId.collectAsStateWithLifecycle()
     val sentReportsCount by appDatabaseViewModel.sentSuspiciousCount.collectAsStateWithLifecycle(initialValue = 0)
-
-    LaunchedEffect(Unit) {
-        appDatabaseViewModel.countSentSuspicious()
-    }
 
     ScanCompleteSectionContent(
         paddingValues = paddingValues,
@@ -39,7 +36,7 @@ fun ScanCompleteSection(
         suspiciousCount = suspiciousCount,
         sentReportsCount = sentReportsCount,
         onReportClick = {
-            navController.navigate(Screens.RiskLevelList) {
+            navController.navigate(Screens.RiskLevelList(scanId = currentScanId)) {
                 popUpTo(Screens.Scan) {
                     inclusive = true
                 }

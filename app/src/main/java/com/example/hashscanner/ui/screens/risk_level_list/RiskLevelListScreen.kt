@@ -45,21 +45,26 @@ import com.example.hashscanner.viewmodel.AppDatabaseViewModel
 @Composable
 fun RiskLevelListScreen(
     navController: NavController,
+    scanId: String? = null,
     databaseViewModel: AppDatabaseViewModel
 ) {
+    val lastScan by databaseViewModel.lastScan.collectAsStateWithLifecycle(initialValue = null)
+    val currentScanId = scanId ?: lastScan?.id
     val safeCount by databaseViewModel.safeAppsCount.collectAsStateWithLifecycle(initialValue = 0)
     val lowCount by databaseViewModel.lowRiskAppsCount.collectAsStateWithLifecycle(initialValue = 0)
     val mediumCount by databaseViewModel.mediumRiskAppsCount.collectAsStateWithLifecycle(initialValue = 0)
     val highCount by databaseViewModel.highRiskAppsCount.collectAsStateWithLifecycle(initialValue = 0)
     val criticalCount by databaseViewModel.criticalAppsCount.collectAsStateWithLifecycle(initialValue = 0)
 
-    LaunchedEffect(Unit) {
-        databaseViewModel.apply {
-            countSafeApps(onlyUser = true)
-            countLowRiskApps(onlyUser = true)
-            countMediumRiskApps(onlyUser = true)
-            countHighRiskApps(onlyUser = true)
-            countCriticalApps(onlyUser = true)
+    LaunchedEffect(currentScanId) {
+        if (currentScanId != null) {
+            databaseViewModel.apply {
+                countSafeApps(scanId = currentScanId, onlyUser = true)
+                countLowRiskApps(scanId = currentScanId, onlyUser = true)
+                countMediumRiskApps(scanId = currentScanId, onlyUser = true)
+                countHighRiskApps(scanId = currentScanId, onlyUser = true)
+                countCriticalApps(scanId = currentScanId, onlyUser = true)
+            }
         }
     }
 
@@ -83,7 +88,7 @@ fun RiskLevelListScreen(
             }
         },
         onRiskLevelClick = { item ->
-            navController.navigate(Screens.AppList(item.riskLevel))
+            navController.navigate(Screens.AppList(item.riskLevel, currentScanId))
         },
         onBackClick = {
             navController.popBackStack()

@@ -32,6 +32,7 @@ class PackageScanner @Inject constructor(
 
 
     suspend fun startScan(
+        scanId: String,
         onProgress: (scanned: Int, total: Int, suspicious: Int, remaining: Int, appName: String, icon: Bitmap) -> Unit
     ) {
 
@@ -78,7 +79,7 @@ class PackageScanner @Inject constructor(
                     null // If an app has a corrupted icon, we safely ignore it
                 }
 
-                val isSuspicious = scanPackage(pkg, iconBitmap)
+                val isSuspicious = scanPackage(pkg, scanId, iconBitmap)
 
                 scannedCount++
                 if (isSuspicious) suspiciousCount++
@@ -116,6 +117,7 @@ class PackageScanner @Inject constructor(
 
     private suspend fun scanPackage(
         pkg: PackageInfo,
+        scanId: String,
         icon: Bitmap? = null
     ): Boolean {
 
@@ -199,6 +201,8 @@ class PackageScanner @Inject constructor(
             iconData = IconConverter.bitmapToByteArray(icon),
 
             packageName = packageName,
+
+            scanId = scanId,
 
             versionName = versionName,
 

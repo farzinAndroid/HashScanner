@@ -20,6 +20,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.example.hashscanner.data.model.api.ScanResultResponse
 import com.example.hashscanner.data.network.NetworkResult
+import com.example.hashscanner.ui.navigation.Screens
 import com.example.hashscanner.ui.theme.HashScannerTheme
 import com.example.hashscanner.viewmodel.ScannerViewModel
 
@@ -33,7 +34,7 @@ fun GlobalScanOverlay(
     GlobalScanOverlayContent(
         scanResult = scanResult,
         onViewResultsClick = {
-            // navController.navigate(Screens.RiskLevelList)
+            navController.navigate(Screens.RiskLevelList())
         }
     )
 }

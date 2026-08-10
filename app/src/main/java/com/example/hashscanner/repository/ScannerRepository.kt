@@ -9,7 +9,8 @@ class ScannerRepository @Inject constructor(
 ){
 
     suspend fun startScan(
+        scanId: String,
         onProgress: (scanned: Int, total: Int, suspicious: Int, remaining: Int, appName: String,iconBitmap: Bitmap) -> Unit
-    ) = packageScanner.startScan(onProgress = onProgress)
+    ) = packageScanner.startScan(scanId = scanId, onProgress = onProgress)
 
 }

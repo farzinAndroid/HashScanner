@@ -206,7 +206,8 @@ fun AppCardPreview() {
                 vtChecked = false,
                 vtResult = "",
                 scanDate = "2023-10-27",
-                scanTime = "10:00:00"
+                scanTime = "10:00:00",
+                scanId = "sample_id"
             ),
             onClick = {}
         )

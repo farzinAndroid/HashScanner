@@ -21,19 +21,23 @@ interface Screens {
 
     @Serializable
     data class Details(
-        val packageName:String
+        val packageName: String,
+        val scanId: String? = null
     ) : Screens
 
 
 
     @Serializable
     data class AppList(
-        val riskLevel: com.example.hashscanner.ui.ui_utils.RiskLevelsUI
+        val riskLevel: com.example.hashscanner.ui.ui_utils.RiskLevelsUI,
+        val scanId: String? = null
     ) : Screens
 
 
     @Serializable
-    object RiskLevelList : Screens
+    data class RiskLevelList(
+        val scanId: String? = null
+    ) : Screens
 
 
     @Serializable

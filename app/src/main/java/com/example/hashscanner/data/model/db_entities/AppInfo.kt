@@ -8,14 +8,17 @@ import androidx.room.PrimaryKey
 @Entity(
     tableName = "apps",
     indices = [
-        Index(value = ["packageName"], unique = true),
-        Index(value = ["sha256"])
+        Index(value = ["packageName", "scanId"], unique = true),
+        Index(value = ["sha256"]),
+        Index(value = ["scanId"])
     ]
 )
 data class AppInfo(
 
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
+
+    val scanId: String,
 
     val appName: String,
 

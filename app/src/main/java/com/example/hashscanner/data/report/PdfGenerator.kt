@@ -20,7 +20,7 @@ class PdfGenerator(
     private val db: AppDatabase
 ) {
 
-    suspend fun generatePdf(): File {
+    suspend fun generatePdf(scanId: String): File {
         val pdf = PdfDocument()
 
         val paint = Paint().apply {
@@ -89,17 +89,17 @@ class PdfGenerator(
         // --- Begin Drawing Document ---
 
         val dao = db.appDao()
-        val apps = dao.getAll().first()
+        val apps = dao.getAllByScanId(scanId).first()
 
         drawWrappedText(Constants.EXPORT_LABEL_REPORT_TITLE, isTitle = true)
         drawWrappedText("${Constants.EXPORT_LABEL_SCAN_DATE} : ${DateTimeUtils.getCurrentDate()}")
         drawWrappedText("${Constants.EXPORT_LABEL_SCAN_TIME} : ${DateTimeUtils.getCurrentTime()}")
         drawWrappedText("${Constants.EXPORT_LABEL_TOTAL_APPS} : ${apps.size}")
-        drawWrappedText("${Constants.EXPORT_LABEL_SUSPICIOUS_APPS} : ${dao.countSuspiciousApps().first()}")
+        drawWrappedText("${Constants.EXPORT_LABEL_SUSPICIOUS_APPS} : ${dao.countSuspiciousAppsByScanId(scanId).first()}")
 
         y += 12f // Extra padding before the list
 
-        for (app in dao.getAppsByRisk().first()) {
+        for (app in dao.getAppsByRiskByScanId(scanId).first()) {
 
             // Draw a separator line
             checkPageBreak(10f)

@@ -44,9 +44,13 @@ fun AppDetailsScreen(
     databaseViewModel: AppDatabaseViewModel,
     scannerViewModel: ScannerViewModel,
     packageName: String,
+    scanId: String? = null,
     navController: NavController
 ) {
     val context = LocalContext.current
+    val lastScan by databaseViewModel.lastScan.collectAsStateWithLifecycle(initialValue = null)
+    val currentScanId = scanId ?: lastScan?.id
+
     val appDetails by databaseViewModel.appByPackage.collectAsStateWithLifecycle()
     val apkUploadResponse by scannerViewModel.apkUploadResponse.collectAsStateWithLifecycle()
 
@@ -59,8 +63,10 @@ fun AppDetailsScreen(
     }
 
     // --- Side Effects ---
-    LaunchedEffect(packageName) {
-        databaseViewModel.getAppByPackage(packageName)
+    LaunchedEffect(packageName, currentScanId) {
+        if (currentScanId != null) {
+            databaseViewModel.getAppByPackage(packageName, currentScanId)
+        }
     }
 
     LaunchedEffect(apkUploadResponse) {
@@ -81,7 +87,9 @@ fun AppDetailsScreen(
                         context.getString(R.string.toast_upload_success),
                         Toast.LENGTH_SHORT
                     ).show()
-                    databaseViewModel.getAppByPackage(packageName)
+                    if (currentScanId != null) {
+                        databaseViewModel.getAppByPackage(packageName, currentScanId)
+                    }
                 }
             }
 

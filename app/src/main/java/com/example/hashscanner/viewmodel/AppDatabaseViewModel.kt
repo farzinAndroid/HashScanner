@@ -22,6 +22,9 @@ class AppDatabaseViewModel @Inject constructor(
 ) : ViewModel() {
 
     // --- State Sources (Internal) ---
+    private val _selectedScanId = MutableStateFlow<String?>(null)
+    val selectedScanId = _selectedScanId.asStateFlow()
+
     private val _allApps = MutableStateFlow<List<AppInfo>>(emptyList())
     val allApps = _allApps.asStateFlow()
 
@@ -52,6 +55,20 @@ class AppDatabaseViewModel @Inject constructor(
     private val _appsByRiskAndDate = MutableStateFlow<List<AppInfo>>(emptyList())
     val appsByRiskAndDate = _appsByRiskAndDate.asStateFlow()
 
+    // --- Direct Exposure Flows (from Repo) ---
+    val scanHistory = appDataBaseRepo.allScanHistory
+    val lastScan = appDataBaseRepo.lastScan
+
+    // --- Direct Exposure Flows (from Repo) ---
+    val allSuspiciousApps = appDataBaseRepo.allSuspiciousApps
+    val notSentSuspiciousApps = appDataBaseRepo.notSentSuspiciousApps
+    val recommendedSuspicious = appDataBaseRepo.recommendedSuspicious
+    val suspiciousTotalCount = appDataBaseRepo.suspiciousTotalCount
+    val recommendedSuspiciousCount = appDataBaseRepo.recommendedSuspiciousCount
+    val notSentSuspiciousCount = appDataBaseRepo.notSentSuspiciousCount
+    val sentSuspiciousCount = appDataBaseRepo.sentSuspiciousCount
+
+    // --- State Sources (Internal) for Manual Collection ---
     private val _safeAppsCount = MutableStateFlow(0)
     val safeAppsCount = _safeAppsCount.asStateFlow()
 
@@ -67,51 +84,10 @@ class AppDatabaseViewModel @Inject constructor(
     private val _criticalAppsCount = MutableStateFlow(0)
     val criticalAppsCount = _criticalAppsCount.asStateFlow()
 
-    private val _suspiciousTotalCount = MutableStateFlow(0)
-    val suspiciousTotalCount = _suspiciousTotalCount.asStateFlow()
 
-    private val _recommendedSuspiciousCount = MutableStateFlow(0)
-    val recommendedSuspiciousCount = _recommendedSuspiciousCount.asStateFlow()
-
-    private val _notSentSuspiciousCount = MutableStateFlow(0)
-    val notSentSuspiciousCount = _notSentSuspiciousCount.asStateFlow()
-
-    private val _sentSuspiciousCount = MutableStateFlow(0)
-    val sentSuspiciousCount = _sentSuspiciousCount.asStateFlow()
-
-    // --- Direct Exposure Flows (from Repo) ---
-    val suspiciousApps = appDataBaseRepo.suspiciousApps
-    val scanHistory = appDataBaseRepo.allScanHistory
-    val lastScan = appDataBaseRepo.lastScan
-    val allSuspiciousApps = appDataBaseRepo.allSuspiciousApps
-    val safeApps = appDataBaseRepo.getSafeApps()
-    val lowRiskApps = appDataBaseRepo.getLowRiskApps()
-    val mediumRiskApps = appDataBaseRepo.getMediumRiskApps()
-    val highRiskApps = appDataBaseRepo.getHighRiskApps()
-    val criticalApps = appDataBaseRepo.getCriticalApps()
-    val appsByRisk = appDataBaseRepo.appsByRisk
-    val newestApps = appDataBaseRepo.newestApps
-    val recentlyUpdatedApps = appDataBaseRepo.recentlyUpdatedApps
-    val debuggableApps = appDataBaseRepo.debuggableApps
-    val disabledApps = appDataBaseRepo.disabledApps
-    val oldTargetSdkApps = appDataBaseRepo.oldTargetSdkApps
-    val largestApps = appDataBaseRepo.largestApps
-    val smallestApps = appDataBaseRepo.smallestApps
-    val recommendedForUpload = appDataBaseRepo.recommendedForUpload
-    val recommendedUploadsCount = appDataBaseRepo.recommendedUploadsCount
-    val recommendedSuspiciousApps = appDataBaseRepo.recommendedSuspiciousApps
-    val appsCount = appDataBaseRepo.appsCount
-    val recommendedUploadsCountFromRepo = appDataBaseRepo.recommendedUploadsCount
-    val systemAppsCount = appDataBaseRepo.systemAppsCount
-    val userAppsCount = appDataBaseRepo.userAppsCount
-    val suspiciousAppsCount = appDataBaseRepo.suspiciousAppsCount
-    val notSentSuspiciousApps = appDataBaseRepo.notSentSuspiciousApps
-    val recommendedSuspicious = appDataBaseRepo.recommendedSuspicious
-
-
-    fun getAllApps() {
+    fun getAllApps(scanId: String) {
         viewModelScope.launch {
-            appDataBaseRepo.allApps.collectLatest {
+            appDataBaseRepo.getAllAppsByScanId(scanId).collectLatest {
                 _allApps.emit(it)
             }
         }
@@ -137,257 +113,256 @@ class AppDatabaseViewModel @Inject constructor(
         appDataBaseRepo.deleteAllApps()
     }
 
-    fun getAppByPackage(pkg: String) {
+    fun getAppByPackage(pkg: String, scanId: String) {
         viewModelScope.launch {
-            appDataBaseRepo.getAppByPackage(pkg).collectLatest {
+            appDataBaseRepo.getAppByPackageAndScanId(pkg, scanId).collectLatest {
                 _appByPackage.emit(it)
             }
         }
     }
 
-    fun getAppBySha256(hash: String) {
+    fun getAppBySha256(hash: String, scanId: String) {
         viewModelScope.launch {
-            appDataBaseRepo.getAppBySha256(hash).collectLatest {
+            appDataBaseRepo.getAppBySha256ByScanId(hash, scanId).collectLatest {
                 _appBySha256.emit(it)
             }
         }
     }
 
-    fun getAppByMd5(md5: String) {
+    fun getAppByMd5(md5: String, scanId: String) {
         viewModelScope.launch {
-            appDataBaseRepo.getAppByMd5(md5).collectLatest {
+            appDataBaseRepo.getAppByMd5ByScanId(md5, scanId).collectLatest {
                 _appByMd5.emit(it)
             }
         }
     }
 
-    fun getAppBySha1(sha1: String) {
+    fun getAppBySha1(sha1: String, scanId: String) {
         viewModelScope.launch {
-            appDataBaseRepo.getAppBySha1(sha1).collectLatest {
+            appDataBaseRepo.getAppBySha1ByScanId(sha1, scanId).collectLatest {
                 _appBySha1.emit(it)
             }
         }
     }
 
-    fun countApps(onResult: (Int) -> Unit) {
+    fun countApps(scanId: String, onResult: (Int) -> Unit) {
         viewModelScope.launch {
-            appDataBaseRepo.appsCount.collectLatest {
+            appDataBaseRepo.countAppsByScanId(scanId).collectLatest {
                 onResult(it)
             }
         }
     }
 
-    fun countSafeApps(onlyUser: Boolean = false) {
+    fun countSafeApps(scanId: String, onlyUser: Boolean = false) {
         viewModelScope.launch {
-            appDataBaseRepo.countSafeApps(onlyUser).collectLatest {
+            appDataBaseRepo.countSafeAppsByScanId(scanId, onlyUser).collectLatest {
                 _safeAppsCount.emit(it)
             }
         }
     }
 
-    fun countLowRiskApps(onlyUser: Boolean = false) {
+    fun countLowRiskApps(scanId: String, onlyUser: Boolean = false) {
         viewModelScope.launch {
-            appDataBaseRepo.countLowRiskApps(onlyUser).collectLatest {
+            appDataBaseRepo.countLowRiskAppsByScanId(scanId, onlyUser).collectLatest {
                 _lowRiskAppsCount.emit(it)
             }
         }
     }
 
-    fun countMediumRiskApps(onlyUser: Boolean = false) {
+    fun countMediumRiskApps(scanId: String, onlyUser: Boolean = false) {
         viewModelScope.launch {
-            appDataBaseRepo.countMediumRiskApps(onlyUser).collectLatest {
+            appDataBaseRepo.countMediumRiskAppsByScanId(scanId, onlyUser).collectLatest {
                 _mediumRiskAppsCount.emit(it)
             }
         }
     }
 
-    fun countHighRiskApps(onlyUser: Boolean = false) {
+    fun countHighRiskApps(scanId: String, onlyUser: Boolean = false) {
         viewModelScope.launch {
-            appDataBaseRepo.countHighRiskApps(onlyUser).collectLatest {
+            appDataBaseRepo.countHighRiskAppsByScanId(scanId, onlyUser).collectLatest {
                 _highRiskAppsCount.emit(it)
             }
         }
     }
 
-    fun countCriticalApps(onlyUser: Boolean = false) {
+    fun countCriticalApps(scanId: String, onlyUser: Boolean = false) {
         viewModelScope.launch {
-            appDataBaseRepo.countCriticalApps(onlyUser).collectLatest {
+            appDataBaseRepo.countCriticalAppsByScanId(scanId, onlyUser).collectLatest {
                 _criticalAppsCount.emit(it)
             }
         }
     }
 
-    fun getSuspiciousApps() {
+    fun getSuspiciousApps(scanId: String) {
         viewModelScope.launch {
-            appDataBaseRepo.suspiciousApps.collectLatest {
+            appDataBaseRepo.getSuspiciousAppsByScanId(scanId).collectLatest {
                 _allApps.emit(it)
             }
         }
     }
 
-    fun getSafeApps(onlyUser: Boolean = false) {
+    fun getSafeApps(scanId: String, onlyUser: Boolean = false) {
         viewModelScope.launch {
-            appDataBaseRepo.getSafeApps(onlyUser).collectLatest {
+            appDataBaseRepo.getSafeAppsByScanId(scanId, onlyUser).collectLatest {
                 _allApps.emit(it)
             }
         }
     }
 
-    fun getLowRiskApps(onlyUser: Boolean = false) {
+    fun getLowRiskApps(scanId: String, onlyUser: Boolean = false) {
         viewModelScope.launch {
-            appDataBaseRepo.getLowRiskApps(onlyUser).collectLatest {
+            appDataBaseRepo.getLowRiskAppsByScanId(scanId, onlyUser).collectLatest {
                 _allApps.emit(it)
             }
         }
     }
 
-    fun getMediumRiskApps(onlyUser: Boolean = false) {
+    fun getMediumRiskApps(scanId: String, onlyUser: Boolean = false) {
         viewModelScope.launch {
-            appDataBaseRepo.getMediumRiskApps(onlyUser).collectLatest {
+            appDataBaseRepo.getMediumRiskAppsByScanId(scanId, onlyUser).collectLatest {
                 _allApps.emit(it)
             }
         }
     }
 
-    fun getHighRiskApps(onlyUser: Boolean = false) {
+    fun getHighRiskApps(scanId: String, onlyUser: Boolean = false) {
         viewModelScope.launch {
-            appDataBaseRepo.getHighRiskApps(onlyUser).collectLatest {
+            appDataBaseRepo.getHighRiskAppsByScanId(scanId, onlyUser).collectLatest {
                 _allApps.emit(it)
             }
         }
     }
 
-    fun getCriticalApps(onlyUser: Boolean = false) {
+    fun getCriticalApps(scanId: String, onlyUser: Boolean = false) {
         viewModelScope.launch {
-            appDataBaseRepo.getCriticalApps(onlyUser).collectLatest {
+            appDataBaseRepo.getCriticalAppsByScanId(scanId, onlyUser).collectLatest {
                 _allApps.emit(it)
             }
         }
     }
 
-    fun getAppsByRisk() {
+    fun getAppsByRisk(scanId: String) {
         viewModelScope.launch {
-            appDataBaseRepo.appsByRisk.collectLatest {
+            appDataBaseRepo.getAppsByRiskByScanId(scanId).collectLatest {
                 _allApps.emit(it)
             }
         }
     }
 
-    fun getNewestApps() {
+    fun getNewestApps(scanId: String) {
         viewModelScope.launch {
-            appDataBaseRepo.newestApps.collectLatest {
+            appDataBaseRepo.getNewestAppsByScanId(scanId).collectLatest {
                 _allApps.emit(it)
             }
         }
     }
 
-    fun getRecentlyUpdatedApps() {
+    fun getRecentlyUpdatedApps(scanId: String) {
         viewModelScope.launch {
-            appDataBaseRepo.recentlyUpdatedApps.collectLatest {
+            appDataBaseRepo.getRecentlyUpdatedAppsByScanId(scanId).collectLatest {
                 _allApps.emit(it)
             }
         }
     }
 
-    fun getAppsByInstaller(installer: String) {
+    fun getAppsByInstaller(installer: String, scanId: String) {
         viewModelScope.launch {
-            appDataBaseRepo.getAppsByInstaller(installer).collectLatest {
+            appDataBaseRepo.getAppsByInstallerByScanId(installer, scanId).collectLatest {
                 _allApps.emit(it)
             }
         }
     }
 
-    fun getDebuggableApps() {
+    fun getDebuggableApps(scanId: String) {
         viewModelScope.launch {
-            appDataBaseRepo.debuggableApps.collectLatest {
+            appDataBaseRepo.getDebuggableAppsByScanId(scanId).collectLatest {
                 _allApps.emit(it)
             }
         }
     }
 
-    fun getDisabledApps() {
+    fun getDisabledApps(scanId: String) {
         viewModelScope.launch {
-            appDataBaseRepo.disabledApps.collectLatest {
+            appDataBaseRepo.getDisabledAppsByScanId(scanId).collectLatest {
                 _allApps.emit(it)
             }
         }
     }
 
-    fun getOldTargetSdkApps() {
+    fun getOldTargetSdkApps(scanId: String) {
         viewModelScope.launch {
-            appDataBaseRepo.oldTargetSdkApps.collectLatest {
+            appDataBaseRepo.getOldTargetSdkAppsByScanId(scanId).collectLatest {
                 _allApps.emit(it)
             }
         }
     }
 
-    fun getAppsByCertificateSha256(sha256: String) {
+    fun getAppsByCertificateSha256(sha256: String, scanId: String) {
         viewModelScope.launch {
-            appDataBaseRepo.getAppsByCertificateSha256(sha256).collectLatest {
+            appDataBaseRepo.getAppsByCertificateSha256ByScanId(scanId, sha256).collectLatest {
                 _appsByCertificateSha256.emit(it)
                 _allApps.emit(it)
             }
         }
     }
 
-    fun getAppsByRiskAndDate(
+    fun getAppsByRiskAndScanId(
         onlyUser: Boolean = false,
         riskLevel: String,
-        scanDate: String,
-        scanTime: String
+        scanId: String
     ) {
         viewModelScope.launch {
-            appDataBaseRepo.getAppsByRiskAndDate(onlyUser, riskLevel, scanDate, scanTime).collectLatest {
+            appDataBaseRepo.getAppsByRiskAndScanId(onlyUser, riskLevel, scanId).collectLatest {
                 _appsByRiskAndDate.emit(it)
                 _allApps.emit(it)
             }
         }
     }
 
-    fun searchApps(keyword: String) {
+    fun searchApps(keyword: String, scanId: String) {
         viewModelScope.launch {
-            appDataBaseRepo.searchApps(keyword).collectLatest {
+            appDataBaseRepo.searchAppsByScanId(scanId, keyword).collectLatest {
                 _searchResultApps.emit(it)
                 _allApps.emit(it)
             }
         }
     }
 
-    fun getLargestApps() {
+    fun getLargestApps(scanId: String) {
         viewModelScope.launch {
-            appDataBaseRepo.largestApps.collectLatest {
+            appDataBaseRepo.getLargestAppsByScanId(scanId).collectLatest {
                 _allApps.emit(it)
             }
         }
     }
 
-    fun getSmallestApps() {
+    fun getSmallestApps(scanId: String) {
         viewModelScope.launch {
-            appDataBaseRepo.smallestApps.collectLatest {
+            appDataBaseRepo.getSmallestAppsByScanId(scanId).collectLatest {
                 _allApps.emit(it)
             }
         }
     }
 
-    fun getRecommendedForUpload() {
+    fun getRecommendedForUpload(scanId: String) {
         viewModelScope.launch {
-            appDataBaseRepo.recommendedForUpload.collectLatest {
+            appDataBaseRepo.getRecommendedForUploadByScanId(scanId).collectLatest {
                 _allApps.emit(it)
             }
         }
     }
 
-    fun countRecommendedUploads(onResult: (Int) -> Unit) {
+    fun countRecommendedUploads(scanId: String, onResult: (Int) -> Unit) {
         viewModelScope.launch {
-            appDataBaseRepo.recommendedUploadsCount.collectLatest {
+            appDataBaseRepo.countRecommendedUploadsByScanId(scanId).collectLatest {
                 onResult(it)
             }
         }
     }
 
-    fun getRecommendedSuspiciousApps() {
+    fun getRecommendedSuspiciousApps(scanId: String) {
         viewModelScope.launch {
-            appDataBaseRepo.recommendedSuspiciousApps.collectLatest {
+            appDataBaseRepo.getRecommendedSuspiciousAppsByScanId(scanId).collectLatest {
                 _allApps.emit(it)
             }
         }
@@ -442,38 +417,6 @@ class AppDatabaseViewModel @Inject constructor(
             appDataBaseRepo.getSuspiciousAppByPackage(pkg).collectLatest {
                 _suspiciousAppByPackage.emit(it)
                 onResult(it)
-            }
-        }
-    }
-
-    fun countSuspiciousTotal() {
-        viewModelScope.launch {
-            appDataBaseRepo.suspiciousTotalCount.collectLatest {
-                _suspiciousTotalCount.emit(it)
-            }
-        }
-    }
-
-    fun countRecommendedSuspicious() {
-        viewModelScope.launch {
-            appDataBaseRepo.recommendedSuspiciousCount.collectLatest {
-                _recommendedSuspiciousCount.emit(it)
-            }
-        }
-    }
-
-    fun countNotSentSuspicious() {
-        viewModelScope.launch {
-            appDataBaseRepo.notSentSuspiciousCount.collectLatest {
-                _notSentSuspiciousCount.emit(it)
-            }
-        }
-    }
-
-    fun countSentSuspicious() {
-        viewModelScope.launch {
-            appDataBaseRepo.sentSuspiciousCount.collectLatest {
-                _sentSuspiciousCount.emit(it)
             }
         }
     }

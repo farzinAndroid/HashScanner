@@ -48,6 +48,8 @@ fun ScanHistoryScreen(
 
 
 
+
+
     ScanHistoryContent(
         scanHistory = scanHistory,
         onBackClick = onBackClick,

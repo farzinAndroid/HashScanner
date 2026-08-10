@@ -25,53 +25,52 @@ class AppDatabaseRepo @Inject constructor(
     suspend fun deleteApp(app: AppInfo) = appDao.delete(app)
     suspend fun deleteAllApps() = appDao.deleteAll()
     
-    val allApps = appDao.getAll()
-    fun getAppByPackage(pkg: String) = appDao.getByPackage(pkg)
-    fun getAppBySha256(hash: String) = appDao.getBySha256(hash)
-    fun getAppByMd5(md5: String) = appDao.getByMd5(md5)
-    fun getAppBySha1(sha1: String) = appDao.getBySha1(sha1)
+    fun getAllAppsByScanId(scanId: String) = appDao.getAllByScanId(scanId)
+    fun getAppByPackageAndScanId(pkg: String, scanId: String) = appDao.getByPackageAndScanId(pkg, scanId)
+    fun getAppBySha256ByScanId(hash: String, scanId: String) = appDao.getBySha256ByScanId(hash, scanId)
+    fun getAppByMd5ByScanId(md5: String, scanId: String) = appDao.getByMd5ByScanId(md5, scanId)
+    fun getAppBySha1ByScanId(sha1: String, scanId: String) = appDao.getBySha1ByScanId(sha1, scanId)
     
-    val appsCount = appDao.count()
-    val suspiciousApps = appDao.getSuspicious()
+    fun countAppsByScanId(scanId: String) = appDao.countByScanId(scanId)
+    fun getSuspiciousAppsByScanId(scanId: String) = appDao.getSuspiciousByScanId(scanId)
     
-    fun getSafeApps(onlyUser: Boolean = false) = appDao.getSafeApps(onlyUser)
-    fun getLowRiskApps(onlyUser: Boolean = false) = appDao.getLowRiskApps(onlyUser)
-    fun getMediumRiskApps(onlyUser: Boolean = false) = appDao.getMediumRiskApps(onlyUser)
-    fun getHighRiskApps(onlyUser: Boolean = false) = appDao.getHighRiskApps(onlyUser)
-    fun getCriticalApps(onlyUser: Boolean = false) = appDao.getCriticalApps(onlyUser)
+    fun getSafeAppsByScanId(scanId: String, onlyUser: Boolean = false) = appDao.getSafeAppsByScanId(scanId, onlyUser)
+    fun getLowRiskAppsByScanId(scanId: String, onlyUser: Boolean = false) = appDao.getLowRiskAppsByScanId(scanId, onlyUser)
+    fun getMediumRiskAppsByScanId(scanId: String, onlyUser: Boolean = false) = appDao.getMediumRiskAppsByScanId(scanId, onlyUser)
+    fun getHighRiskAppsByScanId(scanId: String, onlyUser: Boolean = false) = appDao.getHighRiskAppsByScanId(scanId, onlyUser)
+    fun getCriticalAppsByScanId(scanId: String, onlyUser: Boolean = false) = appDao.getCriticalAppsByScanId(scanId, onlyUser)
     
-    val appsByRisk = appDao.getAppsByRisk()
+    fun getAppsByRiskByScanId(scanId: String) = appDao.getAppsByRiskByScanId(scanId)
     
-    fun getAppsByRiskAndDate(
+    fun getAppsByRiskAndScanId(
         onlyUser: Boolean = false,
         riskLevel: String,
-        scanDate: String,
-        scanTime: String
-    ) = appDao.getAppsByRiskAndDate(onlyUser, riskLevel, scanDate, scanTime)
+        scanId: String
+    ) = appDao.getAppsByRiskAndScanId(onlyUser, riskLevel, scanId)
     
-    val newestApps = appDao.getNewestApps()
-    val recentlyUpdatedApps = appDao.getRecentlyUpdatedApps()
-    fun getAppsByInstaller(installer: String) = appDao.getAppsByInstaller(installer)
-    val debuggableApps = appDao.getDebuggableApps()
-    val disabledApps = appDao.getDisabledApps()
-    val oldTargetSdkApps = appDao.getOldTargetSdkApps()
-    fun getAppsByCertificateSha256(sha256: String) = appDao.getByCertificateSha256(sha256)
-    fun searchApps(keyword: String) = appDao.search(keyword)
-    val largestApps = appDao.getLargestApps()
-    val smallestApps = appDao.getSmallestApps()
-    val recommendedForUpload = appDao.getRecommendedForUpload()
-    val recommendedUploadsCount = appDao.countRecommendedUploads()
-    val recommendedSuspiciousApps = appDao.getRecommendedSuspiciousApps()
+    fun getNewestAppsByScanId(scanId: String) = appDao.getNewestAppsByScanId(scanId)
+    fun getRecentlyUpdatedAppsByScanId(scanId: String) = appDao.getRecentlyUpdatedAppsByScanId(scanId)
+    fun getAppsByInstallerByScanId(installer: String, scanId: String) = appDao.getAppsByInstallerByScanId(installer, scanId)
+    fun getDebuggableAppsByScanId(scanId: String) = appDao.getDebuggableAppsByScanId(scanId)
+    fun getDisabledAppsByScanId(scanId: String) = appDao.getDisabledAppsByScanId(scanId)
+    fun getOldTargetSdkAppsByScanId(scanId: String) = appDao.getOldTargetSdkAppsByScanId(scanId)
+    fun getAppsByCertificateSha256ByScanId(sha256: String, scanId: String) = appDao.getByCertificateSha256ByScanId(sha256, scanId)
+    fun searchAppsByScanId(keyword: String, scanId: String) = appDao.searchByScanId(keyword, scanId)
+    fun getLargestAppsByScanId(scanId: String) = appDao.getLargestAppsByScanId(scanId)
+    fun getSmallestAppsByScanId(scanId: String) = appDao.getSmallestAppsByScanId(scanId)
+    fun getRecommendedForUploadByScanId(scanId: String) = appDao.getRecommendedForUploadByScanId(scanId)
+    fun countRecommendedUploadsByScanId(scanId: String) = appDao.countRecommendedUploadsByScanId(scanId)
+    fun getRecommendedSuspiciousAppsByScanId(scanId: String) = appDao.getRecommendedSuspiciousAppsByScanId(scanId)
     
-    val systemAppsCount = appDao.countSystemApps()
-    val userAppsCount = appDao.countUserApps()
-    val suspiciousAppsCount = appDao.countSuspiciousApps()
+    fun countSystemAppsByScanId(scanId: String) = appDao.countSystemAppsByScanId(scanId)
+    fun countUserAppsByScanId(scanId: String) = appDao.countUserAppsByScanId(scanId)
+    fun countSuspiciousAppsByScanId(scanId: String) = appDao.countSuspiciousAppsByScanId(scanId)
     
-    fun countSafeApps(onlyUser: Boolean = false) = appDao.countSafeApps(onlyUser)
-    fun countLowRiskApps(onlyUser: Boolean = false) = appDao.countLowRiskApps(onlyUser)
-    fun countMediumRiskApps(onlyUser: Boolean = false) = appDao.countMediumRiskApps(onlyUser)
-    fun countHighRiskApps(onlyUser: Boolean = false) = appDao.countHighRiskApps(onlyUser)
-    fun countCriticalApps(onlyUser: Boolean = false) = appDao.countCriticalApps(onlyUser)
+    fun countSafeAppsByScanId(scanId: String, onlyUser: Boolean = false) = appDao.countSafeAppsByScanId(scanId, onlyUser)
+    fun countLowRiskAppsByScanId(scanId: String, onlyUser: Boolean = false) = appDao.countLowRiskAppsByScanId(scanId, onlyUser)
+    fun countMediumRiskAppsByScanId(scanId: String, onlyUser: Boolean = false) = appDao.countMediumRiskAppsByScanId(scanId, onlyUser)
+    fun countHighRiskAppsByScanId(scanId: String, onlyUser: Boolean = false) = appDao.countHighRiskAppsByScanId(scanId, onlyUser)
+    fun countCriticalAppsByScanId(scanId: String, onlyUser: Boolean = false) = appDao.countCriticalAppsByScanId(scanId, onlyUser)
 
     // PermissionDao Functions
     suspend fun insertPermission(permission: PermissionInfo) = permissionDao.insert(permission)
@@ -96,7 +95,7 @@ class AppDatabaseRepo @Inject constructor(
     suspend fun markSuspiciousReportSent(pkg: String, date: String) = suspiciousDao.markReportSent(pkg, date)
 
     suspend fun markApkUploaded(pkg: String, date: String) {
-        appDao.markApkUploaded(pkg, date)
+        appDao.markApkUploadedGlobal(pkg, date)
         suspiciousDao.markApkUploaded(pkg, date)
     }
 

@@ -46,10 +46,11 @@ class ScannerViewModel @Inject constructor(
     val appName = MutableStateFlow<String>("")
     val iconBitmap = MutableStateFlow<Bitmap?>(null)
     val isScanCompleted = MutableStateFlow<ScanPageState>(ScanPageState.SCANNING)
+    val currentScanId = MutableStateFlow<String?>(null)
     private var scanJob: Job? = null
 
     fun resetScanState() {
-        scanJob?.cancel()
+        cancelScanJob()
         isScanCompleted.value = ScanPageState.SCANNING
         totalCount.value = 0
         scannedCount.value = 0
@@ -59,13 +60,20 @@ class ScannerViewModel @Inject constructor(
         iconBitmap.value = null
     }
 
+
+    fun cancelScanJob(){
+        scanJob?.cancel()
+    }
+
     fun startScan() {
         if (scanJob?.isActive == true) return
         scanJob = viewModelScope.launch(Dispatchers.IO) {
             val startTime = System.currentTimeMillis()
             val scanId = UUID.randomUUID().toString()
+            currentScanId.value = scanId
             isScanCompleted.value = ScanPageState.SCANNING
             scannerRepository.startScan(
+                scanId = scanId,
                 onProgress = { scanned, total, suspicious, remaining, app, icon ->
                     totalCount.value = total
                     scannedCount.value = scanned
@@ -87,11 +95,11 @@ class ScannerViewModel @Inject constructor(
                 scanTime = DateTimeUtils.getCurrentTime(),
                 totalApps = totalCount.value,
                 scannedApps = scannedCount.value,
-                safeApps = appDatabaseRepo.countSafeApps().first(),
-                lowRisk = appDatabaseRepo.countLowRiskApps().first(),
-                mediumRisk = appDatabaseRepo.countMediumRiskApps().first(),
-                highRisk = appDatabaseRepo.countHighRiskApps().first(),
-                criticalRisk = appDatabaseRepo.countCriticalApps().first(),
+                safeApps = appDatabaseRepo.countSafeAppsByScanId(scanId).first(),
+                lowRisk = appDatabaseRepo.countLowRiskAppsByScanId(scanId).first(),
+                mediumRisk = appDatabaseRepo.countMediumRiskAppsByScanId(scanId).first(),
+                highRisk = appDatabaseRepo.countHighRiskAppsByScanId(scanId).first(),
+                criticalRisk = appDatabaseRepo.countCriticalAppsByScanId(scanId).first(),
                 duration = endTime - startTime
             )
             appDatabaseRepo.insertScanHistory(history)

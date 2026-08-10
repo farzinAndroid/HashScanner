@@ -46,7 +46,7 @@ fun LandingPageScreen(
     databaseViewModel: AppDatabaseViewModel
 ) {
     val scanHistory by databaseViewModel.scanHistory.collectAsStateWithLifecycle(emptyList())
-    val lastScan by databaseViewModel.lastScan.collectAsStateWithLifecycle(emptyList<List<ScanHistory>>())
+    val lastScan by databaseViewModel.lastScan.collectAsStateWithLifecycle(initialValue = null)
 
     LandingPageContent(
         scanHistory = scanHistory,

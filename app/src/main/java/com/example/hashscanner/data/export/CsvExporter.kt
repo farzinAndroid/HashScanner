@@ -18,9 +18,9 @@ class CsvExporter(
 
 ) {
 
-    suspend fun exportCsv(): File {
+    suspend fun exportCsv(scanId: String): File {
 
-        val apps = db.appDao().getAll().first()
+        val apps = db.appDao().getAllByScanId(scanId).first()
 
         val dir = context.getExternalFilesDir(
             Environment.DIRECTORY_DOCUMENTS

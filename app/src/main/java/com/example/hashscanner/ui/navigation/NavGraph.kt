@@ -110,13 +110,16 @@ fun NavGraph(
                 AppListScreen(
                     navController = navController,
                     riskLevel = appList.riskLevel,
+                    scanId = appList.scanId,
                     databaseViewModel = appDatabaseViewModel
                 )
             }
 
-            composable<Screens.RiskLevelList> {
+            composable<Screens.RiskLevelList> { backStackEntry ->
+                val riskLevelList = backStackEntry.toRoute<Screens.RiskLevelList>()
                 RiskLevelListScreen(
                     navController = navController,
+                    scanId = riskLevelList.scanId,
                     databaseViewModel = appDatabaseViewModel
                 )
             }
@@ -126,6 +129,7 @@ fun NavGraph(
                 AppDetailsScreen(
                     navController = navController,
                     packageName = details.packageName,
+                    scanId = details.scanId,
                     databaseViewModel = appDatabaseViewModel,
                     scannerViewModel = scannerViewModel
                 )

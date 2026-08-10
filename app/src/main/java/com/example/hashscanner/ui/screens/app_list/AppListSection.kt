@@ -29,21 +29,27 @@ import com.example.hashscanner.viewmodel.AppDatabaseViewModel
 fun AppListSection(
     paddingValues: PaddingValues,
     initialRiskLevel: RiskLevelsUI,
+    scanId: String? = null,
     databaseViewModel: AppDatabaseViewModel,
     onAppClick: (String) -> Unit
 ) {
+    val lastScan by databaseViewModel.lastScan.collectAsStateWithLifecycle(initialValue = null)
+    val currentScanId = scanId ?: lastScan?.id
+
     var whichAppsToLoad by rememberSaveable { mutableStateOf(initialRiskLevel) }
 
     val currentApps by databaseViewModel.allApps.collectAsStateWithLifecycle()
 
-    LaunchedEffect(whichAppsToLoad) {
-        databaseViewModel.apply {
-            when (whichAppsToLoad) {
-                RiskLevelsUI.HIGH -> getHighRiskApps(onlyUser = true)
-                RiskLevelsUI.MEDIUM -> getMediumRiskApps(onlyUser = true)
-                RiskLevelsUI.LOW -> getLowRiskApps(onlyUser = true)
-                RiskLevelsUI.SAFE -> getSafeApps(onlyUser = true)
-                RiskLevelsUI.CRITICAL -> getCriticalApps(onlyUser = true)
+    LaunchedEffect(whichAppsToLoad, currentScanId) {
+        if (currentScanId != null) {
+            databaseViewModel.apply {
+                when (whichAppsToLoad) {
+                    RiskLevelsUI.HIGH -> getHighRiskApps(currentScanId, onlyUser = true)
+                    RiskLevelsUI.MEDIUM -> getMediumRiskApps(currentScanId, onlyUser = true)
+                    RiskLevelsUI.LOW -> getLowRiskApps(currentScanId, onlyUser = true)
+                    RiskLevelsUI.SAFE -> getSafeApps(currentScanId, onlyUser = true)
+                    RiskLevelsUI.CRITICAL -> getCriticalApps(currentScanId, onlyUser = true)
+                }
             }
         }
     }
