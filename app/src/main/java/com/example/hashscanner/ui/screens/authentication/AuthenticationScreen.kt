@@ -197,7 +197,7 @@ fun checkActivationStatus(text: String, context: Context): Boolean {
 
         "Activation Code Already Used" -> {
             Toast.makeText(context, context.getString(R.string.toast_activation_code_used_other_device), Toast.LENGTH_LONG).show()
-            true
+            false
         }
 
         "Device Activated" -> {
@@ -205,9 +205,11 @@ fun checkActivationStatus(text: String, context: Context): Boolean {
             true
         }
 
-        else -> {
+        "Activation Code Invalid" -> {
             Toast.makeText(context, context.getString(R.string.toast_invalid_activation_code), Toast.LENGTH_LONG).show()
             false
         }
-    }
+
+        else -> {}
+    } as Boolean
 }
