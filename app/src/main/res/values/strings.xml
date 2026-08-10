@@ -68,6 +68,7 @@
     <string name="app_uninstalled_successfully">برنامه حذف شد</string>
     <string name="empty_app_list_message">برنامه‌ای در این دسته یافت نشد</string>
     <string name="apps_identified_count">%s برنامه شناسایی شد</string>
+    <string name="apps_identified_count_clean">برنامه شناسایی شد</string>
 
     <!-- Content Descriptions -->
     <string name="content_desc_app_logo">لوگوی برنامه</string>
@@ -77,6 +78,9 @@
     <string name="details_label_certificate_issuer">صادرکننده</string>
     <string name="label_of">از</string>
     <string name="label_out_of_100">از ۱۰۰</string>
+    <string name="label_seconds">ثانیه</string>
+    <string name="label_systemic">سیستمی</string>
+    <string name="label_user">کاربر</string>
 
     <!-- Risk Reasons (from RiskAnalyzer) -->
     <string name="risk_reason_debuggable">برنامه قابل دیباگ (Debuggable)</string>
@@ -101,6 +105,9 @@
     <string name="report_label_scan_date">تاریخ اسکن</string>
     <string name="report_label_scan_time">زمان اسکن</string>
     <string name="report_label_total_apps">تعداد کل برنامه‌ها</string>
+    <string name="report_label_all_apps_count">تمام برنامه‌ها (سیستمی و کاربر)</string>
+    <string name="report_label_system_apps_count">برنامه‌های سیستمی</string>
+    <string name="report_label_user_apps_count">برنامه‌های کاربر</string>
     <string name="report_label_suspicious_apps">برنامه‌های مشکوک</string>
     <string name="report_label_package">بسته (Package)</string>
     <string name="report_label_sha256">SHA256</string>

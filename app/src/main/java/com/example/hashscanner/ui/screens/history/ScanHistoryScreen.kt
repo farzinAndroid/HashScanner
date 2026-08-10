@@ -29,8 +29,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
 import com.example.hashscanner.R
 import com.example.hashscanner.data.model.db_entities.ScanHistory
+import com.example.hashscanner.ui.navigation.Screens
 import com.example.hashscanner.ui.theme.AccentPurpleColor
 import com.example.hashscanner.ui.theme.BackgroundColor
 import com.example.hashscanner.ui.theme.HashScannerTheme
@@ -42,11 +44,10 @@ import com.example.hashscanner.viewmodel.AppDatabaseViewModel
 @Composable
 fun ScanHistoryScreen(
     onBackClick: () -> Unit,
-    databaseViewModel: AppDatabaseViewModel
+    databaseViewModel: AppDatabaseViewModel,
+    navController: NavController
 ) {
     val scanHistory by databaseViewModel.scanHistory.collectAsStateWithLifecycle(emptyList())
-
-
 
 
 
@@ -56,7 +57,9 @@ fun ScanHistoryScreen(
         onDeleteClicked = {
             databaseViewModel.deleteScanHistory(it.id)
         },
-        onRecentScanCardClicked = {}
+        onRecentScanCardClicked = {
+            navController.navigate(Screens.HistoryDetails(it.id))
+        }
     )
 }
 
@@ -146,8 +149,46 @@ fun ScanHistoryScreenPreview() {
     HashScannerTheme {
         ScanHistoryContent(
             scanHistory = listOf(
-                ScanHistory("0", "2026-08-06", "21:00", 120, 120, 110, 5, 3, 2, 0, 5000),
-                ScanHistory("1", "2026-08-05", "18:30", 115, 115, 115, 0, 0, 0, 0, 4500)
+                ScanHistory(
+                    id = "1",
+                    scanDate = "2026-08-10",
+                    scanTime = "20:00",
+                    totalApps = 150,
+                    scannedApps = 150,
+                    safeApps = 140,
+                    lowRisk = 5,
+                    mediumRisk = 3,
+                    highRisk = 2,
+                    criticalRisk = 0,
+                    duration = 5400L,
+                    safeUserApps = 140,
+                    lowRiskUserApps = 5,
+                    mediumRiskUserApps = 3,
+                    highRiskUserApps = 2,
+                    criticalRiskUserApps = 0,
+                    systemApps = 10,
+                    userApps = 50
+                ),
+                ScanHistory(
+                    id = "2",
+                    scanDate = "2026-08-10",
+                    scanTime = "20:00",
+                    totalApps = 150,
+                    scannedApps = 150,
+                    safeApps = 140,
+                    lowRisk = 5,
+                    mediumRisk = 3,
+                    highRisk = 2,
+                    criticalRisk = 0,
+                    duration = 5400L,
+                    safeUserApps = 140,
+                    lowRiskUserApps = 5,
+                    mediumRiskUserApps = 3,
+                    highRiskUserApps = 2,
+                    criticalRiskUserApps = 0,
+                    systemApps = 10,
+                    userApps = 50
+                )
             ),
             onBackClick = {},
             onDeleteClicked = {},

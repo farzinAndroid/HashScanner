@@ -43,14 +43,10 @@ interface Screens {
     @Serializable
     object ScanHistory : Screens
 
-
-
-    /*
-        @Serializable
-        data class Playlists(
-            val playlistId:Int,
-            val playlistName:String
-        ) : Screens*/
+    @Serializable
+    data class HistoryDetails(
+        val scanId: String? = null
+    ) : Screens
 
 
 }

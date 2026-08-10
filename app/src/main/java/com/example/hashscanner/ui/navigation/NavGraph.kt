@@ -16,11 +16,11 @@ import com.example.hashscanner.ui.screens.app_list.AppListScreen
 import com.example.hashscanner.ui.screens.authentication.AuthenticationScreen
 import com.example.hashscanner.ui.screens.error.NoInternetScreen
 import com.example.hashscanner.ui.screens.history.ScanHistoryScreen
+import com.example.hashscanner.ui.screens.history_details.HistoryDetailsScreen
 import com.example.hashscanner.ui.screens.landing.LandingPageScreen
 import com.example.hashscanner.ui.screens.risk_level_list.RiskLevelListScreen
 import com.example.hashscanner.ui.screens.scan.ScanScreen
 import com.example.hashscanner.ui.ui_utils.GlobalScanOverlay
-import com.example.hashscanner.utils.Constants
 import com.example.hashscanner.viewmodel.AppDatabaseViewModel
 import com.example.hashscanner.viewmodel.AppViewModel
 import com.example.hashscanner.viewmodel.ScannerViewModel
@@ -86,14 +86,16 @@ fun NavGraph(
                     },
                     onHistoryClick = { navController.navigate(Screens.ScanHistory) },
                     appViewModel = appViewModel,
-                    databaseViewModel = appDatabaseViewModel
+                    databaseViewModel = appDatabaseViewModel,
+                    navController = navController
                 )
             }
 
             composable<Screens.ScanHistory> {
                 ScanHistoryScreen(
                     onBackClick = { navController.popBackStack() },
-                    databaseViewModel = appDatabaseViewModel
+                    databaseViewModel = appDatabaseViewModel,
+                    navController = navController
                 )
             }
 
@@ -134,8 +136,18 @@ fun NavGraph(
                     scannerViewModel = scannerViewModel
                 )
             }
-        }
 
+            composable<Screens.HistoryDetails> { backStackEntry ->
+                val details = backStackEntry.toRoute<Screens.HistoryDetails>()
+                HistoryDetailsScreen(
+                    navController = navController,
+                    scanId = details.scanId,
+                    databaseViewModel = appDatabaseViewModel
+                )
+            }
+
+
+        }
 
         GlobalScanOverlay(scannerViewModel = scannerViewModel, navController = navController)
     }

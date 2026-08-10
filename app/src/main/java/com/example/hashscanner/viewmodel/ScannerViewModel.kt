@@ -95,11 +95,25 @@ class ScannerViewModel @Inject constructor(
                 scanTime = DateTimeUtils.getCurrentTime(),
                 totalApps = totalCount.value,
                 scannedApps = scannedCount.value,
+                
+                // Captured Snapshots
+                systemApps = appDatabaseRepo.countSystemAppsByScanId(scanId).first(),
+                userApps = appDatabaseRepo.countUserAppsByScanId(scanId).first(),
+                
+                // Risk Levels (Total)
                 safeApps = appDatabaseRepo.countSafeAppsByScanId(scanId).first(),
                 lowRisk = appDatabaseRepo.countLowRiskAppsByScanId(scanId).first(),
                 mediumRisk = appDatabaseRepo.countMediumRiskAppsByScanId(scanId).first(),
                 highRisk = appDatabaseRepo.countHighRiskAppsByScanId(scanId).first(),
                 criticalRisk = appDatabaseRepo.countCriticalAppsByScanId(scanId).first(),
+                
+                // Risk Levels (User Only)
+                safeUserApps = appDatabaseRepo.countSafeAppsByScanId(scanId, onlyUser = true).first(),
+                lowRiskUserApps = appDatabaseRepo.countLowRiskAppsByScanId(scanId, onlyUser = true).first(),
+                mediumRiskUserApps = appDatabaseRepo.countMediumRiskAppsByScanId(scanId, onlyUser = true).first(),
+                highRiskUserApps = appDatabaseRepo.countHighRiskAppsByScanId(scanId, onlyUser = true).first(),
+                criticalRiskUserApps = appDatabaseRepo.countCriticalAppsByScanId(scanId, onlyUser = true).first(),
+                
                 duration = endTime - startTime
             )
             appDatabaseRepo.insertScanHistory(history)
