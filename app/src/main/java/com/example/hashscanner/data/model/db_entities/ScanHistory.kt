@@ -12,19 +12,16 @@ data class ScanHistory(
     val scanTime: String,
     val totalApps: Int,
     val scannedApps: Int,
-    
-    // Total Counts
+
     val systemApps: Int,
     val userApps: Int,
 
-    // Risk Levels (Total)
     val safeApps: Int,
     val lowRisk: Int,
     val mediumRisk: Int,
     val highRisk: Int,
     val criticalRisk: Int,
-    
-    // Risk Levels (User Only)
+
     val safeUserApps: Int,
     val lowRiskUserApps: Int,
     val mediumRiskUserApps: Int,

@@ -1,27 +1,35 @@
 package com.example.hashscanner.ui.ui_utils
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Text
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
+import com.example.hashscanner.R
 import com.example.hashscanner.data.model.api.ScanResultResponse
+import com.example.hashscanner.data.model.api.ScanSummary
 import com.example.hashscanner.data.network.NetworkResult
 import com.example.hashscanner.ui.navigation.Screens
+import com.example.hashscanner.ui.theme.AccentPurpleColor
+import com.example.hashscanner.ui.theme.BlackWhiteColor
 import com.example.hashscanner.ui.theme.HashScannerTheme
+import com.example.hashscanner.ui.theme.spacing
 import com.example.hashscanner.viewmodel.ScannerViewModel
 
 @Composable
@@ -34,7 +42,11 @@ fun GlobalScanOverlay(
     GlobalScanOverlayContent(
         scanResult = scanResult,
         onViewResultsClick = {
+            scannerViewModel.clearScanResult()
             navController.navigate(Screens.RiskLevelList())
+        },
+        onCloseClick = {
+            scannerViewModel.clearScanResult()
         }
     )
 }
@@ -42,44 +54,110 @@ fun GlobalScanOverlay(
 @Composable
 fun GlobalScanOverlayContent(
     scanResult: NetworkResult<ScanResultResponse>,
-    onViewResultsClick: () -> Unit
+    onViewResultsClick: () -> Unit,
+    onCloseClick: () -> Unit
 ) {
     if (scanResult is NetworkResult.Success) {
+        val summary = scanResult.data?.summary
+        
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(bottom = 32.dp),
-            contentAlignment = Alignment.BottomCenter // Floats at the bottom
+                .padding(MaterialTheme.spacing.dp16),
+            contentAlignment = Alignment.TopCenter // Show at the top like a notification
         ) {
-            Card(
-                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight(),
+                shape = RoundedCornerShape(24.dp),
+                color = MaterialTheme.colorScheme.surface,
+                tonalElevation = 8.dp,
+                shadowElevation = 12.dp
             ) {
                 Column(
-                    modifier = Modifier.padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    modifier = Modifier.padding(16.dp)
                 ) {
-                    Text("Scan Processing Complete!")
-                    Spacer(modifier = Modifier.height(8.dp))
-                    
-                    Button(onClick = onViewResultsClick) {
-                        Text("View Results")
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Box(
+                                modifier = Modifier
+                                    .size(40.dp)
+                                    .clip(CircleShape)
+                                    .background(MaterialTheme.colorScheme.AccentPurpleColor.copy(alpha = 0.1f)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Notifications,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.AccentPurpleColor,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Text(
+                                text = stringResource(R.string.topbar_title_scan_result),
+                                style = MaterialTheme.typography.titleMedium,
+                                color = MaterialTheme.colorScheme.BlackWhiteColor,
+                                fontWeight = FontWeight.ExtraBold
+                            )
+                        }
+
+                        IconButton(onClick = onCloseClick) {
+                            Icon(
+                                imageVector = Icons.Default.Close,
+                                contentDescription = "Close",
+                                tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
+                            )
+                        }
                     }
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    Text(
+                        text = summary?.message ?: "Scan analysis is ready to view.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+                        lineHeight = 20.sp,
+                        modifier = Modifier.padding(horizontal = 8.dp)
+                    )
+
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    MainPurpleButton(
+                        text = stringResource(R.string.button_view_detailed_results),
+                        onClick = onViewResultsClick,
+                        modifier = Modifier.fillMaxWidth()
+                    )
                 }
             }
         }
     }
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = false)
 @Composable
 fun GlobalScanOverlayPreview() {
     HashScannerTheme {
-        GlobalScanOverlayContent(
-            scanResult = NetworkResult.Success(
-                message = "Success",
-                data = ScanResultResponse(ready = true)
-            ),
-            onViewResultsClick = {}
-        )
+        Box(modifier = Modifier.fillMaxSize().background(Color.Gray.copy(0.2f))) {
+            GlobalScanOverlayContent(
+                scanResult = NetworkResult.Success(
+                    message = "Success",
+                    data = ScanResultResponse(
+                        ready = true,
+                        summary = ScanSummary(
+                            result = "VIRUS",
+                            message = "تحلیل برنامه‌ها به پایان رسید. ۱ مورد مشکوک شناسایی شد."
+                        )
+                    )
+                ),
+                onViewResultsClick = {},
+                onCloseClick = {}
+            )
+        }
     }
 }

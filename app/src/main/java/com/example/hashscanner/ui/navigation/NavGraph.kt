@@ -1,5 +1,6 @@
 package com.example.hashscanner.ui.navigation
 
+import com.example.hashscanner.ui.ui_utils.GlobalScanOverlay
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -20,11 +21,9 @@ import com.example.hashscanner.ui.screens.history_details.HistoryDetailsScreen
 import com.example.hashscanner.ui.screens.landing.LandingPageScreen
 import com.example.hashscanner.ui.screens.risk_level_list.RiskLevelListScreen
 import com.example.hashscanner.ui.screens.scan.ScanScreen
-import com.example.hashscanner.ui.ui_utils.GlobalScanOverlay
 import com.example.hashscanner.viewmodel.AppDatabaseViewModel
 import com.example.hashscanner.viewmodel.AppViewModel
 import com.example.hashscanner.viewmodel.ScannerViewModel
-
 
 
 @Composable
@@ -53,7 +52,11 @@ fun NavGraph(
 
     LaunchedEffect(currentRoute) {
         if (currentRoute != null && !isExcluded) {
-            scannerViewModel.getScanResult()
+            val scanIdFromRoute = if (currentRoute.contains(Screens.HistoryDetails::class.simpleName.toString())) {
+                navBackStackEntry?.toRoute<Screens.HistoryDetails>()?.scanId
+            } else null
+            
+            scannerViewModel.getScanResult(scanIdFromRoute)
         } else {
             scannerViewModel.stopPolling()
         }
@@ -142,7 +145,8 @@ fun NavGraph(
                 HistoryDetailsScreen(
                     navController = navController,
                     scanId = details.scanId,
-                    databaseViewModel = appDatabaseViewModel
+                    databaseViewModel = appDatabaseViewModel,
+                    scannerViewModel = scannerViewModel
                 )
             }
 

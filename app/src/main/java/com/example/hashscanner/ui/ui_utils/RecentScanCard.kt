@@ -42,7 +42,7 @@ fun RecentScanCard(
     scan: ScanHistory,
     modifier: Modifier = Modifier,
     onClick: (ScanHistory) -> Unit,
-    onDeleteClicked:(ScanHistory)-> Unit
+    onDeleteClicked: (ScanHistory) -> Unit
 ) {
     val suspiciousApps = scan.highRisk + scan.criticalRisk
 
@@ -93,7 +93,10 @@ fun RecentScanCard(
                     color = MaterialTheme.colorScheme.BlackWhiteColor
                 )
                 Text(
-                    text = stringResource(R.string.apps_identified_count, scan.totalApps),
+                    text = stringResource(
+                        R.string.apps_identified_count,
+                        DigitHelper.digitByLang(scan.totalApps.toString())
+                    ),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                 )
@@ -114,7 +117,7 @@ fun RecentScanCard(
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
                     modifier = Modifier
-                        .clickable{
+                        .clickable {
                             onDeleteClicked(scan)
                         }
                 )

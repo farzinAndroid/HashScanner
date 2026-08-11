@@ -5,6 +5,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -12,12 +13,14 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.example.hashscanner.R
 import com.example.hashscanner.data.model.db_entities.ScanHistory
+import com.example.hashscanner.data.network.NetworkResult
 import com.example.hashscanner.ui.navigation.Screens
 import com.example.hashscanner.ui.theme.*
 import com.example.hashscanner.ui.ui_utils.AppTopBar
@@ -29,11 +32,26 @@ import com.example.hashscanner.viewmodel.AppDatabaseViewModel
 fun HistoryDetailsScreen(
     navController: NavController,
     scanId: String?,
-    databaseViewModel: AppDatabaseViewModel
+    databaseViewModel: AppDatabaseViewModel,
+    scannerViewModel: com.example.hashscanner.viewmodel.ScannerViewModel
 ) {
     val scanHistoryList by databaseViewModel.scanHistory.collectAsStateWithLifecycle(emptyList())
+    val scanResult by scannerViewModel.scanResultResponse.collectAsStateWithLifecycle()
+
     val scanDetails = remember(scanHistoryList, scanId) {
         scanHistoryList.find { it.id == scanId }
+    }
+
+    LaunchedEffect(scanId) {
+        if (scanId != null) {
+            scannerViewModel.getScanResult(scanId)
+        }
+    }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            scannerViewModel.stopPolling()
+        }
     }
 
     Scaffold(
@@ -53,6 +71,7 @@ fun HistoryDetailsScreen(
             HistoryDetailsContent(
                 paddingValues = paddingValues,
                 scan = scanDetails,
+                scanResult = scanResult,
                 onRiskLevelClick = { riskLevel ->
                     navController.navigate(Screens.AppList(riskLevel, scanId))
                 }
@@ -65,6 +84,7 @@ fun HistoryDetailsScreen(
 fun HistoryDetailsContent(
     paddingValues: PaddingValues,
     scan: ScanHistory,
+    scanResult: com.example.hashscanner.data.network.NetworkResult<com.example.hashscanner.data.model.api.ScanResultResponse>,
     onRiskLevelClick: (RiskLevelsUI) -> Unit
 ) {
     val totalSuspicious = scan.highRisk + scan.criticalRisk
@@ -127,6 +147,35 @@ fun HistoryDetailsContent(
             HistoryHeader(scan, resultColor, totalSuspicious)
         }
 
+        // --- API Result Section ---
+        if (scanResult is NetworkResult.Success) {
+            val data = scanResult.data
+            if (data?.ready == true) {
+                data.summary?.let { summary ->
+                    item(span = { GridItemSpan(2) }) {
+                        ApiSummaryCard(summary)
+                    }
+                }
+
+                data.apps?.let { apps ->
+                    if (apps.isNotEmpty()) {
+                        item(span = { GridItemSpan(2) }) {
+                            Text(
+                                text = stringResource(R.string.api_analysis_results_title),
+                                style = MaterialTheme.typography.titleSmall,
+                                color = MaterialTheme.colorScheme.BlackWhiteColor,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.padding(top = 8.dp)
+                            )
+                        }
+                        items(apps, span = { GridItemSpan(2) }) { app ->
+                            ApiAppResultCard(app)
+                        }
+                    }
+                }
+            }
+        }
+
         // --- Risk Grid ---
         items(riskItems) { item ->
             HistoryRiskCard(item) {
@@ -136,7 +185,56 @@ fun HistoryDetailsContent(
 
         // --- Metadata Section ---
         item(span = { GridItemSpan(2) }) {
-            HistoryMetadataSection(scan)
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 24.dp)
+            ) {
+                Text(
+                    text = stringResource(R.string.details_section_title_suspicion_reasons),
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.BlackWhiteColor,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(bottom = 12.dp)
+                )
+
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    color = MaterialTheme.colorScheme.BoxGrayColor.copy(alpha = 0.5f),
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        HistoryMetadataRow(
+                            label = stringResource(R.string.report_label_user_apps_count),
+                            value = com.example.hashscanner.utils.DigitHelper.digitByLang(scan.userApps.toString()),
+                            icon = Icons.Default.Person
+                        )
+                        HorizontalDivider(
+                            modifier = Modifier.padding(vertical = 12.dp),
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.05f)
+                        )
+                        HistoryMetadataRow(
+                            label = stringResource(R.string.report_label_system_apps_count),
+                            value = com.example.hashscanner.utils.DigitHelper.digitByLang(scan.systemApps.toString()),
+                            icon = Icons.Default.Settings
+                        )
+                        HorizontalDivider(
+                            modifier = Modifier.padding(vertical = 12.dp),
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.05f)
+                        )
+                        HistoryMetadataRow(
+                            label = stringResource(R.string.report_label_scan_time),
+                            value = "${
+                                com.example.hashscanner.utils.DigitHelper.digitByLang(
+                                    (scan.duration / 1000).toString()
+                                )
+                            } ${stringResource(R.string.label_seconds)}",
+                            icon = Icons.Default.Info
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.height(32.dp))
+            }
         }
     }
 }
@@ -167,6 +265,7 @@ fun HistoryDetailsPreview() {
                 systemApps = 10,
                 userApps = 50
             ),
+            scanResult = NetworkResult.Idle(),
             onRiskLevelClick = {}
         )
     }

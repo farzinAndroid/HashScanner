@@ -29,7 +29,7 @@ fun HistoryMetadataSection(scan: ScanHistory) {
             .padding(top = 24.dp)
     ) {
         Text(
-            text = stringResource(R.string.details_section_title_suspicion_reasons), // Reusing a technical title
+            text = stringResource(R.string.label_details),
             style = MaterialTheme.typography.titleSmall,
             color = MaterialTheme.colorScheme.BlackWhiteColor,
             fontWeight = FontWeight.Bold,

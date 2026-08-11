@@ -41,6 +41,7 @@
     <string name="format_risk_score_value">امتیاز خطر: </string>
 
     <string name="topbar_title_app_details">جزئیات برنامه</string>
+    <string name="label_details">جزئیات</string>
     <string name="details_section_title_suspicion_reasons">دلایل مشکوک بودن</string>
 
     <string name="details_reason_requests_device_admin">درخواست دسترسی ادمین دستگاه</string>
@@ -69,6 +70,10 @@
     <string name="empty_app_list_message">برنامه‌ای در این دسته یافت نشد</string>
     <string name="apps_identified_count">%s برنامه شناسایی شد</string>
     <string name="apps_identified_count_clean">برنامه شناسایی شد</string>
+    <string name="api_analysis_results_title">نتایج تحلیل برنامه‌ها</string>
+    <string name="api_analysis_malware_detected">تحلیل بدافزار شناسایی شد</string>
+    <string name="api_analysis_success">تحلیل امنیتی موفق</string>
+    <string name="api_analysis_suggested_action_delete">پیشنهاد سیستم: حذف فوری برنامه</string>
 
     <!-- Content Descriptions -->
     <string name="content_desc_app_logo">لوگوی برنامه</string>

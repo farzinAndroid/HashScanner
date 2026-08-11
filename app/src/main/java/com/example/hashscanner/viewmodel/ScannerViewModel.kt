@@ -83,9 +83,14 @@ class ScannerViewModel @Inject constructor(
                     iconBitmap.value = icon
                 }
             )
+
+            if (!isActive) return@launch
+
             isScanCompleted.value = ScanPageState.UPLOADING
             networkRepo.uploadPending(scanId)
             networkRepo.scanFinished(ScanResultModel(scanId = scanId, deviceId = Constants.DEVICE_ID))
+
+            if (!isActive) return@launch
 
             // Save Scan History
             val endTime = System.currentTimeMillis()
@@ -129,22 +134,22 @@ class ScannerViewModel @Inject constructor(
 
     private var job: Job? = null
 
-    fun getScanResult() {
+    fun getScanResult(scanId: String? = null) {
 
         if (job?.isActive == true) return
 
         job = viewModelScope.launch(Dispatchers.IO) {
 
-            val lastScanId = appDatabaseRepo.lastScan.first()?.id ?: return@launch
+            val targetScanId = scanId ?: appDatabaseRepo.lastScan.first()?.id ?: return@launch
 
             if (_scanResultResponseResponse.value !is NetworkResult.Success) {
                 _scanResultResponseResponse.emit(NetworkResult.Loading())
             }
 
-            val scanResultModel = ScanResultModel(scanId = lastScanId, deviceId = Constants.DEVICE_ID)
+            val scanResultModel = ScanResultModel(scanId = targetScanId, deviceId = Constants.DEVICE_ID)
 
             while (isActive) {
-                Log.d("ScannerViewModel", "Polling API for scanId: $lastScanId")
+                Log.d("ScannerViewModel", "Polling API for scanId: $targetScanId")
                 try {
                     val result = networkRepo.getScanResult(scanResultModel)
 
@@ -177,6 +182,10 @@ class ScannerViewModel @Inject constructor(
                 delay(5000L.milliseconds)
             }
         }
+    }
+
+    fun clearScanResult() {
+        _scanResultResponseResponse.value = NetworkResult.Idle()
     }
 
     fun stopPolling() {
