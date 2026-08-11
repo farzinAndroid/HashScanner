@@ -25,4 +25,10 @@ interface ScanHistoryDao {
 
     @Query("DELETE FROM scan_history WHERE id=:id")
     suspend fun deleteScanHistory(id: String)
+
+    @Query("SELECT * FROM scan_history WHERE analysisStatus = :pendingStatus")
+    fun getPendingScans(pendingStatus: String): Flow<List<ScanHistory>>
+
+    @Query("UPDATE scan_history SET analysisStatus = :status WHERE id = :id")
+    suspend fun updateAnalysisStatus(id: String, status: String)
 }

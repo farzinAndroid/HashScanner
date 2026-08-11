@@ -2,6 +2,7 @@ package com.example.hashscanner.data.database
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 import com.example.hashscanner.data.database.dao.AppDao
 import com.example.hashscanner.data.database.dao.PermissionDao
 import com.example.hashscanner.data.database.dao.ScanHistoryDao

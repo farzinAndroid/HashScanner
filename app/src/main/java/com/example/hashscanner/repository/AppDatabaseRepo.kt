@@ -106,4 +106,7 @@ class AppDatabaseRepo @Inject constructor(
     suspend fun deleteAllScanHistory() = scanHistoryDao.deleteAll()
 
     suspend fun deleteScanHistory(id: String) = scanHistoryDao.deleteScanHistory(id)
+
+    fun getPendingScans(pendingStatus: String) = scanHistoryDao.getPendingScans(pendingStatus)
+    suspend fun updateAnalysisStatus(id: String, status: String) = scanHistoryDao.updateAnalysisStatus(id, status)
 }

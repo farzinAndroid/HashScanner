@@ -9,6 +9,7 @@ import com.example.hashscanner.data.model.api.AuthenticationResponse
 import com.example.hashscanner.data.model.api.ScanResultModel
 import com.example.hashscanner.data.model.api.ScanResultResponse
 import com.example.hashscanner.data.model.api.UserAuthentication
+import com.example.hashscanner.data.model.db_entities.AnalysisStatus
 import com.example.hashscanner.data.model.db_entities.ScanHistory
 import com.example.hashscanner.data.network.NetworkResult
 import com.example.hashscanner.repository.AppDatabaseRepo
@@ -51,6 +52,7 @@ class ScannerViewModel @Inject constructor(
 
     fun resetScanState() {
         cancelScanJob()
+        clearScanResult() // Resets UI popup state
         isScanCompleted.value = ScanPageState.SCANNING
         totalCount.value = 0
         scannedCount.value = 0
@@ -72,6 +74,8 @@ class ScannerViewModel @Inject constructor(
             val scanId = UUID.randomUUID().toString()
             currentScanId.value = scanId
             isScanCompleted.value = ScanPageState.SCANNING
+            
+            // Runs the local package scanning process
             scannerRepository.startScan(
                 scanId = scanId,
                 onProgress = { scanned, total, suspicious, remaining, app, icon ->
@@ -84,15 +88,15 @@ class ScannerViewModel @Inject constructor(
                 }
             )
 
-            if (!isActive) return@launch
+            if (!isActive) return@launch // Guard for cancellation
 
             isScanCompleted.value = ScanPageState.UPLOADING
-            networkRepo.uploadPending(scanId)
-            networkRepo.scanFinished(ScanResultModel(scanId = scanId, deviceId = Constants.DEVICE_ID))
+            networkRepo.uploadPending(scanId) // Uploads local findings to server
+            networkRepo.scanFinished(ScanResultModel(scanId = scanId, deviceId = Constants.DEVICE_ID)) // Notifies server scan is done
 
             if (!isActive) return@launch
 
-            // Save Scan History
+            // Persists the scan snapshot to the database
             val endTime = System.currentTimeMillis()
             val history = ScanHistory(
                 id = scanId,
@@ -101,25 +105,23 @@ class ScannerViewModel @Inject constructor(
                 totalApps = totalCount.value,
                 scannedApps = scannedCount.value,
                 
-                // Captured Snapshots
                 systemApps = appDatabaseRepo.countSystemAppsByScanId(scanId).first(),
                 userApps = appDatabaseRepo.countUserAppsByScanId(scanId).first(),
                 
-                // Risk Levels (Total)
                 safeApps = appDatabaseRepo.countSafeAppsByScanId(scanId).first(),
                 lowRisk = appDatabaseRepo.countLowRiskAppsByScanId(scanId).first(),
                 mediumRisk = appDatabaseRepo.countMediumRiskAppsByScanId(scanId).first(),
                 highRisk = appDatabaseRepo.countHighRiskAppsByScanId(scanId).first(),
                 criticalRisk = appDatabaseRepo.countCriticalAppsByScanId(scanId).first(),
                 
-                // Risk Levels (User Only)
                 safeUserApps = appDatabaseRepo.countSafeAppsByScanId(scanId, onlyUser = true).first(),
                 lowRiskUserApps = appDatabaseRepo.countLowRiskAppsByScanId(scanId, onlyUser = true).first(),
                 mediumRiskUserApps = appDatabaseRepo.countMediumRiskAppsByScanId(scanId, onlyUser = true).first(),
                 highRiskUserApps = appDatabaseRepo.countHighRiskAppsByScanId(scanId, onlyUser = true).first(),
                 criticalRiskUserApps = appDatabaseRepo.countCriticalAppsByScanId(scanId, onlyUser = true).first(),
                 
-                duration = endTime - startTime
+                duration = endTime - startTime,
+                analysisStatus = AnalysisStatus.PENDING.name // Stores as String using Enum name
             )
             appDatabaseRepo.insertScanHistory(history)
 
@@ -127,69 +129,114 @@ class ScannerViewModel @Inject constructor(
         }
     }
 
-
     private val _scanResultResponseResponse =
         MutableStateFlow<NetworkResult<ScanResultResponse>>(NetworkResult.Idle())
     val scanResultResponse = _scanResultResponseResponse.asStateFlow()
 
     private var job: Job? = null
+    private var currentPollingScanId: String? = null
 
+    /**
+     * Entry point for requesting scan results.
+     * If scanId is provided, it polls for that specific scan (e.g., in History Details).
+     * Otherwise, it enters global monitoring mode to check for any unfinished scans.
+     */
     fun getScanResult(scanId: String? = null) {
-
-        if (job?.isActive == true) return
-
-        job = viewModelScope.launch(Dispatchers.IO) {
-
-            val targetScanId = scanId ?: appDatabaseRepo.lastScan.first()?.id ?: return@launch
-
-            if (_scanResultResponseResponse.value !is NetworkResult.Success) {
-                _scanResultResponseResponse.emit(NetworkResult.Loading())
-            }
-
-            val scanResultModel = ScanResultModel(scanId = targetScanId, deviceId = Constants.DEVICE_ID)
-
-            while (isActive) {
-                Log.d("ScannerViewModel", "Polling API for scanId: $targetScanId")
-                try {
-                    val result = networkRepo.getScanResult(scanResultModel)
-
-                    when (val scanResult = result) {
-                        is NetworkResult.Error<ScanResultResponse> -> {
-                            Log.e("ScannerViewModel", "Polling Error: ${scanResult.message}")
-                        }
-
-                        is NetworkResult.Idle<ScanResultResponse> -> {}
-                        is NetworkResult.Loading<ScanResultResponse> -> {}
-                        is NetworkResult.Success<ScanResultResponse> -> {
-                            if (scanResult.data?.ready == true) {
-                                Log.d("ScannerViewModel", "Poll Successful: Ready!")
-                                _scanResultResponseResponse.emit(
-                                    NetworkResult.Success(
-                                        scanResult.message.toString(),
-                                        scanResult.data
-                                    )
-                                )
-                                stopPolling()
-                                break
-                            }
-                        }
-                    }
-
-                } catch (e: Exception) {
-                    Log.e("ScannerViewModel", "Polling Exception", e)
-                }
-
-                delay(5000L.milliseconds)
+        viewModelScope.launch {
+            if (scanId != null) {
+                startContextualPolling(scanId)
+            } else {
+                startGlobalPendingMonitoring()
             }
         }
     }
 
+    /**
+     * Starts a targeted polling job for a specific scanId.
+     */
+    private fun startContextualPolling(scanId: String) {
+        // Prevents restarting the same job if already running
+        if (job?.isActive == true && currentPollingScanId == scanId) return
+        stopPolling() // Cancel any existing global or other contextual jobs
+        currentPollingScanId = scanId
+        
+        job = viewModelScope.launch(Dispatchers.IO) {
+            val scanResultModel = ScanResultModel(scanId = scanId, deviceId = Constants.DEVICE_ID)
+            while (isActive) {
+                Log.d("ScannerViewModel", "Contextual Polling: $scanId")
+                handlePollingResult(scanId, scanResultModel)
+                delay(3000L.milliseconds)
+            }
+        }
+    }
+
+    /**
+     * Periodically monitors the database for any scans marked as PENDING.
+     * It checks all pending scans in a single loop every 10 seconds.
+     */
+    private fun startGlobalPendingMonitoring() {
+        if (job?.isActive == true && currentPollingScanId == null) return
+        stopPolling()
+        currentPollingScanId = null // Signals global mode
+
+        job = viewModelScope.launch(Dispatchers.IO) {
+            // Collecting the Flow re-triggers the block whenever the DB status changes
+            appDatabaseRepo.getPendingScans(AnalysisStatus.PENDING.name).collect { pendingScans ->
+                if (pendingListRunning) return@collect
+                
+                if (pendingScans.isEmpty()) {
+                    Log.d("ScannerViewModel", "Global Monitor: No pending scans.")
+                    return@collect
+                }
+
+                launch {
+                    pendingListRunning = true
+                    while (isActive && currentPollingScanId == null) {
+                        Log.d("ScannerViewModel", "Global Monitor: Checking ${pendingScans.size} scans")
+                        pendingScans.forEach { scan ->
+                            val model = ScanResultModel(scanId = scan.id, deviceId = Constants.DEVICE_ID)
+                            handlePollingResult(scan.id, model)
+                        }
+                        delay(5000L.milliseconds)
+                    }
+                    pendingListRunning = false
+                }
+            }
+        }
+    }
+
+    private var pendingListRunning = false
+
+    /**
+     * Common logic to handle API response. Updates DB and UI state if result is ready.
+     */
+    private suspend fun handlePollingResult(scanId: String, model: ScanResultModel): Boolean {
+        try {
+            val result = networkRepo.getScanResult(model)
+            if (result is NetworkResult.Success && result.data?.ready == true) {
+                Log.d("ScannerViewModel", "Result Ready for $scanId")
+                
+                // Mark as COMPLETED in DB so monitoring stops for this ID
+                appDatabaseRepo.updateAnalysisStatus(scanId, AnalysisStatus.COMPLETED.name)
+                
+                // Emit result to show the global UI overlay
+                _scanResultResponseResponse.emit(result)
+                
+                return true
+            }
+        } catch (e: Exception) {
+            Log.e("ScannerViewModel", "Polling Error for $scanId", e)
+        }
+        return false
+    }
+
     fun clearScanResult() {
-        _scanResultResponseResponse.value = NetworkResult.Idle()
+        _scanResultResponseResponse.value = NetworkResult.Idle<ScanResultResponse>()
     }
 
     fun stopPolling() {
         job?.cancel()
+        currentPollingScanId = null
     }
 
 

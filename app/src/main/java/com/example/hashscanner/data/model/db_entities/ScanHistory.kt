@@ -28,5 +28,6 @@ data class ScanHistory(
     val highRiskUserApps: Int,
     val criticalRiskUserApps: Int,
     
-    val duration: Long
+    val duration: Long,
+    val analysisStatus: String = AnalysisStatus.PENDING.name
 )
