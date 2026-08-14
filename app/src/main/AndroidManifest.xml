@@ -14,6 +14,13 @@
 
     <uses-permission android:name="android.permission.REQUEST_DELETE_PACKAGES"/>
 
+    <!-- اعلان‌ها (اندروید ۱۳ به بالا) -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+
+    <!-- اجازه اجرای پردازش در پس‌زمینه (حتی هنگام بسته بودن برنامه) -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -23,6 +30,18 @@
         android:name=".HashScannerApp"
         android:usesCleartextTraffic="true"
         android:theme="@style/Theme.HashScanner">
+
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            android:exported="false"
+            tools:node="merge">
+            <!-- This disables the default WorkManager initializer -->
+            <meta-data
+                android:name="androidx.work.WorkManagerInitializer"
+                android:value="androidx.startup"
+                tools:node="remove" />
+        </provider>
 
         <activity
             android:name=".MainActivity"
@@ -38,6 +57,11 @@
             </intent-filter>
 
         </activity>
+
+        <service
+            android:name="androidx.work.impl.foreground.SystemForegroundService"
+            android:foregroundServiceType="dataSync"
+            tools:node="merge" />
 
     </application>
 

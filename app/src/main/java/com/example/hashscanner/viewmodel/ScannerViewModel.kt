@@ -1,9 +1,13 @@
 package com.example.hashscanner.viewmodel
 
+import android.content.Context
 import android.graphics.Bitmap
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.PeriodicWorkRequest
+import androidx.work.WorkManager
 import com.example.hashscanner.data.model.api.ApkUploadResponse
 import com.example.hashscanner.data.model.api.AuthenticationResponse
 import com.example.hashscanner.data.model.api.ScanResultModel
@@ -19,6 +23,7 @@ import com.example.hashscanner.ui.screens.scan.ScanPageState
 import com.example.hashscanner.utils.Constants
 import com.example.hashscanner.utils.DateTimeUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -36,8 +41,17 @@ import kotlin.time.Duration.Companion.milliseconds
 class ScannerViewModel @Inject constructor(
     private val scannerRepository: ScannerRepository,
     private val networkRepo: NetworkRepo,
-    private val appDatabaseRepo: AppDatabaseRepo
+    private val appDatabaseRepo: AppDatabaseRepo,
+    private val workManager: WorkManager,
+    private val scanResultWorkRequest: PeriodicWorkRequest,
+    @ApplicationContext private val context: Context
 ) : ViewModel() {
+
+    init {
+        // Every time the ViewModel is created (App starts), 
+        // we check if there are any old pending scans from previous sessions.
+        startBackgroundResultCheck()
+    }
 
     // --- Scanning States ---
     val totalCount = MutableStateFlow<Int>(0)
@@ -124,6 +138,8 @@ class ScannerViewModel @Inject constructor(
                 analysisStatus = AnalysisStatus.PENDING.name // Stores as String using Enum name
             )
             appDatabaseRepo.insertScanHistory(history)
+            
+            startBackgroundResultCheck()
 
             isScanCompleted.value = ScanPageState.SCAN_COMPLETE
         }
@@ -163,7 +179,7 @@ class ScannerViewModel @Inject constructor(
         job = viewModelScope.launch(Dispatchers.IO) {
             val scanResultModel = ScanResultModel(scanId = scanId, deviceId = Constants.DEVICE_ID)
             while (isActive) {
-                Log.d("ScannerViewModel", "Contextual Polling: $scanId")
+                Log.d(Constants.TAG, "Contextual Polling: $scanId")
                 handlePollingResult(scanId, scanResultModel)
                 delay(3000L.milliseconds)
             }
@@ -185,14 +201,14 @@ class ScannerViewModel @Inject constructor(
                 if (pendingListRunning) return@collect
                 
                 if (pendingScans.isEmpty()) {
-                    Log.d("ScannerViewModel", "Global Monitor: No pending scans.")
+                    Log.d(Constants.TAG, "Global Monitor: No pending scans.")
                     return@collect
                 }
 
                 launch {
                     pendingListRunning = true
                     while (isActive && currentPollingScanId == null) {
-                        Log.d("ScannerViewModel", "Global Monitor: Checking ${pendingScans.size} scans")
+                        Log.d(Constants.TAG, "Global Monitor: Checking ${pendingScans.size} scans")
                         pendingScans.forEach { scan ->
                             val model = ScanResultModel(scanId = scan.id, deviceId = Constants.DEVICE_ID)
                             handlePollingResult(scan.id, model)
@@ -214,7 +230,7 @@ class ScannerViewModel @Inject constructor(
         try {
             val result = networkRepo.getScanResult(model)
             if (result is NetworkResult.Success && result.data?.ready == true) {
-                Log.d("ScannerViewModel", "Result Ready for $scanId")
+                Log.d(Constants.TAG, "Result Ready for $scanId")
                 
                 // Mark as COMPLETED in DB so monitoring stops for this ID
                 appDatabaseRepo.updateAnalysisStatus(scanId, AnalysisStatus.COMPLETED.name)
@@ -225,7 +241,7 @@ class ScannerViewModel @Inject constructor(
                 return true
             }
         } catch (e: Exception) {
-            Log.e("ScannerViewModel", "Polling Error for $scanId", e)
+            Log.e(Constants.TAG, "Polling Error for $scanId", e)
         }
         return false
     }
@@ -294,6 +310,18 @@ class ScannerViewModel @Inject constructor(
             val result = networkRepo.authenticate(userAuthentication)
             _authenticationResponse.emit(result)
         }
+    }
+
+    /**
+     * Enqueues a WorkManager task to check for pending results when the app is closed.
+     * Uses ExistingWorkPolicy.REPLACE to ensure we only have one background monitor running.
+     */
+    private fun startBackgroundResultCheck() {
+        workManager.enqueueUniquePeriodicWork(
+            Constants.WORK_TAG_SCAN_RESULT,
+            ExistingPeriodicWorkPolicy.REPLACE,
+            scanResultWorkRequest
+        )
     }
 
 

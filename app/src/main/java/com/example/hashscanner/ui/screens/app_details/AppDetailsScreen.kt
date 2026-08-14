@@ -36,6 +36,7 @@ import com.example.hashscanner.ui.theme.BackgroundColor
 import com.example.hashscanner.ui.theme.HashScannerTheme
 import com.example.hashscanner.ui.theme.spacing
 import com.example.hashscanner.ui.ui_utils.AppTopBar
+import com.example.hashscanner.utils.Constants
 import com.example.hashscanner.utils.DateTimeUtils
 import com.example.hashscanner.viewmodel.AppDatabaseViewModel
 import com.example.hashscanner.viewmodel.ScannerViewModel
@@ -101,7 +102,7 @@ fun AppDetailsScreen(
                     result.message ?: context.getString(R.string.toast_upload_error),
                     Toast.LENGTH_LONG
                 ).show()
-                Log.e("TAG",result.message.toString())
+                Log.e(Constants.TAG,result.message.toString())
             }
 
             is NetworkResult.Loading -> {

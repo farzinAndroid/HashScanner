@@ -31,6 +31,7 @@ ksp="2.0.21-1.0.25"
 
 hiltAndroid = "2.51.1"
 hiltNavigationCompose = "1.2.0"
+hiltWork = "1.2.0"
 
 serialization = "1.6.3"
 
@@ -79,6 +80,8 @@ androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", versi
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroid" }
 hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hiltAndroid" }
 androidx-hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "hiltNavigationCompose" }
+androidx-hilt-work = { module = "androidx.hilt:hilt-work", version.ref = "hiltWork" }
+androidx-hilt-compiler = { module = "androidx.hilt:hilt-compiler", version.ref = "hiltWork" }
 
 
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "serialization"}

@@ -54,9 +54,9 @@ class NetworkRepo @Inject constructor(
                     date = uploadTime
                 )
             }
-            Log.d("NetworkRepo", "Successfully uploaded batch report for ${list.size} apps. ScanId: $scanId")
+            Log.d(Constants.TAG, "Successfully uploaded batch report for ${list.size} apps. ScanId: $scanId")
         } else if (result is NetworkResult.Error) {
-            Log.e("NetworkRepo", "Failed to upload batch report: ${result.message}")
+            Log.e(Constants.TAG, "Failed to upload batch report: ${result.message}")
         }
     }
 

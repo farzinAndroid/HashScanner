@@ -98,4 +98,10 @@ object Constants {
 
     const val BALE_BOT_URL = "https://ble.ir/App_scanner_bot"
 
+    const val NOTIFICATION_CHANNEL_ID = "scan_results_channel"
+    const val EXTRA_SCAN_ID = "EXTRA_SCAN_ID"
+    const val WORK_TAG_SCAN_RESULT = "scan_result_check"
+
+    // Log Tags
+    const val TAG = "TAG"
 }

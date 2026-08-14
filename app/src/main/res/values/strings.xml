@@ -70,6 +70,14 @@
     <string name="empty_app_list_message">برنامه‌ای در این دسته یافت نشد</string>
     <string name="apps_identified_count">%s برنامه شناسایی شد</string>
     <string name="apps_identified_count_clean">برنامه شناسایی شد</string>
+
+    <string name="notification_channel_name">نتایج اسکن امنیتی</string>
+    <string name="notification_channel_description">اعلان‌های مربوط به پایان تحلیل امنیتی ابری</string>
+    <string name="notification_title_cloud_analysis">نتیجه تحلیل ابری</string>
+    <string name="notification_default_finished_message">تحلیل اسکن پایان یافت</string>
+    <string name="notification_test_title">تست اعلان پس‌زمینه</string>
+    <string name="notification_test_message">این اعلان تست شماره %d است که هر ۱۰ ثانیه ارسال می‌شود.</string>
+
     <string name="api_analysis_results_title">نتایج تحلیل برنامه‌ها</string>
     <string name="api_analysis_malware_detected">تحلیل بدافزار شناسایی شد</string>
     <string name="api_analysis_success">تحلیل امنیتی موفق</string>
