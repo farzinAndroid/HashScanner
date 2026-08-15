@@ -30,6 +30,7 @@ import com.example.hashscanner.ui.theme.BackgroundColor
 import com.example.hashscanner.ui.theme.HashScannerTheme
 import com.example.hashscanner.ui.ui_utils.ChangeStatusBarAndNavigationBarColor
 import com.example.hashscanner.utils.Constants
+import com.example.hashscanner.utils.requestIgnoreBatteryOptimizations
 import com.example.hashscanner.viewmodel.AppDatabaseViewModel
 import com.example.hashscanner.viewmodel.AppViewModel
 import com.example.hashscanner.viewmodel.ScannerViewModel
@@ -79,6 +80,13 @@ class MainActivity : ComponentActivity() {
                             requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
                         }
                     }
+
+                    // Notifications are only useful to us here if the background
+                    // scan-result worker actually gets to run while the app is
+                    // closed — Doze/App Standby otherwise defer it unpredictably.
+                    // Asking for this alongside the notification prompt, once per
+                    // app open, is a no-op if the user already granted it.
+                    requestIgnoreBatteryOptimizations(this@MainActivity)
                 }
 
                 var initialScanId by remember { 
