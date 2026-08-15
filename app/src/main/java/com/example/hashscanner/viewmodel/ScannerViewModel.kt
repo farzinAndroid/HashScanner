@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequest
 import androidx.work.WorkManager
+import com.example.hashscanner.R
 import com.example.hashscanner.data.model.api.ApkUploadResponse
 import com.example.hashscanner.data.model.api.AuthenticationResponse
 import com.example.hashscanner.data.model.api.ScanResultModel
@@ -16,6 +17,7 @@ import com.example.hashscanner.data.model.api.UserAuthentication
 import com.example.hashscanner.data.model.db_entities.AnalysisStatus
 import com.example.hashscanner.data.model.db_entities.ScanHistory
 import com.example.hashscanner.data.network.NetworkResult
+import com.example.hashscanner.notification.NotificationHelper
 import com.example.hashscanner.repository.AppDatabaseRepo
 import com.example.hashscanner.repository.NetworkRepo
 import com.example.hashscanner.repository.ScannerRepository
@@ -44,6 +46,7 @@ class ScannerViewModel @Inject constructor(
     private val appDatabaseRepo: AppDatabaseRepo,
     private val workManager: WorkManager,
     private val scanResultWorkRequest: PeriodicWorkRequest,
+    private val notificationHelper: NotificationHelper,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
@@ -231,13 +234,25 @@ class ScannerViewModel @Inject constructor(
             val result = networkRepo.getScanResult(model)
             if (result is NetworkResult.Success && result.data?.ready == true) {
                 Log.d(Constants.TAG, "Result Ready for $scanId")
-                
+
                 // Mark as COMPLETED in DB so monitoring stops for this ID
                 appDatabaseRepo.updateAnalysisStatus(scanId, AnalysisStatus.COMPLETED.name)
-                
+
+                // This poller runs every few seconds while the app is open and
+                // will almost always detect completion long before the 15-minute
+                // background worker gets a turn. Since the worker only notifies
+                // for rows it finds still PENDING, this path must notify too —
+                // otherwise a scan that finishes while the app happens to be
+                // open never produces a notification at all.
+                notificationHelper.showScanResultNotification(
+                    scanId = scanId,
+                    message = result.data.summary?.message
+                        ?: context.getString(R.string.notification_default_finished_message)
+                )
+
                 // Emit result to show the global UI overlay
                 _scanResultResponseResponse.emit(result)
-                
+
                 return true
             }
         } catch (e: Exception) {
