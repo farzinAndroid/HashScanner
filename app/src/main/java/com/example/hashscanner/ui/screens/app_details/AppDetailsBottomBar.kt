@@ -30,8 +30,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.hashscanner.R
-import com.example.hashscanner.ui.theme.GreenColor
-import com.example.hashscanner.ui.theme.RedColor
+import com.example.hashscanner.ui.theme.*
 import com.example.hashscanner.ui.theme.spacing
 
 @Composable
@@ -39,11 +38,12 @@ fun AppDetailsBottomBar(
     isSystem: Boolean = false,
     isUploaded: Boolean = false,
     isLoading: Boolean = false,
-    isDeleted: Boolean = false, // Added to handle ghost state
+    isDeleted: Boolean = false,
+    apiAction: String? = null, // New: Drive UI from API
     onUploadApkClicked: () -> Unit,
     onDeleteClicked: () -> Unit
 ) {
-    if (isDeleted) return // Don't show the bar at all for deleted apps
+    if (isDeleted) return 
 
     Surface(
         color = MaterialTheme.colorScheme.surface,
@@ -57,84 +57,99 @@ fun AppDetailsBottomBar(
             horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.dp12),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            OutlinedButton(
-                onClick = onDeleteClicked,
-                modifier = Modifier.weight(1f),
-                enabled = !isLoading,
-                shape = RoundedCornerShape(MaterialTheme.spacing.dp16),
-                colors = ButtonDefaults.outlinedButtonColors(
-                    contentColor = MaterialTheme.colorScheme.RedColor
-                ),
-                border = BorderStroke(
-                    1.dp,
-                    MaterialTheme.colorScheme.RedColor
-                )
-            ) {
-                Icon(
-                    if (isSystem) Icons.Default.Info else Icons.Default.Delete,
-                    contentDescription = null
-                )
-                Spacer(modifier = Modifier.width(MaterialTheme.spacing.dp8))
-                Text(
-                    text = stringResource(
-                        if (isSystem) R.string.button_app_info else R.string.button_uninstall_app
-                    ),
-                    fontWeight = FontWeight.Bold
-                )
-            }
-
-            if (isUploaded) {
-                Row(
-                    modifier = Modifier.weight(1f),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        Icons.Default.CheckCircle,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.GreenColor
-                    )
-                    Spacer(modifier = Modifier.width(MaterialTheme.spacing.dp8))
-                    Text(
-                        text = stringResource(R.string.apk_already_uploaded),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.GreenColor,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            } else {
-                Button(
-                    onClick = onUploadApkClicked,
+            // UNINSTALL BUTTON
+            // We show this if it's a user app OR if the API specifically recommends DELETE
+            val showUninstall = !isSystem || apiAction == "DELETE"
+            
+            if (showUninstall) {
+                OutlinedButton(
+                    onClick = onDeleteClicked,
                     modifier = Modifier.weight(1f),
                     enabled = !isLoading,
                     shape = RoundedCornerShape(MaterialTheme.spacing.dp16),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.RedColor,
-                        contentColor = Color.White
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        contentColor = MaterialTheme.colorScheme.RedColor
+                    ),
+                    border = BorderStroke(
+                        1.dp,
+                        if (apiAction == "DELETE") MaterialTheme.colorScheme.RedColor else MaterialTheme.colorScheme.RedColor.copy(alpha = 0.5f)
                     )
                 ) {
-                    if (isLoading) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically
-                        ){
+                    Icon(Icons.Default.Delete, contentDescription = null)
+                    Spacer(modifier = Modifier.width(MaterialTheme.spacing.dp8))
+                    Text(
+                        text = stringResource(R.string.button_uninstall_app),
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            } else if (isSystem) {
+                // For system apps with no specific delete recommendation, show Info button
+                OutlinedButton(
+                    onClick = onDeleteClicked,
+                    modifier = Modifier.weight(1f),
+                    enabled = !isLoading,
+                    shape = RoundedCornerShape(MaterialTheme.spacing.dp16),
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        contentColor = MaterialTheme.colorScheme.AccentPurpleColor
+                    ),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.AccentPurpleColor)
+                ) {
+                    Icon(Icons.Default.Info, contentDescription = null)
+                    Spacer(modifier = Modifier.width(MaterialTheme.spacing.dp8))
+                    Text(
+                        text = stringResource(R.string.button_app_info),
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+
+            // UPLOAD BUTTON
+            // We ONLY show this if the API specifically recommends UPLOAD_APK
+            if (apiAction == "UPLOAD_APK") {
+                if (isUploaded) {
+                    Row(
+                        modifier = Modifier.weight(1f),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            Icons.Default.CheckCircle,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.GreenColor
+                        )
+                        Spacer(modifier = Modifier.width(MaterialTheme.spacing.dp8))
+                        Text(
+                            text = stringResource(R.string.apk_already_uploaded),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.GreenColor,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                } else {
+                    Button(
+                        onClick = onUploadApkClicked,
+                        modifier = Modifier.weight(1f),
+                        enabled = !isLoading,
+                        shape = RoundedCornerShape(MaterialTheme.spacing.dp16),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.StrongYellowColor,
+                            contentColor = Color.White
+                        )
+                    ) {
+                        if (isLoading) {
                             CircularProgressIndicator(
                                 modifier = Modifier.size(20.dp),
                                 color = Color.White,
                                 strokeWidth = 2.dp
                             )
-
+                        } else {
+                            Icon(Icons.Default.Share, contentDescription = null)
+                            Spacer(modifier = Modifier.width(MaterialTheme.spacing.dp8))
                             Text(
-                                text = stringResource(R.string.status_uploading),
+                                text = stringResource(R.string.button_send_apk_file),
                                 fontWeight = FontWeight.Bold
                             )
                         }
-                    } else {
-                        Icon(Icons.Default.Share, contentDescription = null)
-                        Spacer(modifier = Modifier.width(MaterialTheme.spacing.dp8))
-                        Text(
-                            text = stringResource(R.string.button_send_apk_file),
-                            fontWeight = FontWeight.Bold
-                        )
                     }
                 }
             }

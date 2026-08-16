@@ -69,18 +69,19 @@ class ScanResultWorker @AssistedInject constructor(
             try {
                 val response = networkRepo.getScanResult(model)
                 if (response is NetworkResult.Success && response.data?.ready == true) {
-                    // Update DB and Notify User
-                    appDatabaseRepo.updateAnalysisStatus(scan.id, AnalysisStatus.COMPLETED.name)
-                    
                     val notificationMessage = response.data.finalReport?.message 
                         ?: response.data.initialReport?.let { 
                             applicationContext.getString(R.string.notification_analysis_finished_summary, it.summary.virus, it.summary.suspicious)
                         } ?: applicationContext.getString(R.string.notification_default_finished_message)
 
+                    // 1. Show notification FIRST
                     notificationHelper.showScanResultNotification(
                         scanId = scan.id,
                         message = notificationMessage
                     )
+
+                    // 2. Mark as COMPLETED in DB so we stop monitoring it
+                    appDatabaseRepo.updateAnalysisStatus(scan.id, AnalysisStatus.COMPLETED.name)
                 }
             } catch (e: Exception) {
                 Log.e(Constants.TAG, "Production: Error checking scan ${scan.id}", e)

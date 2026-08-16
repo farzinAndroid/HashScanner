@@ -241,10 +241,10 @@ class PackageScanner @Inject constructor(
                 certificate.algorithm,
 
             certificateValidFrom =
-                certificate.validFrom,
+                certificate.validFrom.toString(),
 
             certificateValidTo =
-                certificate.validTo,
+                certificate.validTo.toString(),
 
             installer = installer,
 

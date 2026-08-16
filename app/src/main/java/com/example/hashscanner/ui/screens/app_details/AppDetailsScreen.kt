@@ -54,8 +54,19 @@ fun AppDetailsScreen(
 
     val appDetails by databaseViewModel.appByPackage.collectAsStateWithLifecycle()
     val apkUploadResponse by scannerViewModel.apkUploadResponse.collectAsStateWithLifecycle()
+    val apiResponse by scannerViewModel.scanResultResponse.collectAsStateWithLifecycle()
 
     var isLoading by remember { mutableStateOf(false) }
+
+    // Find this specific app in the API results to get the recommended action
+    val apiAppResult = remember(apiResponse, appDetails) {
+        if (apiResponse is NetworkResult.Success) {
+            val data = (apiResponse as NetworkResult.Success).data
+            val allApiApps = (data?.initialReport?.apps ?: emptyList()) +
+                    (data?.uploadedApks?.apps ?: emptyList())
+            allApiApps.find { it.packageName == appDetails?.packageName }
+        } else null
+    }
 
     DisposableEffect(Unit) {
         onDispose {
@@ -138,6 +149,7 @@ fun AppDetailsScreen(
     )
 
     // --- UI Layout ---
+    @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     Scaffold(
         containerColor = MaterialTheme.colorScheme.BackgroundColor,
         topBar = {
@@ -154,6 +166,7 @@ fun AppDetailsScreen(
                         isUploaded = app.apkUploaded,
                         isLoading = isLoading,
                         isDeleted = app.isDeleted,
+                        apiAction = apiAppResult?.action,
                         onUploadApkClicked = {
                             scannerViewModel.uploadAPK(
                                 apkPath = app.apkPath,
@@ -188,18 +201,6 @@ fun AppDetailsScreen(
             }
         }
     ) { innerPadding ->
-        val apiResponse by scannerViewModel.scanResultResponse.collectAsStateWithLifecycle()
-
-        // Find this specific app in the API results to get the recommended action
-        val apiAppResult = remember(apiResponse, appDetails) {
-            if (apiResponse is NetworkResult.Success) {
-                val data = (apiResponse as NetworkResult.Success).data
-                val allApiApps = (data?.initialReport?.apps ?: emptyList()) +
-                        (data?.uploadedApks?.apps ?: emptyList())
-                allApiApps.find { it.packageName == appDetails?.packageName }
-            } else null
-        }
-
         AppDetailsContent(
             paddingValues = innerPadding,
             appInfo = appDetails,

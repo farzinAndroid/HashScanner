@@ -233,27 +233,25 @@ class ScannerViewModel @Inject constructor(
         try {
             val result = networkRepo.getScanResult(model)
             if (result is NetworkResult.Success && result.data?.ready == true) {
-                Log.d(Constants.TAG, "Result Ready for $scanId (Stage: ${result.data.stage})")
-
-                // 1. Check for Full Completion
-                // According to backend docs: Only mark as COMPLETED in DB if the finalReport is complete.
-                // This ensures WorkManager/Global Polling continues if we are still waiting for deep analysis.
-                val isFinalReportComplete = result.data.finalReport?.complete == true
-                if (isFinalReportComplete) {
-                    appDatabaseRepo.updateAnalysisStatus(scanId, AnalysisStatus.COMPLETED.name)
-                }
-
-                // 2. Extract message for notification
+                // 1. Extract message for notification
                 val notificationMessage = result.data.finalReport?.message 
                     ?: result.data.initialReport?.let { 
                         context.getString(R.string.notification_analysis_finished_summary, it.summary.virus, it.summary.suspicious)
                     } ?: result.data.message ?: context.getString(R.string.notification_default_finished_message)
 
-                // 3. Show notification
+                // 2. Show notification FIRST
+                // We notify before updating DB to ensure the user gets the alert even if a crash happens during DB write.
                 notificationHelper.showScanResultNotification(
                     scanId = scanId,
                     message = notificationMessage
                 )
+
+                // 3. Mark as COMPLETED in DB so monitoring stops for this ID
+                // Check for Full Completion according to backend docs
+                val isFinalReportComplete = result.data.finalReport?.complete == true
+                if (isFinalReportComplete) {
+                    appDatabaseRepo.updateAnalysisStatus(scanId, AnalysisStatus.COMPLETED.name)
+                }
 
                 // 4. Emit to data flow (stays visible on screen)
                 _scanResultResponseResponse.emit(result)

@@ -210,7 +210,8 @@ fun AppCardPreview() {
                 scanDate = "2023-10-27",
                 scanTime = "10:00:00",
                 scanId = "sample_id",
-                isDeleted = true
+                isDeleted = true,
+                iconData = null
             ),
             onClick = {}
         )
