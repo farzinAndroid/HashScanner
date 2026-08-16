@@ -152,6 +152,11 @@ class ScannerViewModel @Inject constructor(
         MutableStateFlow<NetworkResult<ScanResultResponse>>(NetworkResult.Idle())
     val scanResultResponse = _scanResultResponseResponse.asStateFlow()
 
+    // Separate flow for the Global Notification popup
+    private val _scanResultNotificationPopUp =
+        MutableStateFlow<NetworkResult<ScanResultResponse>>(NetworkResult.Idle())
+    val scanResultNotificationPopUp = _scanResultNotificationPopUp.asStateFlow()
+
     private var job: Job? = null
     private var currentPollingScanId: String? = null
 
@@ -199,32 +204,27 @@ class ScannerViewModel @Inject constructor(
         currentPollingScanId = null // Signals global mode
 
         job = viewModelScope.launch(Dispatchers.IO) {
-            // Collecting the Flow re-triggers the block whenever the DB status changes
-            appDatabaseRepo.getPendingScans(AnalysisStatus.PENDING.name).collect { pendingScans ->
-                if (pendingListRunning) return@collect
+            // High-level loop that persists as long as we are in global mode
+            while (isActive && currentPollingScanId == null) {
+                // 1. Fetch the absolute latest list of pending scans from the DB
+                val pendingScans = appDatabaseRepo.getPendingScans(AnalysisStatus.PENDING.name).first()
                 
                 if (pendingScans.isEmpty()) {
-                    Log.d(Constants.TAG, "Global Monitor: No pending scans.")
-                    return@collect
+                    Log.d(Constants.TAG, "Global Monitor: No pending scans. Waiting...")
+                } else {
+                    Log.d(Constants.TAG, "Global Monitor: Checking ${pendingScans.size} scans")
+                    pendingScans.forEach { scan ->
+                        val model = ScanResultModel(scanId = scan.id, deviceId = Constants.DEVICE_ID)
+                        handlePollingResult(scan.id, model)
+                    }
                 }
 
-                launch {
-                    pendingListRunning = true
-                    while (isActive && currentPollingScanId == null) {
-                        Log.d(Constants.TAG, "Global Monitor: Checking ${pendingScans.size} scans")
-                        pendingScans.forEach { scan ->
-                            val model = ScanResultModel(scanId = scan.id, deviceId = Constants.DEVICE_ID)
-                            handlePollingResult(scan.id, model)
-                        }
-                        delay(5000L.milliseconds)
-                    }
-                    pendingListRunning = false
-                }
+                // 2. Wait for the next tick
+                delay(5000L.milliseconds)
             }
         }
     }
 
-    private var pendingListRunning = false
 
     /**
      * Common logic to handle API response. Updates DB and UI state if result is ready.
@@ -233,25 +233,33 @@ class ScannerViewModel @Inject constructor(
         try {
             val result = networkRepo.getScanResult(model)
             if (result is NetworkResult.Success && result.data?.ready == true) {
-                Log.d(Constants.TAG, "Result Ready for $scanId")
+                Log.d(Constants.TAG, "Result Ready for $scanId (Stage: ${result.data.stage})")
 
-                // Mark as COMPLETED in DB so monitoring stops for this ID
-                appDatabaseRepo.updateAnalysisStatus(scanId, AnalysisStatus.COMPLETED.name)
+                // 1. Check for Full Completion
+                // According to backend docs: Only mark as COMPLETED in DB if the finalReport is complete.
+                // This ensures WorkManager/Global Polling continues if we are still waiting for deep analysis.
+                val isFinalReportComplete = result.data.finalReport?.complete == true
+                if (isFinalReportComplete) {
+                    appDatabaseRepo.updateAnalysisStatus(scanId, AnalysisStatus.COMPLETED.name)
+                }
 
-                // This poller runs every few seconds while the app is open and
-                // will almost always detect completion long before the 15-minute
-                // background worker gets a turn. Since the worker only notifies
-                // for rows it finds still PENDING, this path must notify too —
-                // otherwise a scan that finishes while the app happens to be
-                // open never produces a notification at all.
+                // 2. Extract message for notification
+                val notificationMessage = result.data.finalReport?.message 
+                    ?: result.data.initialReport?.let { 
+                        context.getString(R.string.notification_analysis_finished_summary, it.summary.virus, it.summary.suspicious)
+                    } ?: result.data.message ?: context.getString(R.string.notification_default_finished_message)
+
+                // 3. Show notification
                 notificationHelper.showScanResultNotification(
                     scanId = scanId,
-                    message = result.data.summary?.message
-                        ?: context.getString(R.string.notification_default_finished_message)
+                    message = notificationMessage
                 )
 
-                // Emit result to show the global UI overlay
+                // 4. Emit to data flow (stays visible on screen)
                 _scanResultResponseResponse.emit(result)
+
+                // 5. Emit to notification flow (shows global popup)
+                _scanResultNotificationPopUp.emit(result)
 
                 return true
             }
@@ -262,7 +270,9 @@ class ScannerViewModel @Inject constructor(
     }
 
     fun clearScanResult() {
-        _scanResultResponseResponse.value = NetworkResult.Idle<ScanResultResponse>()
+        // Only clear the notification flow so the popup disappears,
+        // but the data stays visible in HistoryDetailsScreen.
+        _scanResultNotificationPopUp.value = NetworkResult.Idle<ScanResultResponse>()
     }
 
     fun stopPolling() {

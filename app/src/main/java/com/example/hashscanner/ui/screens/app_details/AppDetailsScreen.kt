@@ -1,40 +1,39 @@
 package com.example.hashscanner.ui.screens.app_details
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.example.hashscanner.R
 import com.example.hashscanner.data.network.NetworkResult
-import com.example.hashscanner.ui.theme.BackgroundColor
-import com.example.hashscanner.ui.theme.HashScannerTheme
-import com.example.hashscanner.ui.theme.spacing
+import com.example.hashscanner.ui.theme.*
 import com.example.hashscanner.ui.ui_utils.AppTopBar
 import com.example.hashscanner.utils.Constants
 import com.example.hashscanner.utils.DateTimeUtils
@@ -84,6 +83,13 @@ fun AppDetailsScreen(
                 } else {
                     val date = DateTimeUtils.getCurrentDateTime()
                     databaseViewModel.markApkUploaded(packageName, date)
+                    
+                    // CRITICAL FIX: Reset scan status to PENDING after upload
+                    // This "wakes up" the background polling logic to wait for the final admin check.
+                    if (currentScanId != null) {
+                        databaseViewModel.updateAnalysisStatus(currentScanId, com.example.hashscanner.data.model.db_entities.AnalysisStatus.PENDING.name)
+                    }
+
                     Toast.makeText(
                         context,
                         context.getString(R.string.toast_upload_success),
@@ -121,8 +127,11 @@ fun AppDetailsScreen(
         onResult = { _ ->
             if (!isPackageInstalled(context, packageName)) {
                 appDetails?.let {
-                    databaseViewModel.deleteApp(it)
-                    navController.popBackStack()
+                    // Instead of deleting, we now just mark it as deleted to keep the history record.
+                    databaseViewModel.markAsDeleted(it.packageName, it.scanId)
+                    Toast.makeText(context, R.string.app_uninstalled_successfully, Toast.LENGTH_SHORT).show()
+                    // Refetch data to update UI instantly
+                    databaseViewModel.getAppByPackage(packageName, it.scanId)
                 }
             }
         }
@@ -139,28 +148,26 @@ fun AppDetailsScreen(
         },
         bottomBar = {
             appDetails?.let { app ->
-                AppDetailsBottomBar(
-                    isSystem = app.isSystem,
-                    isUploaded = app.apkUploaded,
-                    isLoading = isLoading,
-                    onUploadApkClicked = {
-                        appDetails?.let {
+                if (!app.isDeleted) {
+                    AppDetailsBottomBar(
+                        isSystem = app.isSystem,
+                        isUploaded = app.apkUploaded,
+                        isLoading = isLoading,
+                        isDeleted = app.isDeleted,
+                        onUploadApkClicked = {
                             scannerViewModel.uploadAPK(
-                                apkPath = it.apkPath,
-                                packageName = it.packageName,
-                                appName = it.appName,
-                                sha256 = it.sha256
+                                apkPath = app.apkPath,
+                                packageName = app.packageName,
+                                appName = app.appName,
+                                sha256 = app.sha256
                             )
-                        }
-                    },
-                    onDeleteClicked = {
-                        appDetails?.let { app ->
+                        },
+                        onDeleteClicked = {
                             try {
                                 if (app.isSystem) {
-                                    val intent =
-                                        Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                                            data = Uri.parse("package:$packageName")
-                                        }
+                                    val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                                        data = Uri.parse("package:$packageName")
+                                    }
                                     context.startActivity(intent)
                                 } else {
                                     val intent = Intent(Intent.ACTION_DELETE).apply {
@@ -176,19 +183,38 @@ fun AppDetailsScreen(
                                 ).show()
                             }
                         }
-                    }
-                )
+                    )
+                }
             }
         }
     ) { innerPadding ->
-        AppDetailsContent(innerPadding, appDetails)
+        val apiResponse by scannerViewModel.scanResultResponse.collectAsStateWithLifecycle()
+
+        // Find this specific app in the API results to get the recommended action
+        val apiAppResult = remember(apiResponse, appDetails) {
+            if (apiResponse is NetworkResult.Success) {
+                val data = (apiResponse as NetworkResult.Success).data
+                val allApiApps = (data?.initialReport?.apps ?: emptyList()) +
+                        (data?.uploadedApks?.apps ?: emptyList())
+                allApiApps.find { it.packageName == appDetails?.packageName }
+            } else null
+        }
+
+        AppDetailsContent(
+            paddingValues = innerPadding,
+            appInfo = appDetails,
+            apiAction = apiAppResult?.action,
+            apiMessage = apiAppResult?.message
+        )
     }
 }
 
 @Composable
 private fun AppDetailsContent(
     paddingValues: PaddingValues,
-    appInfo: com.example.hashscanner.data.model.db_entities.AppInfo?
+    appInfo: com.example.hashscanner.data.model.db_entities.AppInfo?,
+    apiAction: String? = null,
+    apiMessage: String? = null
 ) {
     LazyColumn(
         modifier = Modifier
@@ -199,10 +225,51 @@ private fun AppDetailsContent(
         contentPadding = PaddingValues(vertical = MaterialTheme.spacing.dp16)
     ) {
         appInfo?.let { app ->
+            item {
+                if (app.isDeleted) {
+                    ResolvedThreatBanner()
+                }
+            }
             item { AppHeaderSection(appInfo = app) }
             item { RiskScoreCard(score = app.riskScore) }
             item { SuspiciousReasonsCard(appInfo = app) }
-            item { TechnicalDetailsCard(appInfo = app) }
+            item {
+                TechnicalDetailsCard(
+                    appInfo = app,
+                    apiAction = apiAction,
+                    apiMessage = apiMessage
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun ResolvedThreatBanner() {
+    Surface(
+        modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+        shape = RoundedCornerShape(16.dp),
+        color = MaterialTheme.colorScheme.GreenColor.copy(alpha = 0.1f),
+        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.GreenColor.copy(alpha = 0.3f))
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Icon(
+                imageVector = Icons.Default.CheckCircle,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.GreenColor,
+                modifier = Modifier.size(24.dp)
+            )
+            Spacer(modifier = Modifier.width(12.dp))
+            Text(
+                text = stringResource(R.string.status_resolved_threat),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.GreenColor,
+                fontWeight = FontWeight.Bold
+            )
         }
     }
 }
@@ -213,7 +280,7 @@ fun AppDetailsScreenPreview() {
     HashScannerTheme {
         AppDetailsContent(
             paddingValues = PaddingValues(16.dp),
-            appInfo = null // You could provide sample AppInfo here
+            appInfo = null
         )
     }
 }

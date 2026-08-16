@@ -20,20 +20,19 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.hashscanner.R
-import com.example.hashscanner.data.model.api.ScanSummary
 import com.example.hashscanner.ui.theme.HashScannerTheme
 
 @Composable
-fun ApiSummaryCard(summary: ScanSummary) {
-    val isVirus = summary.result == "VIRUS"
-    val accentColor = if (isVirus) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary // Adapting to standard M3 colors or your custom ones
+fun ApiSummaryCard(result: String, message: String) {
+    val isVirus = result == "VIRUS"
+    val accentColor = if (isVirus) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
 
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
         color = MaterialTheme.colorScheme.surface,
         tonalElevation = 2.dp,
-        shadowElevation = 8.dp
+        shadowElevation = 8.dp,
     ) {
         Row(
             modifier = Modifier
@@ -72,7 +71,7 @@ fun ApiSummaryCard(summary: ScanSummary) {
                     fontWeight = FontWeight.ExtraBold
                 )
                 Text(
-                    text = summary.message,
+                    text = message,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
                     lineHeight = 18.sp
@@ -82,3 +81,25 @@ fun ApiSummaryCard(summary: ScanSummary) {
     }
 }
 
+@Preview(showBackground = true)
+@Composable
+fun ApiSummaryCardPreview() {
+    HashScannerTheme {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            ApiSummaryCard(
+                result = "VIRUS",
+                message = "تست بدافزار"
+            )
+
+            ApiSummaryCard(
+                result = "CLEAN",
+                message = "تست سالم"
+            )
+        }
+    }
+}

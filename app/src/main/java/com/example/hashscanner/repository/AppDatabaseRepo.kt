@@ -72,6 +72,8 @@ class AppDatabaseRepo @Inject constructor(
     fun countHighRiskAppsByScanId(scanId: String, onlyUser: Boolean = false) = appDao.countHighRiskAppsByScanId(scanId, onlyUser)
     fun countCriticalAppsByScanId(scanId: String, onlyUser: Boolean = false) = appDao.countCriticalAppsByScanId(scanId, onlyUser)
 
+    suspend fun markAsDeleted(pkg: String, scanId: String) = appDao.markAsDeleted(pkg, scanId)
+
     // PermissionDao Functions
     suspend fun insertPermission(permission: PermissionInfo) = permissionDao.insert(permission)
     suspend fun insertAllPermissions(list: List<PermissionInfo>) = permissionDao.insertAll(list)

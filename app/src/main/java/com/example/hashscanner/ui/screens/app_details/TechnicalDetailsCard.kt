@@ -8,7 +8,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.DividerDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -21,19 +24,25 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.hashscanner.R
 import com.example.hashscanner.data.model.db_entities.AppInfo
 import com.example.hashscanner.ui.theme.BlueColor
 import com.example.hashscanner.ui.theme.BoxGrayColor
 import com.example.hashscanner.ui.theme.GreenColor
 import com.example.hashscanner.ui.theme.RedColor
+import com.example.hashscanner.ui.theme.StrongYellowColor
 import com.example.hashscanner.ui.theme.spacing
 import com.example.hashscanner.ui.ui_utils.InfoCard
 import com.example.hashscanner.utils.Constants
 import com.example.hashscanner.utils.DigitHelper
 
 @Composable
-fun TechnicalDetailsCard(appInfo: AppInfo) {
+fun TechnicalDetailsCard(
+    appInfo: AppInfo,
+    apiAction: String? = null,
+    apiMessage: String? = null
+) {
     val context = LocalContext.current
     val formattedSize = Formatter.formatShortFileSize(context, appInfo.apkSize)
 
@@ -43,8 +52,6 @@ fun TechnicalDetailsCard(appInfo: AppInfo) {
             label = stringResource(R.string.details_label_app_version),
             value = DigitHelper.digitByLang(appInfo.versionName)
         )
-
-
 
         DetailRow(
             icon = { Icon(Icons.Default.DateRange, contentDescription = null) },
@@ -74,7 +81,6 @@ fun TechnicalDetailsCard(appInfo: AppInfo) {
             icon = { Icon(Icons.Default.Lock, contentDescription = null) },
             label = stringResource(R.string.details_label_digital_signature_status),
             valueComposable = {
-
 
                 val (statusText, statusColor, statusIcon) = when {
                     appInfo.isSystem -> {
@@ -145,7 +151,46 @@ fun TechnicalDetailsCard(appInfo: AppInfo) {
                 value = appInfo.certificateIssuer
             )
         }
+
+        // --- API Recommended Action Section ---
+        if (apiAction != null || apiMessage != null) {
+            HorizontalDivider(
+                Modifier,
+                DividerDefaults.Thickness,
+                color = MaterialTheme.colorScheme.BoxGrayColor
+            )
+
+            val actionLabel = when (apiAction) {
+                "DELETE" -> stringResource(R.string.api_action_delete_recommendation)
+                "UPLOAD_APK" -> stringResource(R.string.api_action_upload_recommendation)
+                else -> stringResource(R.string.api_action_cloud_status)
+            }
+
+            val actionColor = when (apiAction) {
+                "DELETE" -> MaterialTheme.colorScheme.RedColor
+                "UPLOAD_APK" -> MaterialTheme.colorScheme.StrongYellowColor
+                else -> MaterialTheme.colorScheme.GreenColor
+            }
+
+            val actionIcon = when (apiAction) {
+                "DELETE" -> Icons.Default.Warning
+                "UPLOAD_APK" -> Icons.Default.Share
+                else -> Icons.Default.Notifications
+            }
+
+            DetailRow(
+                icon = { Icon(actionIcon, contentDescription = null, tint = actionColor) },
+                label = actionLabel,
+                valueComposable = {
+                    Text(
+                        text = apiMessage ?: stringResource(R.string.api_action_result_ready),
+                        color = actionColor,
+                        style = MaterialTheme.typography.bodySmall,
+                        fontWeight = FontWeight.SemiBold,
+                        lineHeight = 18.sp
+                    )
+                }
+            )
+        }
     }
 }
-
-

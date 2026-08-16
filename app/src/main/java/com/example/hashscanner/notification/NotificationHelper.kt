@@ -29,11 +29,8 @@ class NotificationHelper @Inject constructor(
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val name = context.getString(R.string.notification_channel_name)
-            val descriptionText = context.getString(R.string.notification_channel_description)
             val importance = NotificationManager.IMPORTANCE_HIGH
-            val channel = NotificationChannel(Constants.NOTIFICATION_CHANNEL_ID, name, importance).apply {
-                description = descriptionText
-            }
+            val channel = NotificationChannel(Constants.NOTIFICATION_CHANNEL_ID, name, importance)
             notificationManager.createNotificationChannel(channel)
         }
     }

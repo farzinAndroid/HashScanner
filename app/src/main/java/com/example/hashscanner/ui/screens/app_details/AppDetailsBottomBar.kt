@@ -39,9 +39,12 @@ fun AppDetailsBottomBar(
     isSystem: Boolean = false,
     isUploaded: Boolean = false,
     isLoading: Boolean = false,
+    isDeleted: Boolean = false, // Added to handle ghost state
     onUploadApkClicked: () -> Unit,
     onDeleteClicked: () -> Unit
 ) {
+    if (isDeleted) return // Don't show the bar at all for deleted apps
+
     Surface(
         color = MaterialTheme.colorScheme.surface,
         tonalElevation = 2.dp,

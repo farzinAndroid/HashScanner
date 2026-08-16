@@ -71,10 +71,15 @@ class ScanResultWorker @AssistedInject constructor(
                 if (response is NetworkResult.Success && response.data?.ready == true) {
                     // Update DB and Notify User
                     appDatabaseRepo.updateAnalysisStatus(scan.id, AnalysisStatus.COMPLETED.name)
+                    
+                    val notificationMessage = response.data.finalReport?.message 
+                        ?: response.data.initialReport?.let { 
+                            applicationContext.getString(R.string.notification_analysis_finished_summary, it.summary.virus, it.summary.suspicious)
+                        } ?: applicationContext.getString(R.string.notification_default_finished_message)
+
                     notificationHelper.showScanResultNotification(
                         scanId = scan.id,
-                        message = response.data.summary?.message 
-                            ?: applicationContext.getString(R.string.notification_default_finished_message)
+                        message = notificationMessage
                     )
                 }
             } catch (e: Exception) {

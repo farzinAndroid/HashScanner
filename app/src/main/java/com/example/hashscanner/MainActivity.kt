@@ -11,16 +11,21 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.core.content.ContextCompat
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.runtime.*
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.rememberNavController
@@ -29,8 +34,8 @@ import com.example.hashscanner.ui.navigation.Screens
 import com.example.hashscanner.ui.theme.BackgroundColor
 import com.example.hashscanner.ui.theme.HashScannerTheme
 import com.example.hashscanner.ui.ui_utils.ChangeStatusBarAndNavigationBarColor
+import com.example.hashscanner.utils.BatteryOptimizationUtils.requestIgnoreBatteryOptimizations
 import com.example.hashscanner.utils.Constants
-import com.example.hashscanner.utils.requestIgnoreBatteryOptimizations
 import com.example.hashscanner.viewmodel.AppDatabaseViewModel
 import com.example.hashscanner.viewmodel.AppViewModel
 import com.example.hashscanner.viewmodel.ScannerViewModel
@@ -81,11 +86,7 @@ class MainActivity : ComponentActivity() {
                         }
                     }
 
-                    // Notifications are only useful to us here if the background
-                    // scan-result worker actually gets to run while the app is
-                    // closed — Doze/App Standby otherwise defer it unpredictably.
-                    // Asking for this alongside the notification prompt, once per
-                    // app open, is a no-op if the user already granted it.
+
                     requestIgnoreBatteryOptimizations(this@MainActivity)
                 }
 

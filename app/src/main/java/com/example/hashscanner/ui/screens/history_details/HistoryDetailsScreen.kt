@@ -150,27 +150,51 @@ fun HistoryDetailsContent(
         // --- API Result Section ---
         if (scanResult is NetworkResult.Success) {
             val data = scanResult.data
-            if (data?.ready == true) {
-                data.summary?.let { summary ->
-                    item(span = { GridItemSpan(2) }) {
-                        ApiSummaryCard(summary)
-                    }
-                }
-
-                data.apps?.let { apps ->
-                    if (apps.isNotEmpty()) {
+            if (data != null) {
+                if (data.ready) {
+                    // Show Initial Report if available
+                    data.initialReport?.let { initial ->
                         item(span = { GridItemSpan(2) }) {
-                            Text(
-                                text = stringResource(R.string.api_analysis_results_title),
-                                style = MaterialTheme.typography.titleSmall,
-                                color = MaterialTheme.colorScheme.BlackWhiteColor,
-                                fontWeight = FontWeight.Bold,
-                                modifier = Modifier.padding(top = 8.dp)
+                            ApiSummaryCard(
+                                result = if (initial.summary.virus > 0) "VIRUS" else "CLEAN",
+                                message = stringResource(R.string.report_initial_summary, initial.summary.virus, initial.summary.suspicious)
                             )
                         }
-                        items(apps, span = { GridItemSpan(2) }) { app ->
-                            ApiAppResultCard(app)
+
+                        if (initial.apps.isNotEmpty()) {
+                            item(span = { GridItemSpan(2) }) {
+                                Text(
+                                    text = stringResource(R.string.api_analysis_results_title),
+                                    style = MaterialTheme.typography.titleSmall,
+                                    color = MaterialTheme.colorScheme.BlackWhiteColor,
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier.padding(top = 8.dp)
+                                )
+                            }
+                            items(initial.apps, span = { GridItemSpan(2) }) { app ->
+                                ApiAppResultCard(app)
+                            }
                         }
+                    }
+
+                    // Show Final Report status if in progress or complete
+                    data.finalReport?.let { final ->
+                        item(span = { GridItemSpan(2) }) {
+                            ApiSummaryCard(
+                                result = if (final.summary.virus > 0) "VIRUS" else "CLEAN",
+                                message = final.message ?: stringResource(R.string.report_finalizing)
+                            )
+                        }
+                    }
+                } else {
+                    // Show Progress if not ready
+                    item(span = { GridItemSpan(2) }) {
+                        ApiProgressCard(
+                            message = data.message ?: "",
+                            total = data.totalReports ?: 0,
+                            checked = data.checkedReports ?: 0,
+                            pending = data.pendingReports ?: 0
+                        )
                     }
                 }
             }

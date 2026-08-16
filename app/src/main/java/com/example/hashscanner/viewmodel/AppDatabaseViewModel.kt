@@ -442,4 +442,12 @@ class AppDatabaseViewModel @Inject constructor(
     fun deleteScanHistory(id: String) = viewModelScope.launch(Dispatchers.IO) {
         appDataBaseRepo.deleteScanHistory(id)
     }
+
+    fun markAsDeleted(pkg: String, scanId: String) = viewModelScope.launch(Dispatchers.IO) {
+        appDataBaseRepo.markAsDeleted(pkg, scanId)
+    }
+
+    fun updateAnalysisStatus(scanId: String, status: String) = viewModelScope.launch(Dispatchers.IO) {
+        appDataBaseRepo.updateAnalysisStatus(scanId, status)
+    }
 }

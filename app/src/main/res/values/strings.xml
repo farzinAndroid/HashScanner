@@ -72,8 +72,8 @@
     <string name="apps_identified_count_clean">برنامه شناسایی شد</string>
 
     <string name="notification_channel_name">نتایج اسکن امنیتی</string>
-    <string name="notification_channel_description">اعلان‌های مربوط به پایان تحلیل امنیتی ابری</string>
-    <string name="notification_title_cloud_analysis">نتیجه تحلیل ابری</string>
+    <string name="notification_channel_description">اعلان‌های مربوط به پایان تحلیل امنیتی</string>
+    <string name="notification_title_cloud_analysis">نتیجه تحلیل</string>
     <string name="notification_default_finished_message">تحلیل اسکن پایان یافت</string>
     <string name="notification_test_title">تست اعلان پس‌زمینه</string>
     <string name="notification_test_message">این اعلان تست شماره %d است که هر ۱۰ ثانیه ارسال می‌شود.</string>
@@ -82,6 +82,21 @@
     <string name="api_analysis_malware_detected">تحلیل بدافزار شناسایی شد</string>
     <string name="api_analysis_success">تحلیل امنیتی موفق</string>
     <string name="api_analysis_suggested_action_delete">پیشنهاد سیستم: حذف فوری برنامه</string>
+    <string name="api_action_delete_recommendation">حذف برنامه (پیشنهادی)</string>
+    <string name="api_action_upload_recommendation">ارسال فایل جهت بررسی ادمین</string>
+    <string name="api_action_cloud_status">وضعیت تحلیل ابری</string>
+    <string name="api_action_result_ready">نتیجه تحلیل ابری آماده است.</string>
+    <string name="status_resolved_threat">این تهدید با موفقیت برطرف شده است</string>
+    <string name="status_uninstalled">حذف شده</string>
+    <string name="report_initial_summary">گزارش اولیه: %1$d بدافزار و %2$d مورد مشکوک</string>
+    <string name="report_finalizing">در حال آماده‌سازی گزارش نهایی...</string>
+    <string name="report_cloud_analyzing">در حال تحلیل ابری...</string>
+    <string name="report_label_checked_count">بررسی شده: %s</string>
+    <string name="report_label_remaining_count">باقی‌مانده: %s</string>
+    <string name="notification_analysis_finished_summary">تحلیل پایان یافت: %1$d بدافزار، %2$d مشکوک</string>
+    <string name="notification_analysis_complete_generic">تحلیل برنامه‌ها به پایان رسید.</string>
+    <string name="notification_analysis_complete_with_virus">تحلیل برنامه‌ها به پایان رسید. %d مورد بدافزار شناسایی شد.</string>
+    <string name="overlay_default_ready_message">نتیجه تحلیل برای مشاهده آماده است.</string>
 
     <!-- Content Descriptions -->
     <string name="content_desc_app_logo">لوگوی برنامه</string>

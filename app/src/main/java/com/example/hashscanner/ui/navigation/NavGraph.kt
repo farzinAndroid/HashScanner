@@ -45,7 +45,6 @@ fun NavGraph(
     val isExcluded = listOf(
         Screens.NoInternet::class.simpleName,
         Screens.Authentication::class.simpleName,
-        Screens.Landing::class.simpleName,
         Screens.Scan::class.simpleName,
     ).any { currentRoute?.contains(it.toString()) == true }
 

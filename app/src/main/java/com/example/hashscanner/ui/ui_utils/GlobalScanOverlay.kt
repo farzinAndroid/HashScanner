@@ -23,7 +23,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.example.hashscanner.R
 import com.example.hashscanner.data.model.api.ScanResultResponse
-import com.example.hashscanner.data.model.api.ScanSummary
 import com.example.hashscanner.data.network.NetworkResult
 import com.example.hashscanner.ui.navigation.Screens
 import com.example.hashscanner.ui.theme.AccentPurpleColor
@@ -37,7 +36,7 @@ fun GlobalScanOverlay(
     scannerViewModel: ScannerViewModel,
     navController: NavHostController
 ) {
-    val scanResult by scannerViewModel.scanResultResponse.collectAsStateWithLifecycle()
+    val scanResult by scannerViewModel.scanResultNotificationPopUp.collectAsStateWithLifecycle()
 
     GlobalScanOverlayContent(
         scanResult = scanResult,
@@ -58,7 +57,11 @@ fun GlobalScanOverlayContent(
     onCloseClick: () -> Unit
 ) {
     if (scanResult is NetworkResult.Success) {
-        val summary = scanResult.data?.summary
+        val data = scanResult.data
+        val message = data?.finalReport?.message 
+            ?: data?.initialReport?.let { 
+                stringResource(R.string.notification_analysis_complete_with_virus, it.summary.virus)
+            } ?: data?.message ?: stringResource(R.string.notification_analysis_complete_generic)
         
         Box(
             modifier = Modifier
@@ -119,7 +122,7 @@ fun GlobalScanOverlayContent(
                     Spacer(modifier = Modifier.height(12.dp))
 
                     Text(
-                        text = summary?.message ?: "Scan analysis is ready to view.",
+                        text = message,
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
                         lineHeight = 20.sp,
@@ -149,10 +152,8 @@ fun GlobalScanOverlayPreview() {
                     message = "Success",
                     data = ScanResultResponse(
                         ready = true,
-                        summary = ScanSummary(
-                            result = "VIRUS",
-                            message = "تحلیل برنامه‌ها به پایان رسید. ۱ مورد مشکوک شناسایی شد."
-                        )
+                        stage = "INITIAL_READY",
+                        message = "تحلیل اسکن پایان یافت."
                     )
                 ),
                 onViewResultsClick = {},

@@ -110,6 +110,9 @@ interface AppDao {
         date: String
     )
 
+    @Query("UPDATE apps SET isDeleted = 1 WHERE packageName = :pkg AND scanId = :scanId")
+    suspend fun markAsDeleted(pkg: String, scanId: String)
+
     // ---------- Upload Recommendation ----------
 
     @Query("""
