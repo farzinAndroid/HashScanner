@@ -89,7 +89,7 @@ fun HistoryDetailsContent(
 ) {
     val totalSuspicious = scan.highRisk + scan.criticalRisk
     val resultColor = if (totalSuspicious > 0) MaterialTheme.colorScheme.RedColor else MaterialTheme.colorScheme.GreenColor
-    
+
     val riskItems = listOf(
         RiskLevelItem(
             title = stringResource(R.string.badge_risk_level_very_high),
@@ -209,56 +209,7 @@ fun HistoryDetailsContent(
 
         // --- Metadata Section ---
         item(span = { GridItemSpan(2) }) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 24.dp)
-            ) {
-                Text(
-                    text = stringResource(R.string.details_section_title_suspicion_reasons),
-                    style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.BlackWhiteColor,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(bottom = 12.dp)
-                )
-
-                Surface(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp),
-                    color = MaterialTheme.colorScheme.BoxGrayColor.copy(alpha = 0.5f),
-                ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        HistoryMetadataRow(
-                            label = stringResource(R.string.report_label_user_apps_count),
-                            value = com.example.hashscanner.utils.DigitHelper.digitByLang(scan.userApps.toString()),
-                            icon = Icons.Default.Person
-                        )
-                        HorizontalDivider(
-                            modifier = Modifier.padding(vertical = 12.dp),
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.05f)
-                        )
-                        HistoryMetadataRow(
-                            label = stringResource(R.string.report_label_system_apps_count),
-                            value = com.example.hashscanner.utils.DigitHelper.digitByLang(scan.systemApps.toString()),
-                            icon = Icons.Default.Settings
-                        )
-                        HorizontalDivider(
-                            modifier = Modifier.padding(vertical = 12.dp),
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.05f)
-                        )
-                        HistoryMetadataRow(
-                            label = stringResource(R.string.report_label_scan_time),
-                            value = "${
-                                com.example.hashscanner.utils.DigitHelper.digitByLang(
-                                    (scan.duration / 1000).toString()
-                                )
-                            } ${stringResource(R.string.label_seconds)}",
-                            icon = Icons.Default.Info
-                        )
-                    }
-                }
-                Spacer(modifier = Modifier.height(32.dp))
-            }
+            HistoryMetadataSection(scan)
         }
     }
 }

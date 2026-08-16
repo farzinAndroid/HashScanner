@@ -245,35 +245,6 @@ private fun AppDetailsContent(
     }
 }
 
-@Composable
-fun ResolvedThreatBanner() {
-    Surface(
-        modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
-        shape = RoundedCornerShape(16.dp),
-        color = MaterialTheme.colorScheme.GreenColor.copy(alpha = 0.1f),
-        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.GreenColor.copy(alpha = 0.3f))
-    ) {
-        Row(
-            modifier = Modifier.padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
-        ) {
-            Icon(
-                imageVector = Icons.Default.CheckCircle,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.GreenColor,
-                modifier = Modifier.size(24.dp)
-            )
-            Spacer(modifier = Modifier.width(12.dp))
-            Text(
-                text = stringResource(R.string.status_resolved_threat),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.GreenColor,
-                fontWeight = FontWeight.Bold
-            )
-        }
-    }
-}
 
 @Preview(showBackground = true)
 @Composable
