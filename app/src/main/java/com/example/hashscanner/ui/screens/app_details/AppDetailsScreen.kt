@@ -172,7 +172,8 @@ fun AppDetailsScreen(
                                 apkPath = app.apkPath,
                                 packageName = app.packageName,
                                 appName = app.appName,
-                                sha256 = app.sha256
+                                sha256 = app.sha256,
+                                scanId = app.scanId
                             )
                         },
                         onDeleteClicked = {

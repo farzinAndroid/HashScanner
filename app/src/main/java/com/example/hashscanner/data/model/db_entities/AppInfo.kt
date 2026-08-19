@@ -52,5 +52,5 @@ data class AppInfo(
     val scanTime: String,
     val apkUploaded: Boolean = false,
     val uploadDate: String = "",
-    val isDeleted: Boolean = false // New flag to track uninstalled apps
+    val isDeleted: Boolean = false
 )

@@ -88,9 +88,11 @@
     <string name="api_action_result_ready">نتیجه تحلیل ابری آماده است.</string>
     <string name="status_resolved_threat">این تهدید با موفقیت برطرف شده است</string>
     <string name="status_uninstalled">حذف شده</string>
+    <string name="report_label_uploaded_apks">برنامه‌های ارسال شده جهت تحلیل</string>
+    <string name="report_uploaded_analysis_in_progress">ادمین در حال بررسی %1$d فایل ارسالی است (%2$d مورد باقی‌مانده)</string>
     <string name="report_initial_summary">گزارش اولیه: %1$d بدافزار و %2$d مورد مشکوک</string>
     <string name="report_finalizing">در حال آماده‌سازی گزارش نهایی...</string>
-    <string name="report_cloud_analyzing">در حال تحلیل ابری...</string>
+    <string name="report_cloud_analyzing">در حال تحلیل گزارش...</string>
     <string name="report_label_checked_count">بررسی شده: %s</string>
     <string name="report_label_remaining_count">باقی‌مانده: %s</string>
     <string name="notification_analysis_finished_summary">تحلیل پایان یافت: %1$d بدافزار، %2$d مشکوک</string>
@@ -220,4 +222,12 @@
     <!-- Content Descriptions -->
     <string name="content_desc_valid">معتبر</string>
     <string name="content_desc_invalid">نامعتبر</string>
+
+    <!-- Permissions -->
+    <string name="permission_battery_title">بهینه‌سازی باتری</string>
+    <string name="permission_battery_desc">برای اینکه اسکن در پس‌زمینه به درستی انجام شود و متوقف نشود، نیاز است بهینه‌سازی باتری برای این برنامه غیرفعال شود.</string>
+    <string name="permission_notification_title">دسترسی به اعلان‌ها</string>
+    <string name="permission_notification_desc">برای اطلاع از پایان اسکن و نتایج تحلیل امنیتی، نیاز است دسترسی ارسال اعلان را تایید کنید.</string>
+    <string name="button_grant_permission">تایید و ادامه</string>
+    <string name="button_later">بعداً</string>
 </resources>

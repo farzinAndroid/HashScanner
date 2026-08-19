@@ -10,6 +10,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.hashscanner.R
+import com.example.hashscanner.ui.theme.AccentPurpleColor
+import com.example.hashscanner.ui.theme.YellowColor
 import com.example.hashscanner.utils.DigitHelper
 
 @Composable
@@ -43,7 +45,7 @@ fun ApiProgressCard(
                 CircularProgressIndicator(
                     modifier = Modifier.size(20.dp),
                     strokeWidth = 2.dp,
-                    color = MaterialTheme.colorScheme.primary
+                    color = MaterialTheme.colorScheme.AccentPurpleColor
                 )
             }
 
@@ -53,28 +55,36 @@ fun ApiProgressCard(
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
             )
 
-            val progress = if (total > 0) checked.toFloat() / total else 0f
-            
-            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                LinearProgressIndicator(
-                    progress = { progress },
-                    modifier = Modifier.fillMaxWidth().height(8.dp),
-                    strokeCap = androidx.compose.ui.graphics.StrokeCap.Round
-                )
-                
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(
-                        text = stringResource(R.string.report_label_checked_count, DigitHelper.digitByLang(checked.toString())),
-                        style = MaterialTheme.typography.labelSmall
+            if (total > 0) {
+                val progress = checked.toFloat() / total
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    LinearProgressIndicator(
+                        progress = { progress },
+                        modifier = Modifier.fillMaxWidth().height(8.dp),
+                        strokeCap = androidx.compose.ui.graphics.StrokeCap.Round
                     )
-                    Text(
-                        text = stringResource(R.string.report_label_remaining_count, DigitHelper.digitByLang(pending.toString())),
-                        style = MaterialTheme.typography.labelSmall
-                    )
+                    
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            text = stringResource(R.string.report_label_checked_count, DigitHelper.digitByLang(checked.toString())),
+                            style = MaterialTheme.typography.labelSmall
+                        )
+                        Text(
+                            text = stringResource(R.string.report_label_remaining_count, DigitHelper.digitByLang(pending.toString())),
+                            style = MaterialTheme.typography.labelSmall
+                        )
+                    }
                 }
+            } else {
+                // If counts are not available yet (Stage: SCANNING or WAITING_REPORTS)
+                LinearProgressIndicator(
+                    modifier = Modifier.fillMaxWidth().height(4.dp),
+                    strokeCap = androidx.compose.ui.graphics.StrokeCap.Round,
+                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
+                )
             }
         }
     }

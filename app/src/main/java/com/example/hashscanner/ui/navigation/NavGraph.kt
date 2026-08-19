@@ -1,7 +1,9 @@
 package com.example.hashscanner.ui.navigation
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -34,7 +36,8 @@ fun NavGraph(
     onRetry: () -> Unit,
     appViewModel: AppViewModel,
     scannerViewModel: ScannerViewModel,
-    appDatabaseViewModel: AppDatabaseViewModel
+    appDatabaseViewModel: AppDatabaseViewModel,
+    paddingValues: PaddingValues
 ) {
 
 

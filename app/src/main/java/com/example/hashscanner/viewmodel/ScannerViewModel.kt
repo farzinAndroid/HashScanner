@@ -232,34 +232,38 @@ class ScannerViewModel @Inject constructor(
     private suspend fun handlePollingResult(scanId: String, model: ScanResultModel): Boolean {
         try {
             val result = networkRepo.getScanResult(model)
-            if (result is NetworkResult.Success && result.data?.ready == true) {
-                // 1. Extract message for notification
-                val notificationMessage = result.data.finalReport?.message 
-                    ?: result.data.initialReport?.let { 
-                        context.getString(R.string.notification_analysis_finished_summary, it.summary.virus, it.summary.suspicious)
-                    } ?: result.data.message ?: context.getString(R.string.notification_default_finished_message)
-
-                // 2. Show notification FIRST
-                // We notify before updating DB to ensure the user gets the alert even if a crash happens during DB write.
-                notificationHelper.showScanResultNotification(
-                    scanId = scanId,
-                    message = notificationMessage
-                )
-
-                // 3. Mark as COMPLETED in DB so monitoring stops for this ID
-                // Check for Full Completion according to backend docs
-                val isFinalReportComplete = result.data.finalReport?.complete == true
-                if (isFinalReportComplete) {
-                    appDatabaseRepo.updateAnalysisStatus(scanId, AnalysisStatus.COMPLETED.name)
-                }
-
-                // 4. Emit to data flow (stays visible on screen)
+            if (result is NetworkResult.Success) {
+                val data = result.data ?: return false
+                
+                // 1. Always emit to data flow so the UI (HistoryDetails) can show the current "Stage" or "Progress"
                 _scanResultResponseResponse.emit(result)
 
-                // 5. Emit to notification flow (shows global popup)
-                _scanResultNotificationPopUp.emit(result)
+                if (data.ready) {
+                    Log.d(Constants.TAG, "Result Ready for $scanId (Stage: ${data.stage})")
 
-                return true
+                    // 2. Extract message for notification
+                    val notificationMessage = data.finalReport?.message 
+                        ?: data.initialReport?.let { 
+                            context.getString(R.string.notification_analysis_finished_summary, it.summary.virus, it.summary.suspicious)
+                        } ?: data.message ?: context.getString(R.string.notification_default_finished_message)
+
+                    // 3. Show notification FIRST
+                    notificationHelper.showScanResultNotification(
+                        scanId = scanId,
+                        message = notificationMessage
+                    )
+
+                    // 4. Mark as COMPLETED in DB if finalReport is finished
+                    val isFinalReportComplete = data.finalReport?.complete == true
+                    if (isFinalReportComplete) {
+                        appDatabaseRepo.updateAnalysisStatus(scanId, AnalysisStatus.COMPLETED.name)
+                    }
+
+                    // 5. Trigger the global UI popup
+                    _scanResultNotificationPopUp.emit(result)
+
+                    return true
+                }
             }
         } catch (e: Exception) {
             Log.e(Constants.TAG, "Polling Error for $scanId", e)
@@ -295,18 +299,18 @@ class ScannerViewModel @Inject constructor(
         apkPath: String,
         packageName: String,
         appName: String,
-        sha256: String
+        sha256: String,
+        scanId: String
     ) {
         uploadJob?.cancel()
         uploadJob = viewModelScope.launch(Dispatchers.IO) {
             _apkUploadResponse.emit(NetworkResult.Loading())
 
-            val lastScanId = appDatabaseRepo.lastScan.first()?.id ?: "unknown_scan"
             val file = File(apkPath)
             val result = networkRepo.uploadAPK(
                 apk = file,
                 packageName = packageName,
-                scanId = lastScanId,
+                scanId = scanId,
                 deviceId = Constants.DEVICE_ID,
                 appName = appName,
                 sha256 = sha256

@@ -13,12 +13,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.example.hashscanner.R
+import com.example.hashscanner.data.model.api.ScanResultResponse
 import com.example.hashscanner.data.model.db_entities.ScanHistory
 import com.example.hashscanner.data.network.NetworkResult
 import com.example.hashscanner.ui.navigation.Screens
@@ -45,12 +44,6 @@ fun HistoryDetailsScreen(
     LaunchedEffect(scanId) {
         if (scanId != null) {
             scannerViewModel.getScanResult(scanId)
-        }
-    }
-
-    DisposableEffect(Unit) {
-        onDispose {
-            scannerViewModel.stopPolling()
         }
     }
 
@@ -84,7 +77,7 @@ fun HistoryDetailsScreen(
 fun HistoryDetailsContent(
     paddingValues: PaddingValues,
     scan: ScanHistory,
-    scanResult: com.example.hashscanner.data.network.NetworkResult<com.example.hashscanner.data.model.api.ScanResultResponse>,
+    scanResult: NetworkResult<ScanResultResponse>,
     onRiskLevelClick: (RiskLevelsUI) -> Unit
 ) {
     val totalSuspicious = scan.highRisk + scan.criticalRisk
@@ -152,22 +145,51 @@ fun HistoryDetailsContent(
             val data = scanResult.data
             if (data != null) {
                 if (data.ready) {
-                    // Show Initial Report if available
-                    data.initialReport?.let { initial ->
+                    val initialReport = data.initialReport
+                    val finalReport = data.finalReport
+                    val uploadedApks = data.uploadedApks
+
+                    // PRIORITY 1: Show Final Summary if Complete
+                    if (finalReport?.complete == true) {
                         item(span = { GridItemSpan(2) }) {
                             ApiSummaryCard(
-                                result = if (initial.summary.virus > 0) "VIRUS" else "CLEAN",
-                                message = stringResource(R.string.report_initial_summary, initial.summary.virus, initial.summary.suspicious)
+                                result = if (finalReport.summary.virus > 0) "VIRUS" else "CLEAN",
+                                message = finalReport.message ?: stringResource(R.string.notification_analysis_complete_generic)
                             )
                         }
+                    } 
+                    // PRIORITY 2: Show Initial Summary if Final is not ready
+                    else if (initialReport != null) {
+                        item(span = { GridItemSpan(2) }) {
+                            ApiSummaryCard(
+                                result = if (initialReport.summary.virus > 0) "VIRUS" else "CLEAN",
+                                message = stringResource(R.string.report_initial_summary, initialReport.summary.virus, initialReport.summary.suspicious)
+                            )
+                        }
+                    }
 
+                    // --- Uploaded APKs Progress Section ---
+                    uploadedApks?.let { uploaded ->
+                        if (!uploaded.summary.complete && (uploaded.summary.total > 0)) {
+                            item(span = { GridItemSpan(2) }) {
+                                UploadedApkProgressCard(
+                                    total = uploaded.summary.total,
+                                    checked = uploaded.summary.checked,
+                                    pending = uploaded.summary.pending
+                                )
+                            }
+                        }
+                    }
+
+                    // Always show the app list if we have initial apps (server updates these rows)
+                    initialReport?.let { initial ->
                         if (initial.apps.isNotEmpty()) {
                             item(span = { GridItemSpan(2) }) {
                                 Text(
                                     text = stringResource(R.string.api_analysis_results_title),
                                     style = MaterialTheme.typography.titleSmall,
                                     color = MaterialTheme.colorScheme.BlackWhiteColor,
-                                    fontWeight = FontWeight.Bold,
+                                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
                                     modifier = Modifier.padding(top = 8.dp)
                                 )
                             }
@@ -177,12 +199,17 @@ fun HistoryDetailsContent(
                         }
                     }
 
-                    // Show Final Report status if in progress or complete
-                    data.finalReport?.let { final ->
+                    // Loophole Fix: Check both finalReport AND uploadedApks
+                    val isWaitingForApks = uploadedApks?.summary?.complete == false && (uploadedApks.summary.total > 0)
+                    val isWaitingForFinal = finalReport == null || !finalReport.complete
+                    
+                    if (isWaitingForApks || isWaitingForFinal) {
                         item(span = { GridItemSpan(2) }) {
-                            ApiSummaryCard(
-                                result = if (final.summary.virus > 0) "VIRUS" else "CLEAN",
-                                message = final.message ?: stringResource(R.string.report_finalizing)
+                            Text(
+                                text = stringResource(R.string.report_finalizing),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                                modifier = Modifier.padding(vertical = 8.dp)
                             )
                         }
                     }
@@ -211,37 +238,5 @@ fun HistoryDetailsContent(
         item(span = { GridItemSpan(2) }) {
             HistoryMetadataSection(scan)
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun HistoryDetailsPreview() {
-    HashScannerTheme {
-        HistoryDetailsContent(
-            paddingValues = PaddingValues(0.dp),
-            scan = ScanHistory(
-                id = "1",
-                scanDate = "2026-08-10",
-                scanTime = "20:00",
-                totalApps = 150,
-                scannedApps = 150,
-                safeApps = 140,
-                lowRisk = 5,
-                mediumRisk = 3,
-                highRisk = 2,
-                criticalRisk = 0,
-                duration = 5400L,
-                safeUserApps = 140,
-                lowRiskUserApps = 5,
-                mediumRiskUserApps = 3,
-                highRiskUserApps = 2,
-                criticalRiskUserApps = 0,
-                systemApps = 10,
-                userApps = 50
-            ),
-            scanResult = NetworkResult.Idle(),
-            onRiskLevelClick = {}
-        )
     }
 }
