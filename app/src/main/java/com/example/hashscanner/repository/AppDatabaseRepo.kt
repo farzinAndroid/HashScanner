@@ -111,4 +111,6 @@ class AppDatabaseRepo @Inject constructor(
 
     fun getPendingScans(pendingStatus: String) = scanHistoryDao.getPendingScans(pendingStatus)
     suspend fun updateAnalysisStatus(id: String, status: String) = scanHistoryDao.updateAnalysisStatus(id, status)
+    suspend fun updateLastNotifiedStage(id: String, stage: String) = scanHistoryDao.updateLastNotifiedStage(id, stage)
+    suspend fun getScanById(id: String) = scanHistoryDao.getScanById(id)
 }

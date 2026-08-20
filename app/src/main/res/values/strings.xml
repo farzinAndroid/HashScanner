@@ -98,6 +98,7 @@
     <string name="notification_analysis_finished_summary">تحلیل پایان یافت: %1$d بدافزار، %2$d مشکوک</string>
     <string name="notification_analysis_complete_generic">تحلیل برنامه‌ها به پایان رسید.</string>
     <string name="notification_analysis_complete_with_virus">تحلیل برنامه‌ها به پایان رسید. %d مورد بدافزار شناسایی شد.</string>
+    <string name="notification_apk_analysis_finished">بررسی فایل‌های APK ارسالی به پایان رسید.</string>
     <string name="overlay_default_ready_message">نتیجه تحلیل برای مشاهده آماده است.</string>
 
     <!-- Content Descriptions -->

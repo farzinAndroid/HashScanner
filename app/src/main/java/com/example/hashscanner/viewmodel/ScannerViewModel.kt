@@ -15,6 +15,7 @@ import com.example.hashscanner.data.model.api.ScanResultModel
 import com.example.hashscanner.data.model.api.ScanResultResponse
 import com.example.hashscanner.data.model.api.UserAuthentication
 import com.example.hashscanner.data.model.db_entities.AnalysisStatus
+import com.example.hashscanner.data.model.db_entities.NotificationStage
 import com.example.hashscanner.data.model.db_entities.ScanHistory
 import com.example.hashscanner.data.network.NetworkResult
 import com.example.hashscanner.notification.NotificationHelper
@@ -239,28 +240,38 @@ class ScannerViewModel @Inject constructor(
                 _scanResultResponseResponse.emit(result)
 
                 if (data.ready) {
-                    Log.d(Constants.TAG, "Result Ready for $scanId (Stage: ${data.stage})")
+                    val currentStage = data.stage
+                    val uploadedSummary = data.uploadedApks?.summary
+                    val isApkReady = uploadedSummary?.complete == true && (uploadedSummary.total > 0)
+                    
+                    Log.d(Constants.TAG, "Result Ready for $scanId (Stage: $currentStage)")
 
-                    // 2. Extract message for notification
-                    val notificationMessage = data.finalReport?.message 
-                        ?: data.initialReport?.let { 
-                            context.getString(R.string.notification_analysis_finished_summary, it.summary.virus, it.summary.suspicious)
-                        } ?: data.message ?: context.getString(R.string.notification_default_finished_message)
+                    // Check last notified stage from DB
+                    val scanFromDb = appDatabaseRepo.getScanById(scanId)
+                    val lastNotified = scanFromDb?.lastNotifiedStage ?: NotificationStage.NONE.name
 
-                    // 3. Show notification FIRST
-                    notificationHelper.showScanResultNotification(
-                        scanId = scanId,
-                        message = notificationMessage
-                    )
-
-                    // 4. Mark as COMPLETED in DB if finalReport is finished
-                    val isFinalReportComplete = data.finalReport?.complete == true
-                    if (isFinalReportComplete) {
-                        appDatabaseRepo.updateAnalysisStatus(scanId, AnalysisStatus.COMPLETED.name)
+                    // 1. Initial Notification
+                    if (currentStage == NotificationStage.INITIAL_READY.name && lastNotified == NotificationStage.NONE.name) {
+                        showAndLogNotification(scanId, data, NotificationStage.INITIAL_READY.name, result)
+                    }
+                    
+                    // 2. APK Notification
+                    else if (isApkReady && (lastNotified == NotificationStage.INITIAL_READY.name || lastNotified == NotificationStage.NONE.name)) {
+                        val msg = context.getString(R.string.notification_apk_analysis_finished)
+                        notificationHelper.showScanResultNotification(scanId, msg)
+                        appDatabaseRepo.updateLastNotifiedStage(scanId, NotificationStage.APK_READY.name)
+                        _scanResultNotificationPopUp.emit(result)
                     }
 
-                    // 5. Trigger the global UI popup
-                    _scanResultNotificationPopUp.emit(result)
+                    // 3. Final Notification
+                    else if (currentStage == NotificationStage.COMPLETE.name && lastNotified != NotificationStage.COMPLETE.name) {
+                        showAndLogNotification(scanId, data, NotificationStage.COMPLETE.name, result)
+                    }
+
+                    // 4. Mark as COMPLETED in DB if stage is COMPLETE
+                    if (currentStage == NotificationStage.COMPLETE.name) {
+                        appDatabaseRepo.updateAnalysisStatus(scanId, AnalysisStatus.COMPLETED.name)
+                    }
 
                     return true
                 }
@@ -269,6 +280,27 @@ class ScannerViewModel @Inject constructor(
             Log.e(Constants.TAG, "Polling Error for $scanId", e)
         }
         return false
+    }
+
+    private suspend fun showAndLogNotification(
+        scanId: String, 
+        data: ScanResultResponse, 
+        stageName: String,
+        result: NetworkResult<ScanResultResponse>
+    ) {
+        val notificationMessage = data.finalReport?.message 
+            ?: data.initialReport?.let { 
+                context.getString(R.string.notification_analysis_finished_summary, it.summary.virus, it.summary.suspicious)
+            } ?: data.message ?: context.getString(R.string.notification_default_finished_message)
+
+        // 1. Show notification
+        notificationHelper.showScanResultNotification(scanId = scanId, message = notificationMessage)
+        
+        // 2. Update notified stage
+        appDatabaseRepo.updateLastNotifiedStage(scanId, stageName)
+
+        // 3. Trigger the global UI popup
+        _scanResultNotificationPopUp.emit(result)
     }
 
     fun clearScanResult() {

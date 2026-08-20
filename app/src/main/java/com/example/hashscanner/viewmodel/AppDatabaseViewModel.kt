@@ -450,4 +450,8 @@ class AppDatabaseViewModel @Inject constructor(
     fun updateAnalysisStatus(scanId: String, status: String) = viewModelScope.launch(Dispatchers.IO) {
         appDataBaseRepo.updateAnalysisStatus(scanId, status)
     }
+
+    fun updateLastNotifiedStage(scanId: String, stage: String) = viewModelScope.launch(Dispatchers.IO) {
+        appDataBaseRepo.updateLastNotifiedStage(scanId, stage)
+    }
 }

@@ -5,8 +5,10 @@ import android.util.Log
 import androidx.hilt.work.HiltWorker
 import androidx.work.*
 import com.example.hashscanner.R
+import com.example.hashscanner.data.datastore.DataStoreRepo
 import com.example.hashscanner.data.model.api.ScanResultModel
 import com.example.hashscanner.data.model.db_entities.AnalysisStatus
+import com.example.hashscanner.data.model.db_entities.NotificationStage
 import com.example.hashscanner.data.network.NetworkResult
 import com.example.hashscanner.notification.NotificationHelper
 import com.example.hashscanner.repository.AppDatabaseRepo
@@ -22,7 +24,8 @@ class ScanResultWorker @AssistedInject constructor(
     @Assisted workerParams: WorkerParameters,
     private val appDatabaseRepo: AppDatabaseRepo,
     private val networkRepo: NetworkRepo,
-    private val notificationHelper: NotificationHelper
+    private val notificationHelper: NotificationHelper,
+    private val dataStoreRepo: DataStoreRepo
 ) : CoroutineWorker(context, workerParams) {
 
     override suspend fun doWork(): Result {
@@ -55,6 +58,13 @@ class ScanResultWorker @AssistedInject constructor(
     private suspend fun runProductionLogic(): Result {
         Log.d(Constants.TAG, "Background PRODUCTION Mode: Checking pending scans...")
 
+        // 0. Ensure deviceId is retrieved correctly ( loophole fix for static var reset)
+        val deviceId = dataStoreRepo.getString(Constants.DEVICE_ID_DATASTORE_ID) ?: Constants.DEVICE_ID
+        if (deviceId.isEmpty()) {
+            Log.e(Constants.TAG, "Production: Device ID is empty. Skipping.")
+            return Result.failure()
+        }
+
         // 1. Fetch pending IDs
         val pendingScans = appDatabaseRepo.getPendingScans(AnalysisStatus.PENDING.name).first()
 
@@ -65,31 +75,53 @@ class ScanResultWorker @AssistedInject constructor(
 
         // 2. Poll API for each pending scan
         pendingScans.forEach { scan ->
-            val model = ScanResultModel(scanId = scan.id, deviceId = Constants.DEVICE_ID)
+            val model = ScanResultModel(scanId = scan.id, deviceId = deviceId)
             try {
                 val response = networkRepo.getScanResult(model)
-                if (response is NetworkResult.Success && response.data?.ready == true) {
-                    val notificationMessage = response.data.finalReport?.message 
-                        ?: response.data.initialReport?.let { 
-                            applicationContext.getString(R.string.notification_analysis_finished_summary, it.summary.virus, it.summary.suspicious)
-                        } ?: applicationContext.getString(R.string.notification_default_finished_message)
+                if (response is NetworkResult.Success) {
+                    val data = response.data ?: return@forEach
+                    val currentStage = data.stage // e.g. "INITIAL_READY", "COMPLETE", "WAITING_ADMIN"
+                    
+                    val uploadedSummary = data.uploadedApks?.summary
+                    val isApkReady = uploadedSummary?.complete == true && (uploadedSummary.total > 0)
 
-                    // 1. Show notification FIRST
-                    notificationHelper.showScanResultNotification(
-                        scanId = scan.id,
-                        message = notificationMessage
-                    )
+                    // 1. Check for Initial Results Notification
+                    if (data.ready && currentStage == NotificationStage.INITIAL_READY.name && scan.lastNotifiedStage == NotificationStage.NONE.name) {
+                        showAndLogNotification(scan.id, data, NotificationStage.INITIAL_READY.name)
+                    }
+                    
+                    // 2. Check for APK Analysis Notification
+                    else if (isApkReady && (scan.lastNotifiedStage == NotificationStage.INITIAL_READY.name || scan.lastNotifiedStage == NotificationStage.NONE.name)) {
+                        val msg = applicationContext.getString(R.string.notification_apk_analysis_finished)
+                        notificationHelper.showScanResultNotification(scan.id, msg)
+                        appDatabaseRepo.updateLastNotifiedStage(scan.id, NotificationStage.APK_READY.name)
+                    }
 
-                    // 2. Mark as COMPLETED in DB so we stop monitoring it
-                    appDatabaseRepo.updateAnalysisStatus(scan.id, AnalysisStatus.COMPLETED.name)
+                    // 3. Check for Final Complete Notification
+                    else if (currentStage == NotificationStage.COMPLETE.name && scan.lastNotifiedStage != NotificationStage.COMPLETE.name) {
+                        showAndLogNotification(scan.id, data, NotificationStage.COMPLETE.name)
+                    }
+
+                    // 4. Finally, mark as COMPLETED in DB when stage is COMPLETE
+                    if (currentStage == NotificationStage.COMPLETE.name) {
+                        appDatabaseRepo.updateAnalysisStatus(scan.id, AnalysisStatus.COMPLETED.name)
+                    }
                 }
             } catch (e: Exception) {
                 Log.e(Constants.TAG, "Production: Error checking scan ${scan.id}", e)
             }
         }
 
-        // We return success because even if some are still pending, 
-        // the Periodic scheduler will wake us up again in 15 minutes automatically.
         return Result.success()
+    }
+
+    private suspend fun showAndLogNotification(scanId: String, data: com.example.hashscanner.data.model.api.ScanResultResponse, stageName: String) {
+        val notificationMessage = data.finalReport?.message 
+            ?: data.initialReport?.let { 
+                applicationContext.getString(R.string.notification_analysis_finished_summary, it.summary.virus, it.summary.suspicious)
+            } ?: data.message ?: applicationContext.getString(R.string.notification_default_finished_message)
+
+        notificationHelper.showScanResultNotification(scanId = scanId, message = notificationMessage)
+        appDatabaseRepo.updateLastNotifiedStage(scanId, stageName)
     }
 }

@@ -31,4 +31,10 @@ interface ScanHistoryDao {
 
     @Query("UPDATE scan_history SET analysisStatus = :status WHERE id = :id")
     suspend fun updateAnalysisStatus(id: String, status: String)
+
+    @Query("UPDATE scan_history SET lastNotifiedStage = :stage WHERE id = :id")
+    suspend fun updateLastNotifiedStage(id: String, stage: String)
+
+    @Query("SELECT * FROM scan_history WHERE id = :id")
+    suspend fun getScanById(id: String): ScanHistory?
 }

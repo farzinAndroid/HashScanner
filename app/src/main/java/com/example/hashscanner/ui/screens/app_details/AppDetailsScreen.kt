@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.example.hashscanner.R
+import com.example.hashscanner.data.model.db_entities.NotificationStage
 import com.example.hashscanner.data.network.NetworkResult
 import com.example.hashscanner.ui.theme.*
 import com.example.hashscanner.ui.ui_utils.AppTopBar
@@ -95,10 +96,12 @@ fun AppDetailsScreen(
                     val date = DateTimeUtils.getCurrentDateTime()
                     databaseViewModel.markApkUploaded(packageName, date)
                     
-                    // CRITICAL FIX: Reset scan status to PENDING after upload
+
                     // This "wakes up" the background polling logic to wait for the final admin check.
                     if (currentScanId != null) {
                         databaseViewModel.updateAnalysisStatus(currentScanId, com.example.hashscanner.data.model.db_entities.AnalysisStatus.PENDING.name)
+                        // Also reset the notification stage to INITIAL_READY so the app is ready to notify about APK_READY
+                        databaseViewModel.updateLastNotifiedStage(currentScanId, NotificationStage.INITIAL_READY.name)
                     }
 
                     Toast.makeText(
