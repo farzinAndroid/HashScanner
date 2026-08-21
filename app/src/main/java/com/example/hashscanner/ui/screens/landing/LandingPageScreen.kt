@@ -15,11 +15,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
-import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,12 +33,10 @@ import com.example.hashscanner.ui.navigation.Screens
 import com.example.hashscanner.ui.theme.AccentPurpleColor
 import com.example.hashscanner.ui.theme.BackgroundColor
 import com.example.hashscanner.ui.theme.HashScannerTheme
-import com.example.hashscanner.ui.theme.LightGray
 import com.example.hashscanner.ui.theme.spacing
 import com.example.hashscanner.ui.ui_utils.RecentScanCard
 import com.example.hashscanner.viewmodel.AppDatabaseViewModel
 import com.example.hashscanner.viewmodel.AppViewModel
-import kotlin.collections.emptyList
 
 @Composable
 fun LandingPageScreen(
@@ -94,7 +91,7 @@ fun LandingPageContent(
             ) {
                 QuickActionCard(
                     title = stringResource(R.string.button_start_scan),
-                    icon = Icons.Default.Info,
+                    icon = Icons.Rounded.PlayArrow,
                     containerColor = MaterialTheme.colorScheme.AccentPurpleColor,
                     contentColor = Color.White,
                     modifier = Modifier.weight(1f),

@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.example.hashscanner.R
+import com.example.hashscanner.data.model.db_entities.AnalysisStatus
 import com.example.hashscanner.data.model.db_entities.NotificationStage
 import com.example.hashscanner.data.network.NetworkResult
 import com.example.hashscanner.ui.theme.*
@@ -97,10 +98,9 @@ fun AppDetailsScreen(
                     databaseViewModel.markApkUploaded(packageName, date)
                     
 
-                    // This "wakes up" the background polling logic to wait for the final admin check.
+                    // This wakes up the background polling logic to wait for the final admin check or apk check.
                     if (currentScanId != null) {
-                        databaseViewModel.updateAnalysisStatus(currentScanId, com.example.hashscanner.data.model.db_entities.AnalysisStatus.PENDING.name)
-                        // Also reset the notification stage to INITIAL_READY so the app is ready to notify about APK_READY
+                        databaseViewModel.updateAnalysisStatus(currentScanId, AnalysisStatus.PENDING.name)
                         databaseViewModel.updateLastNotifiedStage(currentScanId, NotificationStage.INITIAL_READY.name)
                     }
 
@@ -141,7 +141,6 @@ fun AppDetailsScreen(
         onResult = { _ ->
             if (!isPackageInstalled(context, packageName)) {
                 appDetails?.let {
-                    // Instead of deleting, we now just mark it as deleted to keep the history record.
                     databaseViewModel.markAsDeleted(it.packageName, it.scanId)
                     Toast.makeText(context, R.string.app_uninstalled_successfully, Toast.LENGTH_SHORT).show()
                     // Refetch data to update UI instantly

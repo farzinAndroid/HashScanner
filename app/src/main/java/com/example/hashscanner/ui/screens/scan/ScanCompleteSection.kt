@@ -36,7 +36,7 @@ fun ScanCompleteSection(
         suspiciousCount = suspiciousCount,
         sentReportsCount = sentReportsCount,
         onReportClick = {
-            navController.navigate(Screens.RiskLevelList(scanId = currentScanId)) {
+            navController.navigate(Screens.HistoryDetails(scanId = currentScanId)) {
                 popUpTo(Screens.Scan) {
                     inclusive = true
                 }

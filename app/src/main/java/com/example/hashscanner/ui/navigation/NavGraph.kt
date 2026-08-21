@@ -154,7 +154,5 @@ fun NavGraph(
 
 
         }
-
-        GlobalScanOverlay(scannerViewModel = scannerViewModel, navController = navController)
     }
 }

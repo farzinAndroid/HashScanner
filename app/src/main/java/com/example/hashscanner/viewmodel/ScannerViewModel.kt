@@ -70,7 +70,7 @@ class ScannerViewModel @Inject constructor(
 
     fun resetScanState() {
         cancelScanJob()
-        clearScanResult() // Resets UI popup state
+        clearScanResult()
         isScanCompleted.value = ScanPageState.SCANNING
         totalCount.value = 0
         scannedCount.value = 0
@@ -90,8 +90,8 @@ class ScannerViewModel @Inject constructor(
         scanJob = viewModelScope.launch(Dispatchers.IO) {
             val startTime = System.currentTimeMillis()
             val scanId = UUID.randomUUID().toString()
-            currentScanId.value = scanId
-            isScanCompleted.value = ScanPageState.SCANNING
+            currentScanId.emit(scanId)
+            isScanCompleted.emit(ScanPageState.SCANNING)
             
             // Runs the local package scanning process
             scannerRepository.startScan(
@@ -108,7 +108,7 @@ class ScannerViewModel @Inject constructor(
 
             if (!isActive) return@launch // Guard for cancellation
 
-            isScanCompleted.value = ScanPageState.UPLOADING
+            isScanCompleted.emit(ScanPageState.UPLOADING)
             networkRepo.uploadPending(scanId) // Uploads local findings to server
             networkRepo.scanFinished(ScanResultModel(scanId = scanId, deviceId = Constants.DEVICE_ID)) // Notifies server scan is done
 
@@ -145,7 +145,7 @@ class ScannerViewModel @Inject constructor(
             
             startBackgroundResultCheck()
 
-            isScanCompleted.value = ScanPageState.SCAN_COMPLETE
+            isScanCompleted.emit(ScanPageState.SCAN_COMPLETE)
         }
     }
 
@@ -304,8 +304,7 @@ class ScannerViewModel @Inject constructor(
     }
 
     fun clearScanResult() {
-        // Only clear the notification flow so the popup disappears,
-        // but the data stays visible in HistoryDetailsScreen.
+        // Only clear the notification flow so the popup disappears
         _scanResultNotificationPopUp.value = NetworkResult.Idle<ScanResultResponse>()
     }
 

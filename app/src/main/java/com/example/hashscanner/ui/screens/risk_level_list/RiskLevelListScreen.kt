@@ -149,14 +149,6 @@ fun RiskLevelListContent(
             icon = Icons.Default.CheckCircle,
             riskLevel = RiskLevelsUI.SAFE,
             isGoToRobot = false
-        ),
-        RiskLevelItem(
-            title = stringResource(R.string.go_to_bale_robot),
-            count = 0,
-            color = MaterialTheme.colorScheme.AccentPurpleColor,
-            icon = Icons.Default.Info,
-            riskLevel = RiskLevelsUI.SAFE,
-            isGoToRobot = true
         )
     )
 
