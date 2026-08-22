@@ -95,7 +95,7 @@ fun AppDetailsScreen(
                     ).show()
                 } else {
                     val date = DateTimeUtils.getCurrentDateTime()
-                    databaseViewModel.markApkUploaded(packageName, date)
+                    databaseViewModel.markApkUploaded(appDetails?.sha256 ?: "", date)
                     
 
                     // This wakes up the background polling logic to wait for the final admin check or apk check.
@@ -154,6 +154,8 @@ fun AppDetailsScreen(
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     Scaffold(
         containerColor = MaterialTheme.colorScheme.BackgroundColor,
+        modifier = Modifier
+            .navigationBarsPadding(),
         topBar = {
             AppTopBar(
                 topBarText = stringResource(R.string.topbar_title_app_details),

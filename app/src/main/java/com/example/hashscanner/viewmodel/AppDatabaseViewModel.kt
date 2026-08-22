@@ -301,7 +301,6 @@ class AppDatabaseViewModel @Inject constructor(
         viewModelScope.launch {
             appDataBaseRepo.getAppsByCertificateSha256ByScanId(scanId, sha256).collectLatest {
                 _appsByCertificateSha256.emit(it)
-                _allApps.emit(it)
             }
         }
     }
@@ -314,7 +313,6 @@ class AppDatabaseViewModel @Inject constructor(
         viewModelScope.launch {
             appDataBaseRepo.getAppsByRiskAndScanId(onlyUser, riskLevel, scanId).collectLatest {
                 _appsByRiskAndDate.emit(it)
-                _allApps.emit(it)
             }
         }
     }
@@ -323,7 +321,6 @@ class AppDatabaseViewModel @Inject constructor(
         viewModelScope.launch {
             appDataBaseRepo.searchAppsByScanId(scanId, keyword).collectLatest {
                 _searchResultApps.emit(it)
-                _allApps.emit(it)
             }
         }
     }
@@ -425,8 +422,8 @@ class AppDatabaseViewModel @Inject constructor(
         appDataBaseRepo.markSuspiciousReportSent(pkg, date)
     }
 
-    fun markApkUploaded(pkg: String, date: String) = viewModelScope.launch(Dispatchers.IO) {
-        appDataBaseRepo.markApkUploaded(pkg, date)
+    fun markApkUploaded(hash: String, date: String) = viewModelScope.launch(Dispatchers.IO) {
+        appDataBaseRepo.markApkUploaded(hash, date)
     }
 
     // --- ScanHistoryDao Functions ---

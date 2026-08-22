@@ -39,7 +39,7 @@ fun AppDetailsBottomBar(
     isUploaded: Boolean = false,
     isLoading: Boolean = false,
     isDeleted: Boolean = false,
-    apiAction: String? = null, // New: Drive UI from API
+    apiAction: String? = null,
     onUploadApkClicked: () -> Unit,
     onDeleteClicked: () -> Unit
 ) {
@@ -104,8 +104,6 @@ fun AppDetailsBottomBar(
             }
 
             // UPLOAD BUTTON
-            // We ONLY show this if the API specifically recommends UPLOAD_APK
-            if (apiAction == "UPLOAD_APK") {
                 if (isUploaded) {
                     Row(
                         modifier = Modifier.weight(1f),
@@ -132,7 +130,7 @@ fun AppDetailsBottomBar(
                         enabled = !isLoading,
                         shape = RoundedCornerShape(MaterialTheme.spacing.dp16),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.StrongYellowColor,
+                            containerColor = MaterialTheme.colorScheme.AccentPurpleColor,
                             contentColor = Color.White
                         )
                     ) {
@@ -154,5 +152,4 @@ fun AppDetailsBottomBar(
                 }
             }
         }
-    }
 }

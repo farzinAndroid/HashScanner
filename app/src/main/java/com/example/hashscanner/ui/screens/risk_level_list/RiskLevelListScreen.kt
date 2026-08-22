@@ -36,6 +36,7 @@ import com.example.hashscanner.ui.theme.GreenColor
 import com.example.hashscanner.ui.theme.RedColor
 import com.example.hashscanner.ui.theme.StrongYellowColor
 import com.example.hashscanner.ui.theme.spacing
+import com.example.hashscanner.ui.screens.scan_details.ScanDetailRiskCard
 import com.example.hashscanner.ui.ui_utils.AppTopBar
 import com.example.hashscanner.ui.ui_utils.RiskLevelItem
 import com.example.hashscanner.ui.ui_utils.RiskLevelsUI
@@ -171,14 +172,10 @@ fun RiskLevelListContent(
             verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.dp16)
         ) {
             items(riskLevels) { item ->
-                RiskLevelCard(
+                ScanDetailRiskCard(
                     item = item,
-                    onClick = { isRobot ->
-                        if (isRobot) {
-                            onRobotClick(context)
-                        } else {
-                            onRiskLevelClick(item)
-                        }
+                    onClick = {
+                        onRiskLevelClick(item)
                     }
                 )
             }

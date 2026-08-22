@@ -1,5 +1,6 @@
-package com.example.hashscanner.ui.screens.history_details
+package com.example.hashscanner.ui.screens.scan_details
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -12,6 +13,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.hashscanner.R
+import com.example.hashscanner.ui.theme.BlackWhiteColor
+import com.example.hashscanner.ui.theme.BoxGrayColor
+import com.example.hashscanner.ui.theme.HashScannerTheme
+import com.example.hashscanner.ui.theme.LightGray
 import com.example.hashscanner.ui.theme.StrongYellowColor
 
 @Composable
@@ -23,8 +28,8 @@ fun UploadedApkProgressCard(
     Surface(
         modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
         shape = RoundedCornerShape(16.dp),
-        color = MaterialTheme.colorScheme.surface,
-        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.StrongYellowColor.copy(alpha = 0.3f)),
+        color = MaterialTheme.colorScheme.BoxGrayColor,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.StrongYellowColor.copy(alpha = 0.3f)),
         tonalElevation = 2.dp
     ) {
         Column(
@@ -43,14 +48,15 @@ fun UploadedApkProgressCard(
                 Text(
                     text = stringResource(R.string.report_label_uploaded_apks),
                     style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.BlackWhiteColor
                 )
             }
 
             Text(
                 text = stringResource(R.string.report_uploaded_analysis_in_progress, total, pending),
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                color = MaterialTheme.colorScheme.LightGray
             )
 
             val progress = if (total > 0) checked.toFloat() / total else 0f
@@ -60,6 +66,20 @@ fun UploadedApkProgressCard(
                 color = MaterialTheme.colorScheme.StrongYellowColor,
                 trackColor = MaterialTheme.colorScheme.StrongYellowColor.copy(alpha = 0.1f),
                 strokeCap = androidx.compose.ui.graphics.StrokeCap.Round
+            )
+        }
+    }
+}
+
+@androidx.compose.ui.tooling.preview.Preview(showBackground = true)
+@Composable
+fun UploadedApkProgressCardPreview() {
+    HashScannerTheme {
+        Box(modifier = Modifier.padding(16.dp)) {
+            UploadedApkProgressCard(
+                total = 5,
+                checked = 2,
+                pending = 3
             )
         }
     }

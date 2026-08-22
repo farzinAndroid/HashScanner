@@ -38,7 +38,7 @@ fun AppListScreen(
                 scanId = scanId,
                 databaseViewModel = databaseViewModel,
                 onAppClick = { packageName ->
-                    navController.navigate(Screens.Details(packageName, scanId))
+                    navController.navigate(Screens.AppDetails(packageName, scanId))
                 }
             )
         }

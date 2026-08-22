@@ -1,4 +1,4 @@
-package com.example.hashscanner.ui.screens.history_details
+package com.example.hashscanner.ui.screens.scan_details
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Icon
@@ -14,7 +14,7 @@ import com.example.hashscanner.ui.theme.AccentPurpleColor
 import com.example.hashscanner.ui.theme.BlackWhiteColor
 
 @Composable
-fun HistoryMetadataRow(
+fun ScanDetailDataRow(
     label: String,
     value: String,
     icon: ImageVector

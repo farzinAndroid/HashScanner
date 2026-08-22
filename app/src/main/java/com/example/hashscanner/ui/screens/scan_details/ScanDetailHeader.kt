@@ -1,4 +1,4 @@
-package com.example.hashscanner.ui.screens.history_details
+package com.example.hashscanner.ui.screens.scan_details
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -18,11 +18,26 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.hashscanner.R
 import com.example.hashscanner.data.model.db_entities.ScanHistory
-import com.example.hashscanner.ui.theme.BlackWhiteColor
+import com.example.hashscanner.ui.theme.*
 import com.example.hashscanner.utils.DigitHelper
 
 @Composable
-fun HistoryHeader(scan: ScanHistory, resultColor: Color, totalSuspicious: Int) {
+fun ScanDetailHeader(
+    scan: ScanHistory,
+    serverSusAppCount: Int? = null,
+    serverVirusAppCount: Int? = null,
+) {
+    val isServerSusAppsNull = serverSusAppCount == null
+    val isServerVirusAppsNull = serverVirusAppCount == null
+
+    val totalSuspicious = if (isServerSusAppsNull && isServerVirusAppsNull) {
+        scan.highRisk + scan.criticalRisk
+    } else {
+        (serverSusAppCount ?: 0) + (serverVirusAppCount ?: 0)
+    }
+
+    val resultColor = if (totalSuspicious > 0) MaterialTheme.colorScheme.RedColor else MaterialTheme.colorScheme.GreenColor
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -50,11 +65,20 @@ fun HistoryHeader(scan: ScanHistory, resultColor: Color, totalSuspicious: Int) {
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        Text(
-            text = if (totalSuspicious > 0) 
-                stringResource(R.string.topbar_title_suspicious_apps) 
+        val titleText = if (isServerSusAppsNull && isServerVirusAppsNull) {
+            if (totalSuspicious > 0) 
+                "${stringResource(R.string.topbar_title_scan_result)} (${stringResource(R.string.status_offline)})"
             else 
-                stringResource(R.string.result_header_scan_completed_successfully),
+                stringResource(R.string.result_header_scan_completed_successfully)
+        } else {
+            if (totalSuspicious > 0) 
+                "${stringResource(R.string.topbar_title_scan_result)} (${stringResource(R.string.status_server_verified)})"
+            else 
+                "${stringResource(R.string.result_header_scan_completed_successfully)} (${stringResource(R.string.status_server_verified)})"
+        }
+
+        Text(
+            text = titleText,
             style = MaterialTheme.typography.headlineSmall,
             color = MaterialTheme.colorScheme.BlackWhiteColor,
             fontWeight = FontWeight.ExtraBold

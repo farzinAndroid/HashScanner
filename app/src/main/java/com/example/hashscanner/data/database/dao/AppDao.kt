@@ -103,10 +103,10 @@ interface AppDao {
         UPDATE apps 
         SET apkUploaded = 1, 
             uploadDate = :date 
-        WHERE sha256 = (SELECT sha256 FROM apps WHERE packageName = :pkg LIMIT 1)
+        WHERE sha256 = :hash
     """)
-    suspend fun markApkUploadedGlobal(
-        pkg: String,
+    suspend fun markApkUploadedByHash(
+        hash: String,
         date: String
     )
 

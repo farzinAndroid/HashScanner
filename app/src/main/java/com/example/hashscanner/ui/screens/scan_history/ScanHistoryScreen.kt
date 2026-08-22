@@ -1,4 +1,4 @@
-package com.example.hashscanner.ui.screens.history
+package com.example.hashscanner.ui.screens.scan_history
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -19,7 +19,6 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -58,7 +57,7 @@ fun ScanHistoryScreen(
             databaseViewModel.deleteScanHistory(it.id)
         },
         onRecentScanCardClicked = {
-            navController.navigate(Screens.HistoryDetails(it.id))
+            navController.navigate(Screens.ScanHistoryDetails(it.id))
         }
     )
 }

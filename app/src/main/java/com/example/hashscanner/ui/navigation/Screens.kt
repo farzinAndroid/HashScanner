@@ -20,7 +20,7 @@ interface Screens {
     object NoInternet : Screens
 
     @Serializable
-    data class Details(
+    data class AppDetails(
         val packageName: String,
         val scanId: String? = null
     ) : Screens
@@ -44,7 +44,7 @@ interface Screens {
     object ScanHistory : Screens
 
     @Serializable
-    data class HistoryDetails(
+    data class ScanHistoryDetails(
         val scanId: String? = null
     ) : Screens
 

@@ -1,4 +1,4 @@
-package com.example.hashscanner.ui.screens.history_details
+package com.example.hashscanner.ui.screens.scan_details
 
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.Arrangement

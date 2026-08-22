@@ -66,10 +66,10 @@ interface SuspiciousDao {
         UPDATE suspicious_apps
         SET apkUploaded = 1,
             uploadDate = :date
-        WHERE packageName = :pkg
+        WHERE sha256 = :hash
     """)
-    suspend fun markApkUploaded(
-        pkg: String,
+    suspend fun markApkUploadedByHash(
+        hash: String,
         date: String
     )
 

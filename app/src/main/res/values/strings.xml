@@ -68,6 +68,7 @@
     <string name="error_opening_url">خطا در باز کردن لینک. لطفا از نصب بودن مرورگر یا برنامه بله مطمئن شوید.</string>
     <string name="app_uninstalled_successfully">برنامه حذف شد</string>
     <string name="empty_app_list_message">برنامه‌ای در این دسته یافت نشد</string>
+    <string name="app_list">لیست همه برنامه ها</string>
     <string name="apps_identified_count">%s برنامه شناسایی شد</string>
     <string name="apps_identified_count_clean">برنامه شناسایی شد</string>
 
@@ -88,11 +89,18 @@
     <string name="api_action_result_ready">نتیجه تحلیل ابری آماده است.</string>
     <string name="status_resolved_threat">این تهدید با موفقیت برطرف شده است</string>
     <string name="status_uninstalled">حذف شده</string>
+    <string name="status_offline">گزارش آفلاین</string>
+    <string name="status_server_verified">تایید سرور</string>
+    <string name="status_server_check">بررسی سرور</string>
+    <string name="status_offline_check">بررسی آفلاین</string>
+    <string name="status_all_apps_safe">تمامی برنامه‌ها سالم</string>
+    <string name="status_suspicious_items">مورد مشکوک</string>
+    <string name="status_malware_and_suspicious">مشکوک</string>
     <string name="report_label_uploaded_apks">برنامه‌های ارسال شده جهت تحلیل</string>
-    <string name="report_uploaded_analysis_in_progress">ادمین در حال بررسی %1$d فایل ارسالی است (%2$d مورد باقی‌مانده)</string>
+    <string name="report_uploaded_analysis_in_progress">حال بررسی %1$d فایل های ارسالی (%2$d مورد باقی‌مانده)</string>
     <string name="report_initial_summary">گزارش اولیه: %1$d بدافزار و %2$d مورد مشکوک</string>
-    <string name="report_finalizing">در حال آماده‌سازی گزارش نهایی...</string>
-    <string name="report_cloud_analyzing">در حال تحلیل گزارش...</string>
+    <string name="report_finalizing">لطفا برای دیدن گزارش نهایی برنامه های مشکوک خواسته شده را به سرور ارسال کنید.</string>
+    <string name="report_cloud_analyzing">در حال تحلیل گزارش…</string>
     <string name="report_label_checked_count">بررسی شده: %s</string>
     <string name="report_label_remaining_count">باقی‌مانده: %s</string>
     <string name="notification_analysis_finished_summary">تحلیل پایان یافت: %1$d بدافزار، %2$d مشکوک</string>
@@ -140,6 +148,7 @@
     <string name="report_label_system_apps_count">برنامه‌های سیستمی</string>
     <string name="report_label_user_apps_count">برنامه‌های کاربر</string>
     <string name="report_label_suspicious_apps">برنامه‌های مشکوک</string>
+    <string name="report_label_safe_apps">برنامه‌های امن</string>
     <string name="report_label_package">بسته (Package)</string>
     <string name="report_label_sha256">SHA256</string>
     <string name="report_label_risk_score">امتیاز خطر</string>

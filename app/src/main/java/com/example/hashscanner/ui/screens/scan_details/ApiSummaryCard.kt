@@ -1,4 +1,4 @@
-package com.example.hashscanner.ui.screens.history_details
+package com.example.hashscanner.ui.screens.scan_details
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -20,6 +20,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.hashscanner.R
+import com.example.hashscanner.ui.theme.AccentPurpleColor
+import com.example.hashscanner.ui.theme.BoxGrayColor
 import com.example.hashscanner.ui.theme.HashScannerTheme
 
 @Composable
@@ -30,7 +32,7 @@ fun ApiSummaryCard(result: String, message: String) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
-        color = MaterialTheme.colorScheme.surface,
+        color = MaterialTheme.colorScheme.BoxGrayColor,
         tonalElevation = 2.dp,
         shadowElevation = 8.dp,
     ) {

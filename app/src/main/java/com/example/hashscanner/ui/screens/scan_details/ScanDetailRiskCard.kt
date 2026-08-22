@@ -1,4 +1,4 @@
-package com.example.hashscanner.ui.screens.history_details
+package com.example.hashscanner.ui.screens.scan_details
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -25,7 +25,7 @@ import com.example.hashscanner.ui.ui_utils.RiskLevelItem
 import com.example.hashscanner.utils.DigitHelper
 
 @Composable
-fun HistoryRiskCard(item: RiskLevelItem, onClick: () -> Unit) {
+fun ScanDetailRiskCard(item: RiskLevelItem, onClick: () -> Unit) {
     Surface(
         modifier = Modifier
             .fillMaxWidth()

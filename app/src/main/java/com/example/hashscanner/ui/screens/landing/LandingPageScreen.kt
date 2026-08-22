@@ -57,7 +57,7 @@ fun LandingPageScreen(
             databaseViewModel.deleteScanHistory(it.id)
         },
         onRecentScanCardClicked = {
-            navController.navigate(Screens.HistoryDetails(it.id))
+            navController.navigate(Screens.ScanHistoryDetails(it.id))
         }
     )
 }

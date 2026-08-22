@@ -3,7 +3,6 @@ package com.example.hashscanner.ui.navigation
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -17,12 +16,11 @@ import com.example.hashscanner.ui.screens.app_details.AppDetailsScreen
 import com.example.hashscanner.ui.screens.app_list.AppListScreen
 import com.example.hashscanner.ui.screens.authentication.AuthenticationScreen
 import com.example.hashscanner.ui.screens.error.NoInternetScreen
-import com.example.hashscanner.ui.screens.history.ScanHistoryScreen
-import com.example.hashscanner.ui.screens.history_details.HistoryDetailsScreen
+import com.example.hashscanner.ui.screens.scan_history.ScanHistoryScreen
+import com.example.hashscanner.ui.screens.scan_details.ScanDetailsScreen
 import com.example.hashscanner.ui.screens.landing.LandingPageScreen
 import com.example.hashscanner.ui.screens.risk_level_list.RiskLevelListScreen
 import com.example.hashscanner.ui.screens.scan.ScanScreen
-import com.example.hashscanner.ui.ui_utils.GlobalScanOverlay
 import com.example.hashscanner.viewmodel.AppDatabaseViewModel
 import com.example.hashscanner.viewmodel.AppViewModel
 import com.example.hashscanner.viewmodel.ScannerViewModel
@@ -54,8 +52,8 @@ fun NavGraph(
 
     LaunchedEffect(currentRoute) {
         if (currentRoute != null && !isExcluded) {
-            val scanIdFromRoute = if (currentRoute.contains(Screens.HistoryDetails::class.simpleName.toString())) {
-                navBackStackEntry?.toRoute<Screens.HistoryDetails>()?.scanId
+            val scanIdFromRoute = if (currentRoute.contains(Screens.ScanHistoryDetails::class.simpleName.toString())) {
+                navBackStackEntry?.toRoute<Screens.ScanHistoryDetails>()?.scanId
             } else null
             
             scannerViewModel.getScanResult(scanIdFromRoute)
@@ -131,20 +129,20 @@ fun NavGraph(
                 )
             }
 
-            composable<Screens.Details> { backStackEntry ->
-                val details = backStackEntry.toRoute<Screens.Details>()
+            composable<Screens.AppDetails> { backStackEntry ->
+                val appDetails = backStackEntry.toRoute<Screens.AppDetails>()
                 AppDetailsScreen(
                     navController = navController,
-                    packageName = details.packageName,
-                    scanId = details.scanId,
+                    packageName = appDetails.packageName,
+                    scanId = appDetails.scanId,
                     databaseViewModel = appDatabaseViewModel,
                     scannerViewModel = scannerViewModel
                 )
             }
 
-            composable<Screens.HistoryDetails> { backStackEntry ->
-                val details = backStackEntry.toRoute<Screens.HistoryDetails>()
-                HistoryDetailsScreen(
+            composable<Screens.ScanHistoryDetails> { backStackEntry ->
+                val details = backStackEntry.toRoute<Screens.ScanHistoryDetails>()
+                ScanDetailsScreen(
                     navController = navController,
                     scanId = details.scanId,
                     databaseViewModel = appDatabaseViewModel,
