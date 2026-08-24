@@ -12,13 +12,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.hashscanner.data.model.db_entities.AnalysisStatus
 import com.example.hashscanner.data.model.db_entities.AppInfo
+import com.example.hashscanner.ui.screens.scan_details.SourceOfTruthChip
 import com.example.hashscanner.ui.theme.BackgroundColor
 import com.example.hashscanner.ui.theme.HashScannerTheme
 import com.example.hashscanner.ui.ui_utils.EmptyStateView
@@ -31,33 +34,42 @@ fun AppListSection(
     initialRiskLevel: RiskLevelsUI,
     scanId: String? = null,
     databaseViewModel: AppDatabaseViewModel,
+    showSystem: Boolean,
     onAppClick: (String) -> Unit
 ) {
     val lastScan by databaseViewModel.lastScan.collectAsStateWithLifecycle(initialValue = null)
+    val scanHistoryList by databaseViewModel.scanHistory.collectAsStateWithLifecycle(emptyList())
     val currentScanId = scanId ?: lastScan?.id
+
+    val scanDetails = remember(scanHistoryList, currentScanId) {
+        scanHistoryList.find { it.id == currentScanId }
+    }
 
     var whichAppsToLoad by rememberSaveable { mutableStateOf(initialRiskLevel) }
 
     val currentApps by databaseViewModel.allApps.collectAsStateWithLifecycle()
 
-    LaunchedEffect(whichAppsToLoad, currentScanId) {
+    LaunchedEffect(whichAppsToLoad, currentScanId, showSystem) {
         if (currentScanId != null) {
             databaseViewModel.apply {
                 when (whichAppsToLoad) {
-                    RiskLevelsUI.HIGH -> getHighRiskApps(currentScanId, onlyUser = true)
-                    RiskLevelsUI.MEDIUM -> getMediumRiskApps(currentScanId, onlyUser = true)
-                    RiskLevelsUI.LOW -> getLowRiskApps(currentScanId, onlyUser = true)
-                    RiskLevelsUI.SAFE -> getSafeApps(currentScanId, onlyUser = true)
-                    RiskLevelsUI.CRITICAL -> getCriticalApps(currentScanId, onlyUser = true)
+                    RiskLevelsUI.HIGH -> getHighRiskApps(currentScanId, onlyUser = !showSystem)
+                    RiskLevelsUI.MEDIUM -> getMediumRiskApps(currentScanId, onlyUser = !showSystem)
+                    RiskLevelsUI.LOW -> getLowRiskApps(currentScanId, onlyUser = !showSystem)
+                    RiskLevelsUI.SAFE -> getSafeApps(currentScanId, onlyUser = !showSystem)
+                    RiskLevelsUI.CRITICAL -> getCriticalApps(currentScanId, onlyUser = !showSystem)
                 }
             }
         }
     }
 
+    val isReady = scanDetails?.analysisStatus == AnalysisStatus.COMPLETED.name
+
     AppListContent(
         paddingValues = paddingValues,
         currentApps = currentApps,
-        onAppClick = onAppClick
+        onAppClick = onAppClick,
+        isReady = isReady
     )
 }
 
@@ -65,6 +77,7 @@ fun AppListSection(
 fun AppListContent(
     paddingValues: PaddingValues,
     currentApps: List<AppInfo>,
+    isReady: Boolean,
     onAppClick: (String) -> Unit
 ) {
     Column(
@@ -80,6 +93,10 @@ fun AppListContent(
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
             ) {
+                item {
+                    SourceOfTruthChip(isReady = isReady)
+                }
+
                 items(currentApps) { app ->
                     AppCard(
                         appInfo = app,
@@ -98,6 +115,7 @@ fun AppListSectionPreview() {
         AppListContent(
             paddingValues = PaddingValues(),
             currentApps = emptyList(),
+            isReady = true,
             onAppClick = {}
         )
     }

@@ -240,6 +240,12 @@ class ScannerViewModel @Inject constructor(
                 _scanResultResponseResponse.emit(result)
 
                 if (data.ready) {
+                    // --- SYNC PROMOTION ---
+                    // Every time results are ready, we push them into our local apps table
+                    data.initialReport?.let { report ->
+                        appDatabaseRepo.promoteAppsToServerStatus(scanId, report.apps)
+                    }
+
                     val currentStage = data.stage
                     val uploadedSummary = data.uploadedApks?.summary
                     val isApkReady = uploadedSummary?.complete == true && (uploadedSummary.total > 0)

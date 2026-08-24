@@ -30,7 +30,8 @@ interface Screens {
     @Serializable
     data class AppList(
         val riskLevel: com.example.hashscanner.ui.ui_utils.RiskLevelsUI,
-        val scanId: String? = null
+        val scanId: String? = null,
+        val showSystem: Boolean = false
     ) : Screens
 
 

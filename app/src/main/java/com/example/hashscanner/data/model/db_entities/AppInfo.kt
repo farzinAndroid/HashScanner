@@ -52,5 +52,8 @@ data class AppInfo(
     val scanTime: String,
     val apkUploaded: Boolean = false,
     val uploadDate: String = "",
-    val isDeleted: Boolean = false
+    val isDeleted: Boolean = false,
+    val isServerVerified: Boolean = false,
+    val serverResult: String = "",
+    val serverAction: String = ""
 )

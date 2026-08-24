@@ -49,7 +49,8 @@ fun PermissionDialog(
     title: String,
     description: String,
     onGrant: () -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    grantButtonText: String = stringResource(R.string.button_grant_permission)
 ) {
     val accentColor = MaterialTheme.colorScheme.AccentPurpleColor
     val bgColor = MaterialTheme.colorScheme.BackgroundColor
@@ -124,7 +125,7 @@ fun PermissionDialog(
                         colors = ButtonDefaults.buttonColors(containerColor = accentColor)
                     ) {
                         Text(
-                            text = stringResource(R.string.button_grant_permission),
+                            text = grantButtonText,
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             color = Color.White

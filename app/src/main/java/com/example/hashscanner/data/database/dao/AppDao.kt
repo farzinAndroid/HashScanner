@@ -66,7 +66,17 @@ interface AppDao {
     @Query("SELECT * FROM apps WHERE scanId = :scanId ORDER BY riskScore DESC")
     fun getAppsByRiskByScanId(scanId: String): Flow<List<AppInfo>>
 
-    @Query("SELECT * FROM apps WHERE riskLevel=:riskLevel AND scanId=:scanId AND (:onlyUser = 0 OR isSystem = 0)")
+    @Query("""
+        SELECT * FROM apps 
+        WHERE scanId = :scanId 
+        AND (:onlyUser = 0 OR isSystem = 0)
+        AND (
+            (isServerVerified = 1 AND serverResult = :riskLevel) OR 
+            (isServerVerified = 0 AND riskLevel = :riskLevel) OR
+            (isServerVerified = 1 AND :riskLevel = 'CRITICAL' AND serverResult = 'VIRUS') OR
+            (isServerVerified = 1 AND :riskLevel = 'HIGH' AND serverResult = 'SUSPICIOUS')
+        )
+    """)
     fun getAppsByRiskAndScanId(onlyUser: Boolean = false, riskLevel: String, scanId: String): Flow<List<AppInfo>>
 
     @Query("SELECT * FROM apps WHERE scanId = :scanId ORDER BY firstInstallTime DESC")
@@ -113,6 +123,20 @@ interface AppDao {
     @Query("UPDATE apps SET isDeleted = 1 WHERE packageName = :pkg AND scanId = :scanId")
     suspend fun markAsDeleted(pkg: String, scanId: String)
 
+    @Query("""
+        UPDATE apps 
+        SET isServerVerified = 1, 
+            serverResult = :result, 
+            serverAction = :action
+        WHERE packageName = :pkg AND scanId = :scanId
+    """)
+    suspend fun updateAppVerdict(
+        pkg: String, 
+        scanId: String, 
+        result: String, 
+        action: String
+    )
+
     // ---------- Upload Recommendation ----------
 
     @Query("""
@@ -151,19 +175,53 @@ interface AppDao {
     @Query("SELECT COUNT(*) FROM apps WHERE suspicious=1 AND scanId = :scanId")
     fun countSuspiciousAppsByScanId(scanId: String): Flow<Int>
 
-    @Query("SELECT COUNT(*) FROM apps WHERE riskLevel='SAFE' AND scanId = :scanId AND (:onlyUser = 0 OR isSystem = 0)")
+    @Query("""
+        SELECT COUNT(*) FROM apps 
+        WHERE scanId = :scanId 
+        AND (:onlyUser = 0 OR isSystem = 0)
+        AND (
+            (isServerVerified = 1 AND serverResult = 'SAFE') OR 
+            (isServerVerified = 0 AND riskLevel = 'SAFE')
+        )
+    """)
     fun countSafeAppsByScanId(scanId: String, onlyUser: Boolean = false): Flow<Int>
 
-    @Query("SELECT COUNT(*) FROM apps WHERE riskLevel='LOW' AND scanId = :scanId AND (:onlyUser = 0 OR isSystem = 0)")
+    @Query("""
+        SELECT COUNT(*) FROM apps 
+        WHERE scanId = :scanId 
+        AND (:onlyUser = 0 OR isSystem = 0)
+        AND (isServerVerified = 0 AND riskLevel = 'LOW')
+    """)
     fun countLowRiskAppsByScanId(scanId: String, onlyUser: Boolean = false): Flow<Int>
 
-    @Query("SELECT COUNT(*) FROM apps WHERE riskLevel='MEDIUM' AND scanId = :scanId AND (:onlyUser = 0 OR isSystem = 0)")
+    @Query("""
+        SELECT COUNT(*) FROM apps 
+        WHERE scanId = :scanId 
+        AND (:onlyUser = 0 OR isSystem = 0)
+        AND (isServerVerified = 0 AND riskLevel = 'MEDIUM')
+    """)
     fun countMediumRiskAppsByScanId(scanId: String, onlyUser: Boolean = false): Flow<Int>
 
-    @Query("SELECT COUNT(*) FROM apps WHERE riskLevel='HIGH' AND scanId = :scanId AND (:onlyUser = 0 OR isSystem = 0)")
+    @Query("""
+        SELECT COUNT(*) FROM apps 
+        WHERE scanId = :scanId 
+        AND (:onlyUser = 0 OR isSystem = 0)
+        AND (
+            (isServerVerified = 1 AND serverResult = 'SUSPICIOUS') OR 
+            (isServerVerified = 0 AND riskLevel = 'HIGH')
+        )
+    """)
     fun countHighRiskAppsByScanId(scanId: String, onlyUser: Boolean = false): Flow<Int>
 
-    @Query("SELECT COUNT(*) FROM apps WHERE riskLevel='CRITICAL' AND scanId = :scanId AND (:onlyUser = 0 OR isSystem = 0)")
+    @Query("""
+        SELECT COUNT(*) FROM apps 
+        WHERE scanId = :scanId 
+        AND (:onlyUser = 0 OR isSystem = 0)
+        AND (
+            (isServerVerified = 1 AND serverResult = 'VIRUS') OR 
+            (isServerVerified = 0 AND riskLevel = 'CRITICAL')
+        )
+    """)
     fun countCriticalAppsByScanId(scanId: String, onlyUser: Boolean = false): Flow<Int>
 
 }

@@ -2,6 +2,8 @@ package com.example.hashscanner.ui.ui_utils
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -30,7 +32,8 @@ import com.example.hashscanner.ui.theme.spacing
 fun AppTopBar(
     topBarText: String,
     onClick: () -> Unit = {},
-    shouldHaveBackIcon: Boolean = true
+    shouldHaveBackIcon: Boolean = true,
+    actions: @Composable RowScope.() -> Unit = {}
 ) {
 
 
@@ -68,12 +71,15 @@ fun AppTopBar(
                     fontWeight = FontWeight.Bold
                 )
 
-
+                Row(
+                    modifier = Modifier.align(Alignment.CenterStart),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    actions()
+                }
             }
         },
     )
-
-
 }
 
 @Preview

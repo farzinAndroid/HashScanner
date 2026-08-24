@@ -29,6 +29,7 @@
     <string name="button_view_detailed_results">مشاهده نتایج</string>
 
     <string name="topbar_title_suspicious_apps">برنامه‌های مشکوک</string>
+    <string name="topbar_title_apps">برنامه‌ها</string>
     <string name="badge_risk_level_high">خطر بالا</string>
     <string name="badge_risk_level_none">سالم</string>
     <string name="badge_risk_level_very_high">خطر بسیار بالا</string>
@@ -87,6 +88,11 @@
     <string name="api_action_upload_recommendation">ارسال فایل جهت بررسی ادمین</string>
     <string name="api_action_cloud_status">وضعیت تحلیل ابری</string>
     <string name="api_action_result_ready">نتیجه تحلیل ابری آماده است.</string>
+    <string name="api_msg_safe">این برنامه بررسی شد و سالم است.</string>
+    <string name="api_msg_virus">ویروس شناسایی شد. لطفا این برنامه را حذف کنید.</string>
+    <string name="api_msg_suspicious">این برنامه مشکوک است. لطفا برای بررسی بیشتر فایل برنامه را ارسال کنید.</string>
+    <string name="api_msg_wait">در انتظار بررسی سرور…</string>
+    <string name="api_msg_error">مشکلی در بررسی پیش آمده.</string>
     <string name="status_resolved_threat">این تهدید با موفقیت برطرف شده است</string>
     <string name="status_uninstalled">حذف شده</string>
     <string name="status_offline">گزارش آفلاین</string>
@@ -238,6 +244,7 @@
     <string name="permission_battery_desc">برای اینکه اسکن در پس‌زمینه به درستی انجام شود و متوقف نشود، نیاز است بهینه‌سازی باتری برای این برنامه غیرفعال شود.</string>
     <string name="permission_notification_title">دسترسی به اعلان‌ها</string>
     <string name="permission_notification_desc">برای اطلاع از پایان اسکن و نتایج تحلیل امنیتی، نیاز است دسترسی ارسال اعلان را تایید کنید.</string>
+    <string name="permission_battery_xiaomi_desc">تنظیمات شیائومی ممکن است کمی دیر اعمال شوند. اگر «بدون محدودیت» را انتخاب کرده‌اید، می‌توانید ادامه دهید.</string>
     <string name="button_grant_permission">تایید و ادامه</string>
     <string name="button_later">بعداً</string>
 </resources>

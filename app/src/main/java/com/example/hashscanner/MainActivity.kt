@@ -95,6 +95,7 @@ class MainActivity : ComponentActivity() {
 
                 // --- Permission Handling State ---
                 var currentStep by rememberSaveable { mutableStateOf(PermissionStep.CHECKING) }
+                var batteryCheckInterrupted by rememberSaveable { mutableStateOf(false) }
 
                 val requestPermissionLauncher = rememberLauncherForActivityResult(
                     ActivityResultContracts.RequestPermission()
@@ -123,6 +124,11 @@ class MainActivity : ComponentActivity() {
                                     currentStep = currentStep,
                                     context = context,
                                     onStepChanged = { newStep ->
+                                        // If we are still stuck on BATTERY after returning, 
+                                        // set a flag to allow manual skip
+                                        if (newStep == PermissionStep.BATTERY && currentStep == PermissionStep.BATTERY) {
+                                            batteryCheckInterrupted = true
+                                        }
                                         currentStep = newStep
                                     }
                                 )
@@ -147,48 +153,60 @@ class MainActivity : ComponentActivity() {
                         containerColor = MaterialTheme.colorScheme.BackgroundColor
                     ) { innerPadding ->
 
-                            if (isReady) {
-                                NavGraph(
-                                    navController = navController,
-                                    startDestination = startDestination,
-                                    isChecking = isChecking,
-                                    appViewModel = appViewModel,
-                                    scannerViewModel = scannerViewModel,
-                                    appDatabaseViewModel = appDatabaseViewModel,
-                                    paddingValues = innerPadding,
-                                    onRetry = {
-                                        appViewModel.retry()
-                                    }
-                                )
-
-                                // Handle notification click navigation
-                                LaunchedEffect(initialScanId) {
-                                    initialScanId?.let { scanId ->
-                                        navController.navigate(Screens.Landing)
-                                        initialScanId = null
-                                    }
+                        if (isReady) {
+                            NavGraph(
+                                navController = navController,
+                                startDestination = startDestination,
+                                isChecking = isChecking,
+                                appViewModel = appViewModel,
+                                scannerViewModel = scannerViewModel,
+                                appDatabaseViewModel = appDatabaseViewModel,
+                                paddingValues = innerPadding,
+                                onRetry = {
+                                    appViewModel.retry()
                                 }
-                            } else {
-                                // Loading state to avoid blank screen while isReady is false
-                                Box(
-                                    modifier = Modifier.fillMaxSize(),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    CircularProgressIndicator(
-                                        color = MaterialTheme.colorScheme.primary,
-                                        modifier = Modifier.size(48.dp)
-                                    )
+                            )
+
+                            // Handle notification click navigation
+                            LaunchedEffect(initialScanId) {
+                                initialScanId?.let { scanId ->
+                                    navController.navigate(Screens.Landing)
+                                    initialScanId = null
                                 }
                             }
+                        } else {
+                            // Loading state to avoid blank screen while isReady is false
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                CircularProgressIndicator(
+                                    color = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.size(48.dp)
+                                )
+                            }
+                        }
 
-                            // Dialogs moved inside RTL provider and layered on top of content
-                            if (currentStep == PermissionStep.BATTERY) {
+                        // Dialogs moved inside RTL provider and layered on top of content
+                        when (currentStep) {
+                            PermissionStep.BATTERY -> {
                                 PermissionDialog(
                                     icon = Icons.Default.Warning,
                                     title = stringResource(R.string.permission_battery_title),
-                                    description = stringResource(R.string.permission_battery_desc),
+                                    description = if (batteryCheckInterrupted && PermissionUtils.isXiaomi())
+                                        stringResource(R.string.permission_battery_xiaomi_desc)
+                                    else stringResource(R.string.permission_battery_desc),
+                                    grantButtonText = stringResource(R.string.button_grant_permission),
                                     onGrant = {
-                                        requestIgnoreBatteryOptimizations(context)
+                                        if (batteryCheckInterrupted) {
+                                            // Force move to next step on Xiaomi/stuck cases
+                                            checkNotificationPermission(context) { needs ->
+                                                currentStep =
+                                                    if (needs) PermissionStep.NOTIFICATION else PermissionStep.NONE
+                                            }
+                                        } else {
+                                            requestIgnoreBatteryOptimizations(context)
+                                        }
                                     },
                                     onDismiss = {
                                         checkNotificationPermission(context) { needs ->
@@ -199,7 +217,7 @@ class MainActivity : ComponentActivity() {
                                 )
                             }
 
-                            if (currentStep == PermissionStep.NOTIFICATION) {
+                            PermissionStep.NOTIFICATION -> {
                                 PermissionDialog(
                                     icon = Icons.Default.Notifications,
                                     title = stringResource(R.string.permission_notification_title),
@@ -216,11 +234,14 @@ class MainActivity : ComponentActivity() {
                                     }
                                 )
                             }
+
+                            else -> {}
                         }
                     }
                 }
             }
         }
     }
+}
 
 

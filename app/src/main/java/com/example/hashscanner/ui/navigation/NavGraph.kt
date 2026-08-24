@@ -116,6 +116,7 @@ fun NavGraph(
                     navController = navController,
                     riskLevel = appList.riskLevel,
                     scanId = appList.scanId,
+                    showSystem = appList.showSystem,
                     databaseViewModel = appDatabaseViewModel
                 )
             }

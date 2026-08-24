@@ -4,6 +4,7 @@ import com.example.hashscanner.data.database.dao.AppDao
 import com.example.hashscanner.data.database.dao.PermissionDao
 import com.example.hashscanner.data.database.dao.ScanHistoryDao
 import com.example.hashscanner.data.database.dao.SuspiciousDao
+import com.example.hashscanner.data.model.api.ApiAppResult
 import com.example.hashscanner.data.model.db_entities.AppInfo
 import com.example.hashscanner.data.model.db_entities.PermissionInfo
 import com.example.hashscanner.data.model.db_entities.ScanHistory
@@ -73,6 +74,20 @@ class AppDatabaseRepo @Inject constructor(
     fun countCriticalAppsByScanId(scanId: String, onlyUser: Boolean = false) = appDao.countCriticalAppsByScanId(scanId, onlyUser)
 
     suspend fun markAsDeleted(pkg: String, scanId: String) = appDao.markAsDeleted(pkg, scanId)
+
+    suspend fun updateAppVerdict(pkg: String, scanId: String, result: String, action: String) = 
+        appDao.updateAppVerdict(pkg, scanId, result, action)
+
+    suspend fun promoteAppsToServerStatus(scanId: String, apiAppResults: List<ApiAppResult>) {
+        apiAppResults.forEach { apiApp ->
+            appDao.updateAppVerdict(
+                pkg = apiApp.packageName,
+                scanId = scanId,
+                result = apiApp.result,
+                action = apiApp.action
+            )
+        }
+    }
 
     // PermissionDao Functions
     suspend fun insertPermission(permission: PermissionInfo) = permissionDao.insert(permission)

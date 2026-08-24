@@ -18,6 +18,7 @@ fun AppListScreen(
     navController: NavController,
     riskLevel: com.example.hashscanner.ui.ui_utils.RiskLevelsUI,
     scanId: String? = null,
+    showSystem: Boolean = false,
     databaseViewModel: AppDatabaseViewModel
 ) {
 
@@ -25,7 +26,7 @@ fun AppListScreen(
     Scaffold(
         topBar = {
             AppTopBar(
-                topBarText = stringResource(R.string.topbar_title_suspicious_apps),
+                topBarText = stringResource(R.string.topbar_title_apps),
                 onClick = {
                     navController.popBackStack()
                 }
@@ -37,13 +38,13 @@ fun AppListScreen(
                 initialRiskLevel = riskLevel,
                 scanId = scanId,
                 databaseViewModel = databaseViewModel,
+                showSystem = showSystem,
                 onAppClick = { packageName ->
                     navController.navigate(Screens.AppDetails(packageName, scanId))
                 }
             )
         }
     )
-
 }
 
 @Preview(showBackground = true)
@@ -53,7 +54,8 @@ fun AppListScreenPreview() {
         AppListContent(
             paddingValues = androidx.compose.foundation.layout.PaddingValues(16.dp),
             currentApps = emptyList(),
-            onAppClick = {}
+            onAppClick = {},
+            isReady = true
         )
     }
 }

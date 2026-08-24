@@ -44,11 +44,11 @@ fun ApiAppResultCard(
 
 
     val actions = when(apiAppResult.action){
-        "NONE" -> "این برنامه بررسی شد و سالم است."
-        "DELETE"-> "ویروس شناسایی شد. لطفا این برنامه را حذف کنید."
-        "UPLOAD_APK"-> "این برنامه مشکوک است. لطفا برای بررسی بیشتر فایل برنامه را ارسال کنید."
-        "WAIT"-> "در انتظار بررسی سرور..."
-        else -> "مشکلی در بررسی پیش آمده."
+        "NONE" -> stringResource(R.string.api_msg_safe)
+        "DELETE"-> stringResource(R.string.api_msg_virus)
+        "UPLOAD_APK"-> stringResource(R.string.api_msg_suspicious)
+        "WAIT"-> stringResource(R.string.api_msg_wait)
+        else -> stringResource(R.string.api_msg_error)
     }
 
 

@@ -2,25 +2,27 @@ package com.example.hashscanner.ui.screens.risk_level_list
 
 import android.content.Intent
 import android.widget.Toast
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.grid.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Warning
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -37,10 +39,13 @@ import com.example.hashscanner.ui.theme.RedColor
 import com.example.hashscanner.ui.theme.StrongYellowColor
 import com.example.hashscanner.ui.theme.spacing
 import com.example.hashscanner.ui.screens.scan_details.ScanDetailRiskCard
+import com.example.hashscanner.ui.screens.scan_details.SourceOfTruthChip
 import com.example.hashscanner.ui.ui_utils.AppTopBar
 import com.example.hashscanner.ui.ui_utils.RiskLevelItem
 import com.example.hashscanner.ui.ui_utils.RiskLevelsUI
 import com.example.hashscanner.utils.Constants
+import com.example.hashscanner.data.model.db_entities.AnalysisStatus
+import com.example.hashscanner.data.model.db_entities.ScanHistory
 import com.example.hashscanner.viewmodel.AppDatabaseViewModel
 
 @Composable
@@ -49,25 +54,34 @@ fun RiskLevelListScreen(
     scanId: String? = null,
     databaseViewModel: AppDatabaseViewModel
 ) {
+    var showSystemApps by rememberSaveable { mutableStateOf(false) }
     val lastScan by databaseViewModel.lastScan.collectAsStateWithLifecycle(initialValue = null)
+    val scanHistoryList by databaseViewModel.scanHistory.collectAsStateWithLifecycle(emptyList())
     val currentScanId = scanId ?: lastScan?.id
+
+    val scanDetails = remember(scanHistoryList, currentScanId) {
+        scanHistoryList.find { it.id == currentScanId }
+    }
+
     val safeCount by databaseViewModel.safeAppsCount.collectAsStateWithLifecycle(initialValue = 0)
     val lowCount by databaseViewModel.lowRiskAppsCount.collectAsStateWithLifecycle(initialValue = 0)
     val mediumCount by databaseViewModel.mediumRiskAppsCount.collectAsStateWithLifecycle(initialValue = 0)
     val highCount by databaseViewModel.highRiskAppsCount.collectAsStateWithLifecycle(initialValue = 0)
     val criticalCount by databaseViewModel.criticalAppsCount.collectAsStateWithLifecycle(initialValue = 0)
 
-    LaunchedEffect(currentScanId) {
+    LaunchedEffect(currentScanId, showSystemApps) {
         if (currentScanId != null) {
             databaseViewModel.apply {
-                countSafeApps(scanId = currentScanId, onlyUser = true)
-                countLowRiskApps(scanId = currentScanId, onlyUser = true)
-                countMediumRiskApps(scanId = currentScanId, onlyUser = true)
-                countHighRiskApps(scanId = currentScanId, onlyUser = true)
-                countCriticalApps(scanId = currentScanId, onlyUser = true)
+                countSafeApps(scanId = currentScanId, onlyUser = !showSystemApps)
+                countLowRiskApps(scanId = currentScanId, onlyUser = !showSystemApps)
+                countMediumRiskApps(scanId = currentScanId, onlyUser = !showSystemApps)
+                countHighRiskApps(scanId = currentScanId, onlyUser = !showSystemApps)
+                countCriticalApps(scanId = currentScanId, onlyUser = !showSystemApps)
             }
         }
     }
+
+    val isReady = scanDetails?.analysisStatus == AnalysisStatus.COMPLETED.name
 
     RiskLevelListContent(
         paddingValues = PaddingValues(),
@@ -76,6 +90,9 @@ fun RiskLevelListScreen(
         mediumCount = mediumCount,
         highCount = highCount,
         criticalCount = criticalCount,
+        isReady = isReady,
+        showSystemApps = showSystemApps,
+        onToggleSystemApps = { showSystemApps = !showSystemApps },
         onRobotClick = { context ->
             try {
                 val intent = Intent(Intent.ACTION_VIEW, Constants.BALE_BOT_URL.toUri())
@@ -89,7 +106,7 @@ fun RiskLevelListScreen(
             }
         },
         onRiskLevelClick = { item ->
-            navController.navigate(Screens.AppList(item.riskLevel, currentScanId))
+            navController.navigate(Screens.AppList(item.riskLevel, currentScanId, showSystemApps))
         },
         onBackClick = {
             navController.popBackStack()
@@ -105,6 +122,9 @@ fun RiskLevelListContent(
     mediumCount: Int,
     highCount: Int,
     criticalCount: Int,
+    isReady: Boolean,
+    showSystemApps: Boolean,
+    onToggleSystemApps: () -> Unit,
     onRobotClick: (android.content.Context) -> Unit,
     onRiskLevelClick: (RiskLevelItem) -> Unit,
     onBackClick: () -> Unit
@@ -157,8 +177,18 @@ fun RiskLevelListContent(
         containerColor = MaterialTheme.colorScheme.BackgroundColor,
         topBar = {
             AppTopBar(
-                topBarText = stringResource(R.string.topbar_title_suspicious_apps),
-                onClick = onBackClick
+                topBarText = stringResource(R.string.topbar_title_apps),
+                onClick = onBackClick,
+                actions = {
+                    IconButton(onClick = onToggleSystemApps) {
+                        Image(
+                            painter = if (showSystemApps) painterResource(R.drawable.system_apps_dark) else painterResource(R.drawable.system_apps_light),
+                            contentDescription = "Toggle System Apps",
+                            modifier = Modifier
+                                .size(MaterialTheme.spacing.dp32)
+                        )
+                    }
+                }
             )
         }
     ) { innerPadding ->
@@ -171,6 +201,10 @@ fun RiskLevelListContent(
             horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.dp16),
             verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.dp16)
         ) {
+            item(span = { GridItemSpan(2) }) {
+                SourceOfTruthChip(isReady = isReady)
+            }
+
             items(riskLevels) { item ->
                 ScanDetailRiskCard(
                     item = item,
@@ -196,7 +230,10 @@ fun RiskLevelListScreenPreview() {
             criticalCount = 0,
             onRobotClick = {},
             onRiskLevelClick = {},
-            onBackClick = {}
+            onBackClick = {},
+            isReady = true,
+            showSystemApps = false,
+            onToggleSystemApps = {}
         )
     }
 }

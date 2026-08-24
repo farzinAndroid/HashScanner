@@ -2,6 +2,8 @@ package com.example.hashscanner.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.hashscanner.data.model.api.ApiAppResult
+import com.example.hashscanner.data.model.db_entities.AnalysisStatus
 import com.example.hashscanner.data.model.db_entities.AppInfo
 import com.example.hashscanner.data.model.db_entities.PermissionInfo
 import com.example.hashscanner.data.model.db_entities.ScanHistory
@@ -9,10 +11,12 @@ import com.example.hashscanner.data.model.db_entities.SuspiciousApp
 import com.example.hashscanner.repository.AppDatabaseRepo
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -451,4 +455,17 @@ class AppDatabaseViewModel @Inject constructor(
     fun updateLastNotifiedStage(scanId: String, stage: String) = viewModelScope.launch(Dispatchers.IO) {
         appDataBaseRepo.updateLastNotifiedStage(scanId, stage)
     }
+
+    // --- Sync Logic ---
+
+    fun promoteAppsToServerStatus(scanId: String, apiAppResults: List<ApiAppResult>) =
+        viewModelScope.launch(Dispatchers.IO) {
+            appDataBaseRepo.promoteAppsToServerStatus(scanId, apiAppResults)
+        }
+
+    // This flag determines if the results are final/verified
+    fun isScanComplete(scanId: String): Flow<Boolean> =
+        appDataBaseRepo.getPendingScans(AnalysisStatus.COMPLETED.name).map { scans ->
+            scans.any { it.id == scanId }
+        }
 }
