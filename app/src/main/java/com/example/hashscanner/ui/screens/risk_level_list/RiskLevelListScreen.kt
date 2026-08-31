@@ -2,50 +2,56 @@ package com.example.hashscanner.ui.screens.risk_level_list
 
 import android.content.Intent
 import android.widget.Toast
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.grid.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Warning
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.outlined.Settings
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.core.net.toUri
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.example.hashscanner.ui.theme.HashScannerTheme
 import androidx.navigation.NavController
 import com.example.hashscanner.R
+import com.example.hashscanner.data.model.db_entities.AnalysisStatus
 import com.example.hashscanner.ui.navigation.Screens
-import com.example.hashscanner.ui.theme.AccentPurpleColor
+import com.example.hashscanner.ui.screens.scan_details.ScanDetailRiskCard
+import com.example.hashscanner.ui.screens.scan_details.SourceOfTruthChip
 import com.example.hashscanner.ui.theme.BackgroundColor
 import com.example.hashscanner.ui.theme.GreenColor
+import com.example.hashscanner.ui.theme.HashScannerTheme
 import com.example.hashscanner.ui.theme.RedColor
 import com.example.hashscanner.ui.theme.StrongYellowColor
 import com.example.hashscanner.ui.theme.spacing
-import com.example.hashscanner.ui.screens.scan_details.ScanDetailRiskCard
-import com.example.hashscanner.ui.screens.scan_details.SourceOfTruthChip
 import com.example.hashscanner.ui.ui_utils.AppTopBar
 import com.example.hashscanner.ui.ui_utils.RiskLevelItem
 import com.example.hashscanner.ui.ui_utils.RiskLevelsUI
 import com.example.hashscanner.utils.Constants
-import com.example.hashscanner.data.model.db_entities.AnalysisStatus
-import com.example.hashscanner.data.model.db_entities.ScanHistory
 import com.example.hashscanner.viewmodel.AppDatabaseViewModel
 
 @Composable
@@ -181,27 +187,25 @@ fun RiskLevelListContent(
                 onClick = onBackClick,
                 actions = {
                     IconButton(onClick = onToggleSystemApps) {
-                        Image(
-                            painter = if (showSystemApps) painterResource(R.drawable.system_apps_dark) else painterResource(R.drawable.system_apps_light),
+                        Icon(
+                            imageVector = if (showSystemApps) Icons.Default.Build else Icons.Default.Person,
                             contentDescription = "Toggle System Apps",
-                            modifier = Modifier
-                                .size(MaterialTheme.spacing.dp32)
+                            tint = Color.White,
+                            modifier = Modifier.size(24.dp)
                         )
                     }
                 }
             )
         }
     ) { innerPadding ->
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
+        LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding),
             contentPadding = PaddingValues(MaterialTheme.spacing.dp16),
-            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.dp16),
             verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.dp16)
         ) {
-            item(span = { GridItemSpan(2) }) {
+            item {
                 SourceOfTruthChip(isReady = isReady)
             }
 
@@ -232,7 +236,7 @@ fun RiskLevelListScreenPreview() {
             onRiskLevelClick = {},
             onBackClick = {},
             isReady = true,
-            showSystemApps = false,
+            showSystemApps = true,
             onToggleSystemApps = {}
         )
     }
