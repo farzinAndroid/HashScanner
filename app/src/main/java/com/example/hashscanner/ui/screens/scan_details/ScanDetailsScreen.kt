@@ -262,6 +262,17 @@ fun ScanDetailsContent(
         Pair(byHash, byPkg)
     }
 
+    val finalizedAppResults = remember(data) {
+        val initial = data?.initialReport?.apps ?: emptyList()
+        val uploaded = data?.uploadedApks?.apps ?: emptyList()
+
+        // Merge logic: Uploaded results override initial results for the same package
+        val masterMap = initial.associateBy { it.packageName }.toMutableMap()
+        uploaded.forEach { masterMap[it.packageName] = it }
+
+        masterMap.values.toList()
+    }
+
 
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
@@ -343,7 +354,7 @@ fun ScanDetailsContent(
         }
 
         // --- Verified App List (Conditional Layer) ---
-        if (isReady && data?.initialReport?.apps?.isNotEmpty() == true) {
+        if (isReady && finalizedAppResults.isNotEmpty()) {
             item(span = { GridItemSpan(2) }) {
                 Text(
                     text = stringResource(R.string.api_analysis_results_title),
@@ -353,7 +364,7 @@ fun ScanDetailsContent(
                     modifier = Modifier.padding(top = 8.dp)
                 )
             }
-            items(data.initialReport.apps, span = { GridItemSpan(2) }) { apiApp ->
+            items(finalizedAppResults, span = { GridItemSpan(2) }) { apiApp ->
                 val matchingDbApp = dbAppMap.first[apiApp.sha256] ?: dbAppMap.second[apiApp.packageName]
                 ApiAppResultCard(
                     apiAppResult = apiApp,

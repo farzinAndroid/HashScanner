@@ -85,11 +85,13 @@ fun ApiProgressCard(
                     ) {
                         Text(
                             text = stringResource(R.string.report_label_checked_count, DigitHelper.digitByLang(checked.toString())),
-                            style = MaterialTheme.typography.labelSmall
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.BlackWhiteColor
                         )
                         Text(
                             text = stringResource(R.string.report_label_remaining_count, DigitHelper.digitByLang(pending.toString())),
-                            style = MaterialTheme.typography.labelSmall
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.BlackWhiteColor
                         )
                     }
                 }
