@@ -190,7 +190,7 @@ class ScannerViewModel @Inject constructor(
             while (isActive) {
                 Log.d(Constants.TAG, "Contextual Polling: $scanId")
                 handlePollingResult(scanId, scanResultModel)
-                delay(3000L.milliseconds)
+                delay(5000L.milliseconds)
             }
         }
     }
@@ -241,10 +241,18 @@ class ScannerViewModel @Inject constructor(
 
                 if (data.ready) {
                     // --- SYNC PROMOTION ---
-                    // Every time results are ready, we push them into our local apps table
+                    // 1. Sync apps from initial automated checks
                     data.initialReport?.let { report ->
                         appDatabaseRepo.promoteAppsToServerStatus(scanId, report.apps)
                     }
+
+                    // 2. Sync apps that were uploaded and reviewed (Manual or Requested)
+                    data.uploadedApks?.let { uploaded ->
+                        if (uploaded.apps.isNotEmpty()) {
+                            appDatabaseRepo.promoteAppsToServerStatus(scanId, uploaded.apps)
+                        }
+                    }
+                    // ----------------------
 
                     val currentStage = data.stage
                     val uploadedSummary = data.uploadedApks?.summary

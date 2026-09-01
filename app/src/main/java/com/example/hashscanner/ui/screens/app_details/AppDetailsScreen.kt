@@ -39,6 +39,7 @@ import com.example.hashscanner.ui.theme.*
 import com.example.hashscanner.ui.ui_utils.AppTopBar
 import com.example.hashscanner.utils.Constants
 import com.example.hashscanner.utils.DateTimeUtils
+import com.example.hashscanner.utils.PackageUtils
 import com.example.hashscanner.viewmodel.AppDatabaseViewModel
 import com.example.hashscanner.viewmodel.ScannerViewModel
 
@@ -139,7 +140,7 @@ fun AppDetailsScreen(
     val uninstallLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult(),
         onResult = { _ ->
-            if (!isPackageInstalled(context, packageName)) {
+            if (!PackageUtils.isPackageInstalled(context, packageName)) {
                 appDetails?.let {
                     databaseViewModel.markAsDeleted(it.packageName, it.scanId)
                     Toast.makeText(context, R.string.app_uninstalled_successfully, Toast.LENGTH_SHORT).show()
@@ -168,6 +169,7 @@ fun AppDetailsScreen(
                     AppDetailsBottomBar(
                         isSystem = app.isSystem,
                         isUploaded = app.apkUploaded,
+                        isServerVerified = app.isServerVerified,
                         isLoading = isLoading,
                         isDeleted = app.isDeleted,
                         apiAction = apiAppResult?.action,
@@ -259,14 +261,5 @@ fun AppDetailsScreenPreview() {
             paddingValues = PaddingValues(16.dp),
             appInfo = null
         )
-    }
-}
-
-private fun isPackageInstalled(context: Context, packageName: String): Boolean {
-    return try {
-        context.packageManager.getPackageInfo(packageName, 0)
-        true
-    } catch (e: PackageManager.NameNotFoundException) {
-        false
     }
 }

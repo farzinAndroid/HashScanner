@@ -37,6 +37,7 @@ import com.example.hashscanner.ui.theme.spacing
 fun AppDetailsBottomBar(
     isSystem: Boolean = false,
     isUploaded: Boolean = false,
+    isServerVerified: Boolean = false,
     isLoading: Boolean = false,
     isDeleted: Boolean = false,
     apiAction: String? = null,
@@ -103,28 +104,28 @@ fun AppDetailsBottomBar(
                 }
             }
 
-            // UPLOAD BUTTON
-                if (isUploaded) {
-                    Row(
-                        modifier = Modifier.weight(1f),
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            Icons.Default.CheckCircle,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.GreenColor
-                        )
-                        Spacer(modifier = Modifier.width(MaterialTheme.spacing.dp8))
-                        Text(
-                            text = stringResource(R.string.apk_already_uploaded),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.GreenColor,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                } else {
-                    Button(
+            // UPLOAD BUTTON / STATUS
+            if (isUploaded) {
+                Row(
+                    modifier = Modifier.weight(1f),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = if (isServerVerified) Icons.Default.CheckCircle else Icons.Default.Info,
+                        contentDescription = null,
+                        tint = if (isServerVerified) MaterialTheme.colorScheme.GreenColor else MaterialTheme.colorScheme.AccentPurpleColor
+                    )
+                    Spacer(modifier = Modifier.width(MaterialTheme.spacing.dp8))
+                    Text(
+                        text = stringResource(R.string.apk_already_uploaded),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = if (isServerVerified) MaterialTheme.colorScheme.GreenColor else MaterialTheme.colorScheme.AccentPurpleColor,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            } else {
+                Button(
                         onClick = onUploadApkClicked,
                         modifier = Modifier.weight(1f),
                         enabled = !isLoading,
@@ -145,7 +146,8 @@ fun AppDetailsBottomBar(
                             Spacer(modifier = Modifier.width(MaterialTheme.spacing.dp8))
                             Text(
                                 text = stringResource(R.string.button_send_apk_file),
-                                fontWeight = FontWeight.Bold
+                                fontWeight = FontWeight.Bold,
+                                style = MaterialTheme.typography.labelMedium
                             )
                         }
                     }

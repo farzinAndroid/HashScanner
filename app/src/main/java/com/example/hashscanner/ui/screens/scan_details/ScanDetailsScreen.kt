@@ -1,7 +1,12 @@
 package com.example.hashscanner.ui.screens.scan_details
 
+import android.content.Intent
+import android.net.Uri
+import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -39,7 +44,6 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.hashscanner.R
 import com.example.hashscanner.data.model.api.ApiAppResult
-import com.example.hashscanner.data.model.api.App
 import com.example.hashscanner.data.model.api.FinalReport
 import com.example.hashscanner.data.model.api.FinalSummary
 import com.example.hashscanner.data.model.api.InitialReport
@@ -63,6 +67,7 @@ import com.example.hashscanner.ui.ui_utils.AppTopBar
 import com.example.hashscanner.ui.ui_utils.RiskLevelsUI
 import com.example.hashscanner.utils.Constants
 import com.example.hashscanner.utils.DateTimeUtils
+import com.example.hashscanner.utils.PackageUtils
 import com.example.hashscanner.viewmodel.AppDatabaseViewModel
 import com.example.hashscanner.viewmodel.ScannerViewModel
 
@@ -83,8 +88,22 @@ fun ScanDetailsScreen(
     }
 
     var appDetailsByClickUpload by remember { mutableStateOf<AppInfo?>(null) }
+    var appToDelete by remember { mutableStateOf<AppInfo?>(null) }
 
     val context = LocalContext.current
+
+    val uninstallLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult(),
+        onResult = { _ ->
+            appToDelete?.let { app ->
+                if (!PackageUtils.isPackageInstalled(context, app.packageName)) {
+                    databaseViewModel.markAsDeleted(app.packageName, app.scanId)
+                    Toast.makeText(context, R.string.app_uninstalled_successfully, Toast.LENGTH_SHORT).show()
+                    databaseViewModel.getAllApps(app.scanId)
+                }
+            }
+        }
+    )
 
 
     val data = (scanResult as? NetworkResult.Success)?.data
@@ -169,7 +188,7 @@ fun ScanDetailsScreen(
         } else {
             ScanDetailsContent(
                 paddingValues = paddingValues,
-                scan = scanDetails,
+                scanDetails = scanDetails,
                 scanResult = scanResult,
                 navController = navController,
                 onRiskLevelClick = { riskLevel ->
@@ -189,6 +208,28 @@ fun ScanDetailsScreen(
                         sha256 = app.sha256,
                         scanId = app.scanId
                     )
+                },
+                onApkDeleteClicked = { app ->
+                    appToDelete = app
+                    try {
+                        if (app.isSystem) {
+                            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                                this.data = Uri.parse("package:${app.packageName}")
+                            }
+                            context.startActivity(intent)
+                        } else {
+                            val intent = Intent(Intent.ACTION_DELETE).apply {
+                                this.data = Uri.parse("package:${app.packageName}")
+                            }
+                            uninstallLauncher.launch(intent)
+                        }
+                    } catch (_: Exception) {
+                        Toast.makeText(
+                            context,
+                            context.getString(R.string.error_action_not_supported),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
                 }
             )
         }
@@ -198,7 +239,7 @@ fun ScanDetailsScreen(
 @Composable
 fun ScanDetailsContent(
     paddingValues: PaddingValues,
-    scan: ScanHistory,
+    scanDetails: ScanHistory,
     scanResult: NetworkResult<ScanResultResponse>,
     navController: NavController,
     onRiskLevelClick: (RiskLevelsUI) -> Unit,
@@ -207,9 +248,10 @@ fun ScanDetailsContent(
     stage: String,
     isComplete: Boolean,
     allAppsFromDB: List<AppInfo>,
-    onApkUploadClicked:(app:AppInfo)-> Unit
+    onApkUploadClicked: (app: AppInfo) -> Unit,
+    onApkDeleteClicked: (app: AppInfo) -> Unit
 ) {
-    val totalSuspicious = scan.highRisk + scan.criticalRisk
+    val totalSuspicious = scanDetails.highRisk + scanDetails.criticalRisk
     val resultColor =
         if (totalSuspicious > 0) MaterialTheme.colorScheme.RedColor else MaterialTheme.colorScheme.GreenColor
 
@@ -238,7 +280,7 @@ fun ScanDetailsContent(
         // --- Header Section (Persistent Layer) ---
         item(span = { GridItemSpan(2) }) {
             ScanDetailHeader(
-                scan = scan,
+                scan = scanDetails,
                 serverSusAppCount = data?.initialReport?.summary?.suspicious,
                 serverVirusAppCount = data?.initialReport?.summary?.virus
             )
@@ -316,8 +358,15 @@ fun ScanDetailsContent(
                 ApiAppResultCard(
                     apiAppResult = apiApp,
                     matchingDbApp = matchingDbApp,
+                    scanId = scanDetails.id,
                     onUploadClicked = {app->
                         onApkUploadClicked(app)
+                    },
+                    onDeleteClicked = { app ->
+                        onApkDeleteClicked(app)
+                    },
+                    onCardClicked = { packageName, scanId ->
+                        navController.navigate(Screens.AppDetails(packageName, scanId))
                     }
                 )
             }
@@ -354,16 +403,16 @@ fun ScanDetailsContent(
             ScanDetailAppListEntry(
                 serverSusAppCount = data?.initialReport?.summary?.suspicious,
                 serverVirusAppCount = data?.initialReport?.summary?.virus,
-                localSusAppCount = scan.lowRisk + scan.mediumRisk + scan.highRisk + scan.criticalRisk
+                localSusAppCount = scanDetails.lowRisk + scanDetails.mediumRisk + scanDetails.highRisk + scanDetails.criticalRisk
             ) {
-                navController.navigate(Screens.RiskLevelList(scanId = scan.id))
+                navController.navigate(Screens.RiskLevelList(scanId = scanDetails.id))
             }
         }
 
         // --- Metadata Section (Persistent Layer) ---
         item(span = { GridItemSpan(2) }) {
             ScanDetailDataSection(
-                scan = scan,
+                scan = scanDetails,
                 serverSafeAppCount = data?.initialReport?.summary?.safe,
                 serverVirusAppCount = data?.initialReport?.summary?.virus,
                 serverSusAppCount = data?.initialReport?.summary?.suspicious
@@ -402,7 +451,7 @@ fun LocalStatePreview() {
     HashScannerTheme {
         ScanDetailsContent(
             paddingValues = PaddingValues(0.dp),
-            scan = mockScan,
+            scanDetails = mockScan,
             scanResult = NetworkResult.Idle(),
             navController = rememberNavController(),
             onRiskLevelClick = {},
@@ -411,7 +460,8 @@ fun LocalStatePreview() {
             stage = "",
             isComplete = false,
             allAppsFromDB = emptyList(),
-            onApkUploadClicked = {}
+            onApkUploadClicked = {},
+            onApkDeleteClicked = {}
         )
     }
 }
@@ -451,7 +501,7 @@ fun InitialStatePreview() {
         )
         ScanDetailsContent(
             paddingValues = PaddingValues(0.dp),
-            scan = mockScan,
+            scanDetails = mockScan,
             scanResult = NetworkResult.Success(
                 message = "Success",
                 data = initialData
@@ -463,7 +513,8 @@ fun InitialStatePreview() {
             stage = "INITIAL_READY",
             isComplete = false,
             allAppsFromDB = emptyList(),
-            onApkUploadClicked = {}
+            onApkUploadClicked = {},
+            onApkDeleteClicked = {}
         )
     }
 }
@@ -507,7 +558,7 @@ fun ApkStatePreview() {
         )
         ScanDetailsContent(
             paddingValues = PaddingValues(0.dp),
-            scan = mockScan,
+            scanDetails = mockScan,
             scanResult = NetworkResult.Success(
                 message = "Success",
                 data = apkData
@@ -519,7 +570,8 @@ fun ApkStatePreview() {
             stage = "INITIAL_READY",
             isComplete = false,
             allAppsFromDB = emptyList(),
-            onApkUploadClicked = {}
+            onApkUploadClicked = {},
+            onApkDeleteClicked = {}
         )
     }
 }
@@ -539,7 +591,7 @@ fun CompleteStatePreview() {
         )
         ScanDetailsContent(
             paddingValues = PaddingValues(0.dp),
-            scan = mockScan,
+            scanDetails = mockScan,
             scanResult = NetworkResult.Success(
                 message = "Success",
                 data = completeData
@@ -551,7 +603,8 @@ fun CompleteStatePreview() {
             stage = "COMPLETE",
             isComplete = true,
             allAppsFromDB = emptyList(),
-            onApkUploadClicked = {}
+            onApkUploadClicked = {},
+            onApkDeleteClicked = {}
         )
     }
 }
