@@ -38,21 +38,31 @@ fun AppCard(
 ) {
     val iconBitmap = IconConverter.byteArrayToBitmap(appInfo.iconData)
 
-    val riskColor = when (appInfo.riskLevel) {
+    val effectiveLevel = when {
+        appInfo.isServerVerified -> when (appInfo.serverResult) {
+            "SAFE" -> RiskLevels.SAFE.toString()
+            "SUSPICIOUS" -> RiskLevels.HIGH.toString()
+            "VIRUS" -> RiskLevels.CRITICAL.toString()
+            else -> appInfo.riskLevel
+        }
+        else -> appInfo.riskLevel
+    }
+
+    val riskColor = when (effectiveLevel) {
         RiskLevels.LOW.toString(), RiskLevels.SAFE.toString() -> MaterialTheme.colorScheme.GreenColor
         RiskLevels.MEDIUM.toString() -> MaterialTheme.colorScheme.YellowColor
         RiskLevels.HIGH.toString(), RiskLevels.CRITICAL.toString() -> MaterialTheme.colorScheme.RedColor
         else -> Color.Transparent
     }
     
-    val riskBorderColor = when (appInfo.riskLevel) {
+    val riskBorderColor = when (effectiveLevel) {
         RiskLevels.LOW.toString(), RiskLevels.SAFE.toString() -> MaterialTheme.colorScheme.GreenColor
         RiskLevels.MEDIUM.toString() -> MaterialTheme.colorScheme.StrongYellowColor
         RiskLevels.HIGH.toString(), RiskLevels.CRITICAL.toString() -> MaterialTheme.colorScheme.RedColor
         else -> Color.Transparent
     }
 
-    val riskText = when (appInfo.riskLevel) {
+    val riskText = when (effectiveLevel) {
         RiskLevels.LOW.toString() -> stringResource(R.string.badge_risk_level_low)
         RiskLevels.MEDIUM.toString() -> stringResource(R.string.badge_risk_level_medium)
         RiskLevels.HIGH.toString() -> stringResource(R.string.badge_risk_level_high)

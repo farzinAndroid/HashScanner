@@ -78,8 +78,17 @@ fun AppHeaderSection(
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                 fontWeight = FontWeight.Bold
             )
+            val effectiveLevel = when {
+                appInfo.isServerVerified -> when (appInfo.serverResult) {
+                    "SAFE" -> com.example.hashscanner.data.model.other.RiskLevels.SAFE.toString()
+                    "SUSPICIOUS" -> com.example.hashscanner.data.model.other.RiskLevels.HIGH.toString()
+                    "VIRUS" -> com.example.hashscanner.data.model.other.RiskLevels.CRITICAL.toString()
+                    else -> appInfo.riskLevel
+                }
+                else -> appInfo.riskLevel
+            }
             Spacer(modifier = Modifier.height(MaterialTheme.spacing.dp8))
-            RiskBadge(appInfo.riskLevel)
+            RiskBadge(effectiveLevel)
         }
     }
 }

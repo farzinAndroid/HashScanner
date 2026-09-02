@@ -1,6 +1,7 @@
 package com.example.hashscanner.ui.screens.app_details
 
 import android.text.format.Formatter
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -178,12 +179,22 @@ fun TechnicalDetailsCard(
                 else -> Icons.Default.Notifications
             }
 
+
+            val actions = when (apiAction) {
+                "NONE" -> stringResource(R.string.api_msg_safe)
+                "DELETE" -> stringResource(R.string.api_msg_virus)
+                "UPLOAD_APK" -> stringResource(R.string.api_msg_suspicious)
+                "WAIT" -> stringResource(R.string.api_msg_wait)
+                else -> stringResource(R.string.api_msg_error)
+            }
+
             DetailRow(
                 icon = { Icon(actionIcon, contentDescription = null, tint = actionColor) },
                 label = actionLabel,
                 valueComposable = {
+
                     Text(
-                        text = apiMessage ?: stringResource(R.string.api_action_result_ready),
+                        text = actions,
                         color = actionColor,
                         style = MaterialTheme.typography.bodySmall,
                         fontWeight = FontWeight.SemiBold,
