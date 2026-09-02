@@ -6,6 +6,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
+import com.example.hashscanner.data.model.api.ApiAppResult
 import com.example.hashscanner.data.model.db_entities.AppInfo
 import kotlinx.coroutines.flow.Flow
 
@@ -48,19 +49,58 @@ interface AppDao {
     @Query("SELECT * FROM apps WHERE suspicious=1 AND scanId = :scanId")
     fun getSuspiciousByScanId(scanId: String): Flow<List<AppInfo>>
 
-    @Query("SELECT * FROM apps WHERE riskLevel='SAFE' AND scanId = :scanId AND (:onlyUser = 0 OR isSystem = 0)")
+    @Query("""
+        SELECT * FROM apps 
+        WHERE scanId = :scanId 
+        AND (:onlyUser = 0 OR isSystem = 0)
+        AND (
+            (isServerVerified = 1 AND serverResult = 'SAFE') OR 
+            (isServerVerified = 0 AND riskLevel = 'SAFE')
+        )
+        ORDER BY appName ASC
+    """)
     fun getSafeAppsByScanId(scanId: String, onlyUser: Boolean = false): Flow<List<AppInfo>>
 
-    @Query("SELECT * FROM apps WHERE riskLevel='LOW' AND scanId = :scanId AND (:onlyUser = 0 OR isSystem = 0)")
+    @Query("""
+        SELECT * FROM apps 
+        WHERE scanId = :scanId 
+        AND (:onlyUser = 0 OR isSystem = 0)
+        AND (isServerVerified = 0 AND riskLevel = 'LOW')
+        ORDER BY appName ASC
+    """)
     fun getLowRiskAppsByScanId(scanId: String, onlyUser: Boolean = false): Flow<List<AppInfo>>
 
-    @Query("SELECT * FROM apps WHERE riskLevel='MEDIUM' AND scanId = :scanId AND (:onlyUser = 0 OR isSystem = 0)")
+    @Query("""
+        SELECT * FROM apps 
+        WHERE scanId = :scanId 
+        AND (:onlyUser = 0 OR isSystem = 0)
+        AND (isServerVerified = 0 AND riskLevel = 'MEDIUM')
+        ORDER BY appName ASC
+    """)
     fun getMediumRiskAppsByScanId(scanId: String, onlyUser: Boolean = false): Flow<List<AppInfo>>
 
-    @Query("SELECT * FROM apps WHERE riskLevel='HIGH' AND scanId = :scanId AND (:onlyUser = 0 OR isSystem = 0)")
+    @Query("""
+        SELECT * FROM apps 
+        WHERE scanId = :scanId 
+        AND (:onlyUser = 0 OR isSystem = 0)
+        AND (
+            (isServerVerified = 1 AND serverResult = 'SUSPICIOUS') OR 
+            (isServerVerified = 0 AND riskLevel = 'HIGH')
+        )
+        ORDER BY appName ASC
+    """)
     fun getHighRiskAppsByScanId(scanId: String, onlyUser: Boolean = false): Flow<List<AppInfo>>
 
-    @Query("SELECT * FROM apps WHERE riskLevel='CRITICAL' AND scanId = :scanId AND (:onlyUser = 0 OR isSystem = 0)")
+    @Query("""
+        SELECT * FROM apps 
+        WHERE scanId = :scanId 
+        AND (:onlyUser = 0 OR isSystem = 0)
+        AND (
+            (isServerVerified = 1 AND serverResult = 'VIRUS') OR 
+            (isServerVerified = 0 AND riskLevel = 'CRITICAL')
+        )
+        ORDER BY appName ASC
+    """)
     fun getCriticalAppsByScanId(scanId: String, onlyUser: Boolean = false): Flow<List<AppInfo>>
 
     @Query("SELECT * FROM apps WHERE scanId = :scanId ORDER BY riskScore DESC")
@@ -128,14 +168,26 @@ interface AppDao {
         SET isServerVerified = 1, 
             serverResult = :result, 
             serverAction = :action
-        WHERE packageName = :pkg AND scanId = :scanId
+        WHERE packageName = :pkg AND scanId = :scanId AND (isServerVerified = 0 OR serverResult != :result OR serverAction != :action)
     """)
     suspend fun updateAppVerdict(
-        pkg: String, 
+        pkg: String,
         scanId: String, 
         result: String, 
         action: String
     )
+
+    @androidx.room.Transaction
+    suspend fun promoteAppsToServerStatus(scanId: String, apiAppResults: List<ApiAppResult>) {
+        apiAppResults.forEach { apiApp ->
+            updateAppVerdict(
+                pkg = apiApp.packageName,
+                scanId = scanId,
+                result = apiApp.result,
+                action = apiApp.action
+            )
+        }
+    }
 
     // ---------- Upload Recommendation ----------
 
@@ -190,7 +242,10 @@ interface AppDao {
         SELECT COUNT(*) FROM apps 
         WHERE scanId = :scanId 
         AND (:onlyUser = 0 OR isSystem = 0)
-        AND (isServerVerified = 0 AND riskLevel = 'LOW')
+        AND (
+            (isServerVerified = 1 AND serverResult = 'LOW') OR 
+            (isServerVerified = 0 AND riskLevel = 'LOW')
+        )
     """)
     fun countLowRiskAppsByScanId(scanId: String, onlyUser: Boolean = false): Flow<Int>
 
@@ -198,7 +253,10 @@ interface AppDao {
         SELECT COUNT(*) FROM apps 
         WHERE scanId = :scanId 
         AND (:onlyUser = 0 OR isSystem = 0)
-        AND (isServerVerified = 0 AND riskLevel = 'MEDIUM')
+        AND (
+            (isServerVerified = 1 AND serverResult = 'MEDIUM') OR 
+            (isServerVerified = 0 AND riskLevel = 'MEDIUM')
+        )
     """)
     fun countMediumRiskAppsByScanId(scanId: String, onlyUser: Boolean = false): Flow<Int>
 

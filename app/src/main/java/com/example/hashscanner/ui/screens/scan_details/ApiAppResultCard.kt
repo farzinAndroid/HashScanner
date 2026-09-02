@@ -41,19 +41,18 @@ fun ApiAppResultCard(
 ) {
 
 
-    val accentColor = when(apiAppResult.result){
+    val accentColor = when (apiAppResult.result) {
         "VIRUS" -> MaterialTheme.colorScheme.RedColor
-        "SUSPICIOUS"-> MaterialTheme.colorScheme.YellowColor
-        "SAFE"-> MaterialTheme.colorScheme.GreenColor
+        "SUSPICIOUS" -> MaterialTheme.colorScheme.YellowColor
+        "SAFE" -> MaterialTheme.colorScheme.GreenColor
         else -> MaterialTheme.colorScheme.YellowColor
     }
 
-
-    val actions = when(apiAppResult.action){
+    val actions = when (apiAppResult.action) {
         "NONE" -> stringResource(R.string.api_msg_safe)
-        "DELETE"-> stringResource(R.string.api_msg_virus)
-        "UPLOAD_APK"-> stringResource(R.string.api_msg_suspicious)
-        "WAIT"-> stringResource(R.string.api_msg_wait)
+        "DELETE" -> stringResource(R.string.api_msg_virus)
+        "UPLOAD_APK" -> stringResource(R.string.api_msg_suspicious)
+        "WAIT" -> stringResource(R.string.api_msg_wait)
         else -> stringResource(R.string.api_msg_error)
     }
 

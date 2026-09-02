@@ -77,13 +77,7 @@ fun RiskLevelListScreen(
 
     LaunchedEffect(currentScanId, showSystemApps) {
         if (currentScanId != null) {
-            databaseViewModel.apply {
-                countSafeApps(scanId = currentScanId, onlyUser = !showSystemApps)
-                countLowRiskApps(scanId = currentScanId, onlyUser = !showSystemApps)
-                countMediumRiskApps(scanId = currentScanId, onlyUser = !showSystemApps)
-                countHighRiskApps(scanId = currentScanId, onlyUser = !showSystemApps)
-                countCriticalApps(scanId = currentScanId, onlyUser = !showSystemApps)
-            }
+            databaseViewModel.loadCounts(scanId = currentScanId, onlyUser = !showSystemApps)
         }
     }
 

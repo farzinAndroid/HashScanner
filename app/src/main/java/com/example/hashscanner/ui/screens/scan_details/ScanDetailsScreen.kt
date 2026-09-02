@@ -266,9 +266,17 @@ fun ScanDetailsContent(
         val initial = data?.initialReport?.apps ?: emptyList()
         val uploaded = data?.uploadedApks?.apps ?: emptyList()
 
-        // Merge logic: Uploaded results override initial results for the same package
-        val masterMap = initial.associateBy { it.packageName }.toMutableMap()
-        uploaded.forEach { masterMap[it.packageName] = it }
+        val masterMap = LinkedHashMap<String, ApiAppResult>()
+        initial.forEach { app ->
+            masterMap[app.packageName.lowercase()] = app
+        }
+        uploaded.forEach { uploadedApp ->
+            val existingKey = masterMap.keys.find { key ->
+                key.equals(uploadedApp.packageName, ignoreCase = true) ||
+                (uploadedApp.sha256.isNotEmpty() && masterMap[key]?.sha256.equals(uploadedApp.sha256, ignoreCase = true))
+            } ?: uploadedApp.packageName.lowercase()
+            masterMap[existingKey] = uploadedApp
+        }
 
         masterMap.values.toList()
     }

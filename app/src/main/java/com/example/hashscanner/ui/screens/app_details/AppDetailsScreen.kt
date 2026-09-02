@@ -65,9 +65,17 @@ fun AppDetailsScreen(
     val apiAppResult = remember(apiResponse, appDetails) {
         if (apiResponse is NetworkResult.Success) {
             val data = (apiResponse as NetworkResult.Success).data
-            val allApiApps = (data?.initialReport?.apps ?: emptyList()) +
-                    (data?.uploadedApks?.apps ?: emptyList())
-            allApiApps.find { it.packageName == appDetails?.packageName }
+            val initial = data?.initialReport?.apps ?: emptyList()
+            val uploaded = data?.uploadedApks?.apps ?: emptyList()
+
+            // Check uploaded FIRST so admin-reviewed results override initial suspicious results
+            uploaded.find {
+                it.packageName.equals(appDetails?.packageName, ignoreCase = true) ||
+                (it.sha256.isNotEmpty() && it.sha256.equals(appDetails?.sha256, ignoreCase = true))
+            } ?: initial.find {
+                it.packageName.equals(appDetails?.packageName, ignoreCase = true) ||
+                (it.sha256.isNotEmpty() && it.sha256.equals(appDetails?.sha256, ignoreCase = true))
+            }
         } else null
     }
 

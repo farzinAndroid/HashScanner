@@ -79,14 +79,7 @@ class AppDatabaseRepo @Inject constructor(
         appDao.updateAppVerdict(pkg, scanId, result, action)
 
     suspend fun promoteAppsToServerStatus(scanId: String, apiAppResults: List<ApiAppResult>) {
-        apiAppResults.forEach { apiApp ->
-            appDao.updateAppVerdict(
-                pkg = apiApp.packageName,
-                scanId = scanId,
-                result = apiApp.result,
-                action = apiApp.action
-            )
-        }
+        appDao.promoteAppsToServerStatus(scanId, apiAppResults)
     }
 
     // PermissionDao Functions

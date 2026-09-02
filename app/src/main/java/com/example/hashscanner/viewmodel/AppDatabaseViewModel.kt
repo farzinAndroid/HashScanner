@@ -11,6 +11,7 @@ import com.example.hashscanner.data.model.db_entities.SuspiciousApp
 import com.example.hashscanner.repository.AppDatabaseRepo
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -89,8 +90,18 @@ class AppDatabaseViewModel @Inject constructor(
     val criticalAppsCount = _criticalAppsCount.asStateFlow()
 
 
+    private var appsJob: Job? = null
+    private var countsJob: Job? = null
+
+    fun clearApps() {
+        appsJob?.cancel()
+        _allApps.value = emptyList()
+    }
+
     fun getAllApps(scanId: String) {
-        viewModelScope.launch {
+        appsJob?.cancel()
+        _allApps.value = emptyList()
+        appsJob = viewModelScope.launch {
             appDataBaseRepo.getAllAppsByScanId(scanId).collectLatest {
                 _allApps.emit(it)
             }
@@ -157,6 +168,37 @@ class AppDatabaseViewModel @Inject constructor(
         }
     }
 
+    fun loadCounts(scanId: String, onlyUser: Boolean = false) {
+        countsJob?.cancel()
+        countsJob = viewModelScope.launch {
+            launch {
+                appDataBaseRepo.countSafeAppsByScanId(scanId, onlyUser).collectLatest {
+                    _safeAppsCount.emit(it)
+                }
+            }
+            launch {
+                appDataBaseRepo.countLowRiskAppsByScanId(scanId, onlyUser).collectLatest {
+                    _lowRiskAppsCount.emit(it)
+                }
+            }
+            launch {
+                appDataBaseRepo.countMediumRiskAppsByScanId(scanId, onlyUser).collectLatest {
+                    _mediumRiskAppsCount.emit(it)
+                }
+            }
+            launch {
+                appDataBaseRepo.countHighRiskAppsByScanId(scanId, onlyUser).collectLatest {
+                    _highRiskAppsCount.emit(it)
+                }
+            }
+            launch {
+                appDataBaseRepo.countCriticalAppsByScanId(scanId, onlyUser).collectLatest {
+                    _criticalAppsCount.emit(it)
+                }
+            }
+        }
+    }
+
     fun countSafeApps(scanId: String, onlyUser: Boolean = false) {
         viewModelScope.launch {
             appDataBaseRepo.countSafeAppsByScanId(scanId, onlyUser).collectLatest {
@@ -198,7 +240,9 @@ class AppDatabaseViewModel @Inject constructor(
     }
 
     fun getSuspiciousApps(scanId: String) {
-        viewModelScope.launch {
+        appsJob?.cancel()
+        _allApps.value = emptyList()
+        appsJob = viewModelScope.launch {
             appDataBaseRepo.getSuspiciousAppsByScanId(scanId).collectLatest {
                 _allApps.emit(it)
             }
@@ -206,7 +250,9 @@ class AppDatabaseViewModel @Inject constructor(
     }
 
     fun getSafeApps(scanId: String, onlyUser: Boolean = false) {
-        viewModelScope.launch {
+        appsJob?.cancel()
+        _allApps.value = emptyList()
+        appsJob = viewModelScope.launch {
             appDataBaseRepo.getSafeAppsByScanId(scanId, onlyUser).collectLatest {
                 _allApps.emit(it)
             }
@@ -214,7 +260,9 @@ class AppDatabaseViewModel @Inject constructor(
     }
 
     fun getLowRiskApps(scanId: String, onlyUser: Boolean = false) {
-        viewModelScope.launch {
+        appsJob?.cancel()
+        _allApps.value = emptyList()
+        appsJob = viewModelScope.launch {
             appDataBaseRepo.getLowRiskAppsByScanId(scanId, onlyUser).collectLatest {
                 _allApps.emit(it)
             }
@@ -222,7 +270,9 @@ class AppDatabaseViewModel @Inject constructor(
     }
 
     fun getMediumRiskApps(scanId: String, onlyUser: Boolean = false) {
-        viewModelScope.launch {
+        appsJob?.cancel()
+        _allApps.value = emptyList()
+        appsJob = viewModelScope.launch {
             appDataBaseRepo.getMediumRiskAppsByScanId(scanId, onlyUser).collectLatest {
                 _allApps.emit(it)
             }
@@ -230,7 +280,9 @@ class AppDatabaseViewModel @Inject constructor(
     }
 
     fun getHighRiskApps(scanId: String, onlyUser: Boolean = false) {
-        viewModelScope.launch {
+        appsJob?.cancel()
+        _allApps.value = emptyList()
+        appsJob = viewModelScope.launch {
             appDataBaseRepo.getHighRiskAppsByScanId(scanId, onlyUser).collectLatest {
                 _allApps.emit(it)
             }
@@ -238,7 +290,9 @@ class AppDatabaseViewModel @Inject constructor(
     }
 
     fun getCriticalApps(scanId: String, onlyUser: Boolean = false) {
-        viewModelScope.launch {
+        appsJob?.cancel()
+        _allApps.value = emptyList()
+        appsJob = viewModelScope.launch {
             appDataBaseRepo.getCriticalAppsByScanId(scanId, onlyUser).collectLatest {
                 _allApps.emit(it)
             }

@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -49,7 +50,14 @@ fun AppListSection(
 
     val currentApps by databaseViewModel.allApps.collectAsStateWithLifecycle()
 
+    DisposableEffect(Unit) {
+        onDispose {
+            databaseViewModel.clearApps()
+        }
+    }
+
     LaunchedEffect(whichAppsToLoad, currentScanId, showSystem) {
+        databaseViewModel.clearApps()
         if (currentScanId != null) {
             databaseViewModel.apply {
                 when (whichAppsToLoad) {
