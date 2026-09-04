@@ -12,6 +12,7 @@ import com.example.hashscanner.data.model.api.UserAuthentication
 import com.example.hashscanner.data.network.ApiService
 import com.example.hashscanner.data.network.BaseApiResponse
 import com.example.hashscanner.data.network.NetworkResult
+import com.example.hashscanner.data.network.ProgressRequestBody
 import com.example.hashscanner.data.network.ScanFinishedResponse
 import com.example.hashscanner.utils.Constants
 import com.example.hashscanner.utils.DateTimeUtils
@@ -70,10 +71,23 @@ class NetworkRepo @Inject constructor(
         scanId: String,
         deviceId: String,
         appName: String,
-        sha256: String
+        sha256: String,
+        onProgress: ((percentage: Int) -> Unit)? = null
     ): NetworkResult<ApkUploadResponse> {
-        val requestFile = apk.asRequestBody("application/vnd.android.package-archive".toMediaTypeOrNull())
-        val apkPart = MultipartBody.Part.createFormData("apk", apk.name, requestFile)
+        val contentType = "application/vnd.android.package-archive".toMediaTypeOrNull()
+        val requestBody = if (onProgress != null) {
+            ProgressRequestBody(
+                file = apk,
+                contentType = contentType,
+                onProgress = { _, _, percentage ->
+                    onProgress(percentage)
+                }
+            )
+        } else {
+            apk.asRequestBody(contentType)
+        }
+
+        val apkPart = MultipartBody.Part.createFormData("apk", apk.name, requestBody)
         val packagePart = packageName.toRequestBody("text/plain".toMediaTypeOrNull())
         val scanIdPart = scanId.toRequestBody("text/plain".toMediaTypeOrNull())
         val deviceIdPart = deviceId.toRequestBody("text/plain".toMediaTypeOrNull())

@@ -56,6 +56,7 @@ import com.example.hashscanner.data.model.db_entities.AppInfo
 import com.example.hashscanner.data.model.db_entities.NotificationStage
 import com.example.hashscanner.data.model.db_entities.ScanHistory
 import com.example.hashscanner.data.network.NetworkResult
+import com.example.hashscanner.ui.components.UploadProgressDialog
 import com.example.hashscanner.ui.navigation.Screens
 import com.example.hashscanner.ui.theme.AccentPurpleColor
 import com.example.hashscanner.ui.theme.BackgroundColor
@@ -232,6 +233,17 @@ fun ScanDetailsScreen(
                     }
                 }
             )
+
+            if (isLoading) {
+                val uploadProgress by scannerViewModel.uploadProgress.collectAsStateWithLifecycle()
+                UploadProgressDialog(
+                    appName = appDetailsByClickUpload?.appName.orEmpty(),
+                    progress = uploadProgress,
+                    onCancel = {
+                        scannerViewModel.cancelUpload()
+                    }
+                )
+            }
         }
     }
 }

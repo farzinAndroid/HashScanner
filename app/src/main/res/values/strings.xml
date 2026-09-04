@@ -212,6 +212,8 @@
     <!-- App Details / Upload -->
     <string name="toast_upload_success">آپلود موفقیت‌آمیز بود</string>
     <string name="toast_upload_error">خطا در آپلود</string>
+    <string name="title_uploading_apk">در حال ارسال فایل APK…</string>
+    <string name="button_cancel">انصراف</string>
 
     <!-- Dashboard -->
     <string name="dashboard_welcome">خوش آمدید</string>

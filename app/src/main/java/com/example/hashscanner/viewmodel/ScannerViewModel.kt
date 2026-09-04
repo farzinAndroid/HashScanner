@@ -187,10 +187,25 @@ class ScannerViewModel @Inject constructor(
         
         job = viewModelScope.launch(Dispatchers.IO) {
             val scanResultModel = ScanResultModel(scanId = scanId, deviceId = Constants.DEVICE_ID)
+            
+            // 1. First fetch to get latest status
+            val isCompleted = handlePollingResult(scanId, scanResultModel)
+            
+            // 2. If already COMPLETE, stop immediately
+            if (isCompleted) {
+                Log.d(Constants.TAG, "Contextual Polling: Scan $scanId is already COMPLETE. Stopping polling.")
+                return@launch
+            }
+
+            // 3. Otherwise loop until COMPLETE
             while (isActive) {
-                Log.d(Constants.TAG, "Contextual Polling: $scanId")
-                handlePollingResult(scanId, scanResultModel)
                 delay(5000L.milliseconds)
+                Log.d(Constants.TAG, "Contextual Polling: $scanId")
+                val done = handlePollingResult(scanId, scanResultModel)
+                if (done) {
+                    Log.d(Constants.TAG, "Contextual Polling: Scan $scanId reached COMPLETE. Stopping polling.")
+                    break
+                }
             }
         }
     }
@@ -283,11 +298,11 @@ class ScannerViewModel @Inject constructor(
                     }
 
                     // 4. Mark as COMPLETED in DB if stage is COMPLETE
-                    if (currentStage == NotificationStage.COMPLETE.name) {
+                    val isScanComplete = currentStage == NotificationStage.COMPLETE.name || data.finalReport?.complete == true
+                    if (isScanComplete) {
                         appDatabaseRepo.updateAnalysisStatus(scanId, AnalysisStatus.COMPLETED.name)
+                        return true
                     }
-
-                    return true
                 }
             }
         } catch (e: Exception) {
@@ -334,6 +349,9 @@ class ScannerViewModel @Inject constructor(
     }
 
 
+    private val _uploadProgress = MutableStateFlow(0)
+    val uploadProgress = _uploadProgress.asStateFlow()
+
     private val _apkUploadResponse =
         MutableStateFlow<NetworkResult<ApkUploadResponse>>(NetworkResult.Idle())
     val apkUploadResponse = _apkUploadResponse.asStateFlow()
@@ -348,6 +366,7 @@ class ScannerViewModel @Inject constructor(
         scanId: String
     ) {
         uploadJob?.cancel()
+        _uploadProgress.value = 0
         uploadJob = viewModelScope.launch(Dispatchers.IO) {
             _apkUploadResponse.emit(NetworkResult.Loading())
 
@@ -358,7 +377,10 @@ class ScannerViewModel @Inject constructor(
                 scanId = scanId,
                 deviceId = Constants.DEVICE_ID,
                 appName = appName,
-                sha256 = sha256
+                sha256 = sha256,
+                onProgress = { percent ->
+                    _uploadProgress.value = percent
+                }
             )
 
             _apkUploadResponse.emit(result)
@@ -367,6 +389,7 @@ class ScannerViewModel @Inject constructor(
 
     fun cancelUpload() {
         uploadJob?.cancel()
+        _uploadProgress.value = 0
         _apkUploadResponse.value = NetworkResult.Idle()
     }
 

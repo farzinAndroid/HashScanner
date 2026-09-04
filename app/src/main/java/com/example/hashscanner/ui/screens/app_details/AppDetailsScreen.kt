@@ -35,6 +35,7 @@ import com.example.hashscanner.R
 import com.example.hashscanner.data.model.db_entities.AnalysisStatus
 import com.example.hashscanner.data.model.db_entities.NotificationStage
 import com.example.hashscanner.data.network.NetworkResult
+import com.example.hashscanner.ui.components.UploadProgressDialog
 import com.example.hashscanner.ui.theme.*
 import com.example.hashscanner.ui.ui_utils.AppTopBar
 import com.example.hashscanner.utils.Constants
@@ -222,6 +223,17 @@ fun AppDetailsScreen(
             apiAction = apiAppResult?.action,
             apiMessage = apiAppResult?.message
         )
+
+        if (isLoading) {
+            val uploadProgress by scannerViewModel.uploadProgress.collectAsStateWithLifecycle()
+            UploadProgressDialog(
+                appName = appDetails?.appName.orEmpty(),
+                progress = uploadProgress,
+                onCancel = {
+                    scannerViewModel.cancelUpload()
+                }
+            )
+        }
     }
 }
 

@@ -126,32 +126,32 @@ fun AppDetailsBottomBar(
                 }
             } else {
                 Button(
-                        onClick = onUploadApkClicked,
-                        modifier = Modifier.weight(1f),
-                        enabled = !isLoading,
-                        shape = RoundedCornerShape(MaterialTheme.spacing.dp16),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.AccentPurpleColor,
-                            contentColor = Color.White
+                    onClick = onUploadApkClicked,
+                    modifier = Modifier.weight(1f),
+                    enabled = !isLoading,
+                    shape = RoundedCornerShape(MaterialTheme.spacing.dp16),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.AccentPurpleColor,
+                        contentColor = Color.White
+                    )
+                ) {
+                    if (isLoading) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(20.dp),
+                            color = Color.White,
+                            strokeWidth = 2.dp
                         )
-                    ) {
-                        if (isLoading) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(20.dp),
-                                color = Color.White,
-                                strokeWidth = 2.dp
-                            )
-                        } else {
-                            Icon(Icons.Default.Share, contentDescription = null)
-                            Spacer(modifier = Modifier.width(MaterialTheme.spacing.dp8))
-                            Text(
-                                text = stringResource(R.string.button_send_apk_file),
-                                fontWeight = FontWeight.Bold,
-                                style = MaterialTheme.typography.labelMedium
-                            )
-                        }
+                    } else {
+                        Icon(Icons.Default.Share, contentDescription = null)
+                        Spacer(modifier = Modifier.width(MaterialTheme.spacing.dp8))
+                        Text(
+                            text = stringResource(R.string.button_send_apk_file),
+                            fontWeight = FontWeight.Bold,
+                            style = MaterialTheme.typography.labelMedium
+                        )
                     }
                 }
             }
         }
+    }
 }
