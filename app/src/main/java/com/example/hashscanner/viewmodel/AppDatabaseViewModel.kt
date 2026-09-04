@@ -375,10 +375,15 @@ class AppDatabaseViewModel @Inject constructor(
         }
     }
 
-    fun searchApps(keyword: String, scanId: String, onlyUser: Boolean = false) {
+    fun searchApps(
+        keyword: String, 
+        scanId: String, 
+        riskLevel: String = "", 
+        onlyUser: Boolean = false
+    ) {
         appsJob?.cancel()
         appsJob = viewModelScope.launch {
-            appDataBaseRepo.searchAppsByScanId(scanId, keyword, onlyUser).collectLatest {
+            appDataBaseRepo.searchAppsByScanId(scanId, keyword, riskLevel, onlyUser).collectLatest {
                 _allApps.emit(it)
             }
         }

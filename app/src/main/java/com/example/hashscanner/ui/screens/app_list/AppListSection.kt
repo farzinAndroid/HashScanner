@@ -75,11 +75,16 @@ fun AppListSection(
         }
     }
 
-    // Room DB search effect with 300ms debounce
-    LaunchedEffect(searchQuery, currentScanId, showSystem) {
+    // Room DB search effect with 200ms debounce
+    LaunchedEffect(searchQuery, currentScanId, showSystem, whichAppsToLoad) {
         if (searchQuery.isNotBlank() && currentScanId != null) {
             delay(200)
-            databaseViewModel.searchApps(keyword = searchQuery, scanId = currentScanId, onlyUser = !showSystem)
+            databaseViewModel.searchApps(
+                keyword = searchQuery, 
+                scanId = currentScanId, 
+                riskLevel = whichAppsToLoad.name,
+                onlyUser = !showSystem
+            )
         }
     }
 

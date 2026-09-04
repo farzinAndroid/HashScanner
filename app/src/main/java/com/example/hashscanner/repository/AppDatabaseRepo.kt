@@ -55,7 +55,12 @@ class AppDatabaseRepo @Inject constructor(
     fun getDisabledAppsByScanId(scanId: String) = appDao.getDisabledAppsByScanId(scanId)
     fun getOldTargetSdkAppsByScanId(scanId: String) = appDao.getOldTargetSdkAppsByScanId(scanId)
     fun getAppsByCertificateSha256ByScanId(sha256: String, scanId: String) = appDao.getByCertificateSha256ByScanId(sha256, scanId)
-    fun searchAppsByScanId(scanId: String, keyword: String, onlyUser: Boolean = false) = appDao.searchAppsByScanId(scanId, keyword, onlyUser)
+    fun searchAppsByScanId(
+        scanId: String, 
+        keyword: String, 
+        riskLevel: String = "", 
+        onlyUser: Boolean = false
+    ) = appDao.searchAppsByScanId(scanId, keyword, riskLevel, onlyUser)
     fun getLargestAppsByScanId(scanId: String) = appDao.getLargestAppsByScanId(scanId)
     fun getSmallestAppsByScanId(scanId: String) = appDao.getSmallestAppsByScanId(scanId)
     fun getRecommendedForUploadByScanId(scanId: String) = appDao.getRecommendedForUploadByScanId(scanId)

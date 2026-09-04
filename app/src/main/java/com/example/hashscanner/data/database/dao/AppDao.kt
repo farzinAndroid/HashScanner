@@ -142,12 +142,25 @@ interface AppDao {
 
     @Query("""
         SELECT * FROM apps 
-        WHERE (packageName LIKE '%' || :keyword || '%' OR appName LIKE '%' || :keyword || '%') 
-        AND scanId = :scanId 
+        WHERE scanId = :scanId 
         AND (:onlyUser = 0 OR isSystem = 0)
+        AND (packageName LIKE '%' || :keyword || '%' OR appName LIKE '%' || :keyword || '%')
+        AND (
+            (:riskLevel = 'SAFE' AND ((isServerVerified = 1 AND serverResult = 'SAFE') OR (isServerVerified = 0 AND riskLevel = 'SAFE'))) OR
+            (:riskLevel = 'LOW' AND ((isServerVerified = 1 AND serverResult = 'LOW') OR (isServerVerified = 0 AND riskLevel = 'LOW'))) OR
+            (:riskLevel = 'MEDIUM' AND ((isServerVerified = 1 AND serverResult = 'MEDIUM') OR (isServerVerified = 0 AND riskLevel = 'MEDIUM'))) OR
+            (:riskLevel = 'HIGH' AND ((isServerVerified = 1 AND serverResult = 'SUSPICIOUS') OR (isServerVerified = 0 AND riskLevel = 'HIGH'))) OR
+            (:riskLevel = 'CRITICAL' AND ((isServerVerified = 1 AND serverResult = 'VIRUS') OR (isServerVerified = 0 AND riskLevel = 'CRITICAL'))) OR
+            (:riskLevel = '' OR :riskLevel IS NULL)
+        )
         ORDER BY appName ASC
     """)
-    fun searchAppsByScanId(scanId: String, keyword: String, onlyUser: Boolean = false): Flow<List<AppInfo>>
+    fun searchAppsByScanId(
+        scanId: String, 
+        keyword: String, 
+        riskLevel: String = "", 
+        onlyUser: Boolean = false
+    ): Flow<List<AppInfo>>
 
     @Query("SELECT * FROM apps WHERE scanId = :scanId ORDER BY apkSize DESC")
     fun getLargestAppsByScanId(scanId: String): Flow<List<AppInfo>>
