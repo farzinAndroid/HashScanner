@@ -1,13 +1,25 @@
 package com.example.hashscanner.ui.screens.app_list
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -18,13 +30,19 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import kotlinx.coroutines.delay
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.hashscanner.R
 import com.example.hashscanner.data.model.db_entities.AnalysisStatus
 import com.example.hashscanner.data.model.db_entities.AppInfo
 import com.example.hashscanner.ui.screens.scan_details.SourceOfTruthChip
+import com.example.hashscanner.ui.theme.AccentPurpleColor
 import com.example.hashscanner.ui.theme.BackgroundColor
+import com.example.hashscanner.ui.theme.BoxGrayColor
 import com.example.hashscanner.ui.theme.HashScannerTheme
+import com.example.hashscanner.ui.theme.spacing
 import com.example.hashscanner.ui.ui_utils.EmptyStateView
 import com.example.hashscanner.ui.ui_utils.RiskLevelsUI
 import com.example.hashscanner.viewmodel.AppDatabaseViewModel
@@ -47,6 +65,7 @@ fun AppListSection(
     }
 
     var whichAppsToLoad by rememberSaveable { mutableStateOf(initialRiskLevel) }
+    var searchQuery by rememberSaveable { mutableStateOf("") }
 
     val currentApps by databaseViewModel.allApps.collectAsStateWithLifecycle()
 
@@ -56,9 +75,18 @@ fun AppListSection(
         }
     }
 
-    LaunchedEffect(whichAppsToLoad, currentScanId, showSystem) {
-        databaseViewModel.clearApps()
-        if (currentScanId != null) {
+    // Room DB search effect with 300ms debounce
+    LaunchedEffect(searchQuery, currentScanId, showSystem) {
+        if (searchQuery.isNotBlank() && currentScanId != null) {
+            delay(200)
+            databaseViewModel.searchApps(keyword = searchQuery, scanId = currentScanId, onlyUser = !showSystem)
+        }
+    }
+
+    // Category apps loading effect (when search query is blank)
+    LaunchedEffect(whichAppsToLoad, searchQuery, currentScanId, showSystem) {
+        if (searchQuery.isBlank() && currentScanId != null) {
+            databaseViewModel.clearApps()
             databaseViewModel.apply {
                 when (whichAppsToLoad) {
                     RiskLevelsUI.HIGH -> getHighRiskApps(currentScanId, onlyUser = !showSystem)
@@ -76,6 +104,8 @@ fun AppListSection(
     AppListContent(
         paddingValues = paddingValues,
         currentApps = currentApps,
+        searchQuery = searchQuery,
+        onSearchQueryChange = { searchQuery = it },
         onAppClick = onAppClick,
         isReady = isReady
     )
@@ -85,6 +115,8 @@ fun AppListSection(
 fun AppListContent(
     paddingValues: PaddingValues,
     currentApps: List<AppInfo>,
+    searchQuery: String = "",
+    onSearchQueryChange: (String) -> Unit = {},
     isReady: Boolean,
     onAppClick: (String) -> Unit
 ) {
@@ -95,6 +127,48 @@ fun AppListContent(
             .padding(paddingValues),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
+        // Search Bar
+        OutlinedTextField(
+            value = searchQuery,
+            onValueChange = onSearchQueryChange,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = MaterialTheme.spacing.dp16, vertical = MaterialTheme.spacing.dp8),
+            placeholder = {
+                Text(
+                    text = stringResource(R.string.placeholder_search_apps),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                )
+            },
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Default.Search,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.AccentPurpleColor
+                )
+            },
+            trailingIcon = {
+                if (searchQuery.isNotEmpty()) {
+                    IconButton(onClick = { onSearchQueryChange("") }) {
+                        Icon(
+                            imageVector = Icons.Default.Clear,
+                            contentDescription = "Clear",
+                            tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                        )
+                    }
+                }
+            },
+            singleLine = true,
+            shape = RoundedCornerShape(MaterialTheme.spacing.dp16),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = MaterialTheme.colorScheme.AccentPurpleColor,
+                unfocusedBorderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.15f),
+                focusedContainerColor = MaterialTheme.colorScheme.BoxGrayColor,
+                unfocusedContainerColor = MaterialTheme.colorScheme.BoxGrayColor
+            )
+        )
+
         if (currentApps.isEmpty()) {
             EmptyStateView()
         } else {
@@ -105,12 +179,16 @@ fun AppListContent(
                     SourceOfTruthChip(isReady = isReady)
                 }
 
-                items(currentApps) { app ->
-                    AppCard(
-                        appInfo = app,
-                        onClick = { onAppClick(app.packageName) }
-                    )
-                }
+                items(
+                    items = currentApps,
+                    key = { it.packageName }
+                ) { app ->
+                        AppCard(
+                            appInfo = app,
+                            onClick = { onAppClick(app.packageName) },
+                            modifier = Modifier.animateItem()
+                        )
+                    }
             }
         }
     }

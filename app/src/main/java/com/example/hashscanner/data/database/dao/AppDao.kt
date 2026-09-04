@@ -140,8 +140,14 @@ interface AppDao {
     @Query("SELECT * FROM apps WHERE certificateSha256=:sha256 AND scanId = :scanId")
     fun getByCertificateSha256ByScanId(scanId: String, sha256: String): Flow<List<AppInfo>>
 
-    @Query("SELECT * FROM apps WHERE (packageName LIKE '%' || :keyword || '%' OR appName LIKE '%' || :keyword || '%') AND scanId = :scanId")
-    fun searchByScanId(scanId: String, keyword: String): Flow<List<AppInfo>>
+    @Query("""
+        SELECT * FROM apps 
+        WHERE (packageName LIKE '%' || :keyword || '%' OR appName LIKE '%' || :keyword || '%') 
+        AND scanId = :scanId 
+        AND (:onlyUser = 0 OR isSystem = 0)
+        ORDER BY appName ASC
+    """)
+    fun searchAppsByScanId(scanId: String, keyword: String, onlyUser: Boolean = false): Flow<List<AppInfo>>
 
     @Query("SELECT * FROM apps WHERE scanId = :scanId ORDER BY apkSize DESC")
     fun getLargestAppsByScanId(scanId: String): Flow<List<AppInfo>>

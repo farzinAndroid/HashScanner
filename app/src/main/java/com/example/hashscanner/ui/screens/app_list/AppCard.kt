@@ -3,14 +3,26 @@ package com.example.hashscanner.ui.screens.app_list
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.filled.Warning
-import androidx.compose.material3.*
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -27,14 +39,21 @@ import androidx.compose.ui.unit.dp
 import com.example.hashscanner.R
 import com.example.hashscanner.data.model.db_entities.AppInfo
 import com.example.hashscanner.data.model.other.RiskLevels
-import com.example.hashscanner.ui.theme.*
+import com.example.hashscanner.ui.theme.BlackWhiteColor
+import com.example.hashscanner.ui.theme.GreenColor
+import com.example.hashscanner.ui.theme.HashScannerTheme
+import com.example.hashscanner.ui.theme.RedColor
+import com.example.hashscanner.ui.theme.StrongYellowColor
+import com.example.hashscanner.ui.theme.YellowColor
+import com.example.hashscanner.ui.theme.spacing
 import com.example.hashscanner.utils.DigitHelper
 import com.example.hashscanner.utils.IconConverter
 
 @Composable
 fun AppCard(
     appInfo: AppInfo,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val iconBitmap = IconConverter.byteArrayToBitmap(appInfo.iconData)
 
@@ -72,7 +91,7 @@ fun AppCard(
     }
 
     Card(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .height(100.dp)
             .padding(top = MaterialTheme.spacing.dp8)
@@ -241,7 +260,7 @@ fun AppCardPreview() {
                 isDeleted = true,
                 iconData = null
             ),
-            onClick = {}
+            onClick = {},
         )
     }
 }

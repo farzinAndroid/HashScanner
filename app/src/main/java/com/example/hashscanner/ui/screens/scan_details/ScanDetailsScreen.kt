@@ -7,6 +7,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -384,22 +385,29 @@ fun ScanDetailsContent(
                     modifier = Modifier.padding(top = 8.dp)
                 )
             }
-            items(finalizedAppResults, span = { GridItemSpan(2) }) { apiApp ->
+            items(
+                items = finalizedAppResults,
+                key = { it.packageName },
+                span = { GridItemSpan(2) }
+            ) { apiApp ->
                 val matchingDbApp = dbAppMap.first[apiApp.sha256] ?: dbAppMap.second[apiApp.packageName]
-                ApiAppResultCard(
-                    apiAppResult = apiApp,
-                    matchingDbApp = matchingDbApp,
-                    scanId = scanDetails.id,
-                    onUploadClicked = {app->
-                        onApkUploadClicked(app)
-                    },
-                    onDeleteClicked = { app ->
-                        onApkDeleteClicked(app)
-                    },
-                    onCardClicked = { packageName, scanId ->
-                        navController.navigate(Screens.AppDetails(packageName, scanId))
-                    }
-                )
+                @OptIn(ExperimentalFoundationApi::class)
+                Box(modifier = Modifier.animateItem()) {
+                    ApiAppResultCard(
+                        apiAppResult = apiApp,
+                        matchingDbApp = matchingDbApp,
+                        scanId = scanDetails.id,
+                        onUploadClicked = { app ->
+                            onApkUploadClicked(app)
+                        },
+                        onDeleteClicked = { app ->
+                            onApkDeleteClicked(app)
+                        },
+                        onCardClicked = { packageName, scanId ->
+                            navController.navigate(Screens.AppDetails(packageName, scanId))
+                        }
+                    )
+                }
             }
         }
 

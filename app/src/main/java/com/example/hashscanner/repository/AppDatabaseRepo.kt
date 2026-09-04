@@ -9,7 +9,6 @@ import com.example.hashscanner.data.model.db_entities.AppInfo
 import com.example.hashscanner.data.model.db_entities.PermissionInfo
 import com.example.hashscanner.data.model.db_entities.ScanHistory
 import com.example.hashscanner.data.model.db_entities.SuspiciousApp
-import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class AppDatabaseRepo @Inject constructor(
@@ -56,7 +55,7 @@ class AppDatabaseRepo @Inject constructor(
     fun getDisabledAppsByScanId(scanId: String) = appDao.getDisabledAppsByScanId(scanId)
     fun getOldTargetSdkAppsByScanId(scanId: String) = appDao.getOldTargetSdkAppsByScanId(scanId)
     fun getAppsByCertificateSha256ByScanId(sha256: String, scanId: String) = appDao.getByCertificateSha256ByScanId(sha256, scanId)
-    fun searchAppsByScanId(keyword: String, scanId: String) = appDao.searchByScanId(keyword, scanId)
+    fun searchAppsByScanId(scanId: String, keyword: String, onlyUser: Boolean = false) = appDao.searchAppsByScanId(scanId, keyword, onlyUser)
     fun getLargestAppsByScanId(scanId: String) = appDao.getLargestAppsByScanId(scanId)
     fun getSmallestAppsByScanId(scanId: String) = appDao.getSmallestAppsByScanId(scanId)
     fun getRecommendedForUploadByScanId(scanId: String) = appDao.getRecommendedForUploadByScanId(scanId)

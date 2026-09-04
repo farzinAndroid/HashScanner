@@ -214,6 +214,7 @@
     <string name="toast_upload_error">خطا در آپلود</string>
     <string name="title_uploading_apk">در حال ارسال فایل APK…</string>
     <string name="button_cancel">انصراف</string>
+    <string name="placeholder_search_apps">جستجو در برنامه‌ها…</string>
 
     <!-- Dashboard -->
     <string name="dashboard_welcome">خوش آمدید</string>

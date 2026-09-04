@@ -1,5 +1,6 @@
 package com.example.hashscanner.ui.screens.scan_history
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,6 +26,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -129,11 +131,15 @@ fun ScanHistoryContent(
                     contentPadding = PaddingValues(bottom = MaterialTheme.spacing.dp24),
                     verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.dp8)
                 ) {
-                    items(filteredHistory) { scan ->
+                    items(
+                        items = filteredHistory,
+                        key = { it.id }
+                    ) { scan ->
                         RecentScanCard(
                             scan = scan,
                             onClick = { onRecentScanCardClicked(scan) },
-                            onDeleteClicked = { onDeleteClicked(scan) }
+                            onDeleteClicked = { onDeleteClicked(scan) },
+                            modifier = Modifier.animateItem()
                         )
                     }
                 }
