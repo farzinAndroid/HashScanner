@@ -5,6 +5,11 @@ import kotlinx.serialization.Serializable
 interface Screens {
 
     @Serializable
+    object Authentication : Screens
+
+
+
+    @Serializable
     object Landing : Screens
 
 
@@ -12,29 +17,37 @@ interface Screens {
     object Scan : Screens
 
     @Serializable
-    data class Details(
-        val packageName:String
+    object NoInternet : Screens
+
+    @Serializable
+    data class AppDetails(
+        val packageName: String,
+        val scanId: String? = null
     ) : Screens
 
 
 
     @Serializable
     data class AppList(
-        val riskLevel: com.example.hashscanner.ui.ui_utils.RiskLevelsUI
+        val riskLevel: com.example.hashscanner.ui.ui_utils.RiskLevelsUI,
+        val scanId: String? = null,
+        val showSystem: Boolean = false
     ) : Screens
 
 
     @Serializable
-    object RiskLevelList : Screens
+    data class RiskLevelList(
+        val scanId: String? = null
+    ) : Screens
 
 
+    @Serializable
+    object ScanHistory : Screens
 
-    /*
-        @Serializable
-        data class Playlists(
-            val playlistId:Int,
-            val playlistName:String
-        ) : Screens*/
+    @Serializable
+    data class ScanHistoryDetails(
+        val scanId: String? = null
+    ) : Screens
 
 
 }

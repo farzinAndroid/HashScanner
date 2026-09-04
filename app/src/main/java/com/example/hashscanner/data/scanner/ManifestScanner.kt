@@ -3,7 +3,7 @@ package com.example.hashscanner.data.scanner
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
-import com.example.hashscanner.data.model.ManifestInfo
+import com.example.hashscanner.data.model.other.ManifestInfo
 
 
 class ManifestScanner(

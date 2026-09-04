@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Environment
 import com.example.hashscanner.data.database.AppDatabase
 import com.example.hashscanner.utils.Constants
+import kotlinx.coroutines.flow.first
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -17,9 +18,9 @@ class CsvExporter(
 
 ) {
 
-    suspend fun exportCsv(): File {
+    suspend fun exportCsv(scanId: String): File {
 
-        val apps = db.appDao().getAll()
+        val apps = db.appDao().getAllByScanId(scanId).first()
 
         val dir = context.getExternalFilesDir(
             Environment.DIRECTORY_DOCUMENTS

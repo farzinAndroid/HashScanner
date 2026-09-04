@@ -3,8 +3,8 @@ package com.example.hashscanner.data.analyzer
 import android.Manifest
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageInfo
-import com.example.hashscanner.data.model.RiskLevels
-import com.example.hashscanner.data.model.RiskResult
+import com.example.hashscanner.data.model.other.RiskLevels
+import com.example.hashscanner.data.model.other.RiskResult
 import com.example.hashscanner.utils.Constants
 import javax.inject.Inject
 

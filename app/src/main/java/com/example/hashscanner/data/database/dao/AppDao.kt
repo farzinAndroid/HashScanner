@@ -6,7 +6,9 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
+import com.example.hashscanner.data.model.api.ApiAppResult
 import com.example.hashscanner.data.model.db_entities.AppInfo
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface AppDao {
@@ -26,134 +28,264 @@ interface AppDao {
     @Query("DELETE FROM apps")
     suspend fun deleteAll()
 
-    @Query("SELECT * FROM apps ORDER BY appName ASC")
-    suspend fun getAll(): List<AppInfo>
+    @Query("SELECT * FROM apps WHERE scanId = :scanId ORDER BY appName ASC")
+    fun getAllByScanId(scanId: String): Flow<List<AppInfo>>
 
-    @Query("SELECT * FROM apps WHERE packageName=:pkg LIMIT 1")
-    suspend fun getByPackage(pkg: String): AppInfo?
+    @Query("SELECT * FROM apps WHERE packageName=:pkg AND scanId = :scanId LIMIT 1")
+    fun getByPackageAndScanId(pkg: String, scanId: String): Flow<AppInfo?>
 
-    @Query("SELECT * FROM apps WHERE sha256=:hash LIMIT 1")
-    suspend fun getBySha256(hash: String): AppInfo?
+    @Query("SELECT * FROM apps WHERE sha256=:hash AND scanId = :scanId LIMIT 1")
+    fun getBySha256ByScanId(hash: String, scanId: String): Flow<AppInfo?>
 
-    @Query("SELECT * FROM apps WHERE md5=:md5 LIMIT 1")
-    suspend fun getByMd5(md5: String): AppInfo?
+    @Query("SELECT * FROM apps WHERE md5=:md5 AND scanId = :scanId LIMIT 1")
+    fun getByMd5ByScanId(md5: String, scanId: String): Flow<AppInfo?>
 
-    @Query("SELECT * FROM apps WHERE sha1=:sha1 LIMIT 1")
-    suspend fun getBySha1(sha1: String): AppInfo?
+    @Query("SELECT * FROM apps WHERE sha1=:sha1 AND scanId = :scanId LIMIT 1")
+    fun getBySha1ByScanId(sha1: String, scanId: String): Flow<AppInfo?>
 
-    @Query("SELECT COUNT(*) FROM apps")
-    suspend fun count(): Int
+    @Query("SELECT COUNT(*) FROM apps WHERE scanId = :scanId")
+    fun countByScanId(scanId: String): Flow<Int>
 
-    @Query("SELECT * FROM apps WHERE suspicious=1")
-    suspend fun getSuspicious(): List<AppInfo>
-
-    @Query("SELECT * FROM apps WHERE riskLevel='SAFE' AND (:onlyUser = 0 OR isSystem = 0)")
-    suspend fun getSafeApps(onlyUser: Boolean = false): List<AppInfo>
-
-    @Query("SELECT * FROM apps WHERE riskLevel='LOW' AND (:onlyUser = 0 OR isSystem = 0)")
-    suspend fun getLowRiskApps(onlyUser: Boolean = false): List<AppInfo>
-
-    @Query("SELECT * FROM apps WHERE riskLevel='MEDIUM' AND (:onlyUser = 0 OR isSystem = 0)")
-    suspend fun getMediumRiskApps(onlyUser: Boolean = false): List<AppInfo>
-
-    @Query("SELECT * FROM apps WHERE riskLevel='HIGH' AND (:onlyUser = 0 OR isSystem = 0)")
-    suspend fun getHighRiskApps(onlyUser: Boolean = false): List<AppInfo>
-
-    @Query("SELECT * FROM apps WHERE riskLevel='CRITICAL' AND (:onlyUser = 0 OR isSystem = 0)")
-    suspend fun getCriticalApps(onlyUser: Boolean = false): List<AppInfo>
-
-    @Query("SELECT * FROM apps ORDER BY riskScore DESC")
-    suspend fun getAppsByRisk(): List<AppInfo>
-
-    @Query("SELECT * FROM apps ORDER BY firstInstallTime DESC")
-    suspend fun getNewestApps(): List<AppInfo>
-
-    @Query("SELECT * FROM apps ORDER BY lastUpdateTime DESC")
-    suspend fun getRecentlyUpdatedApps(): List<AppInfo>
-
-    @Query("SELECT * FROM apps WHERE installer=:installer")
-    suspend fun getAppsByInstaller(installer: String): List<AppInfo>
-
-    @Query("SELECT * FROM apps WHERE isDebuggable=1")
-    suspend fun getDebuggableApps(): List<AppInfo>
-
-    @Query("SELECT * FROM apps WHERE isEnabled=0")
-    suspend fun getDisabledApps(): List<AppInfo>
-
-    @Query("SELECT * FROM apps WHERE targetSdk<30")
-    suspend fun getOldTargetSdkApps(): List<AppInfo>
-
-    @Query("SELECT * FROM apps WHERE certificateSha256=:sha256")
-    suspend fun getByCertificateSha256(sha256: String): List<AppInfo>
-
-    @Query("SELECT * FROM apps WHERE packageName LIKE '%' || :keyword || '%' OR appName LIKE '%' || :keyword || '%'")
-    suspend fun search(keyword: String): List<AppInfo>
-
-    @Query("SELECT * FROM apps ORDER BY apkSize DESC")
-    suspend fun getLargestApps(): List<AppInfo>
-
-    @Query("SELECT * FROM apps ORDER BY apkSize ASC")
-    suspend fun getSmallestApps(): List<AppInfo>
+    @Query("SELECT * FROM apps WHERE suspicious=1 AND scanId = :scanId")
+    fun getSuspiciousByScanId(scanId: String): Flow<List<AppInfo>>
 
     @Query("""
-        UPDATE apps
-        SET apkUploaded = 1,
-            uploadDate = :date
-        WHERE packageName = :pkg
+        SELECT * FROM apps 
+        WHERE scanId = :scanId 
+        AND (:onlyUser = 0 OR isSystem = 0)
+        AND (
+            (isServerVerified = 1 AND serverResult = 'SAFE') OR 
+            (isServerVerified = 0 AND riskLevel = 'SAFE')
+        )
+        ORDER BY appName ASC
     """)
-    suspend fun markApkUploaded(
-        pkg: String,
+    fun getSafeAppsByScanId(scanId: String, onlyUser: Boolean = false): Flow<List<AppInfo>>
+
+    @Query("""
+        SELECT * FROM apps 
+        WHERE scanId = :scanId 
+        AND (:onlyUser = 0 OR isSystem = 0)
+        AND (isServerVerified = 0 AND riskLevel = 'LOW')
+        ORDER BY appName ASC
+    """)
+    fun getLowRiskAppsByScanId(scanId: String, onlyUser: Boolean = false): Flow<List<AppInfo>>
+
+    @Query("""
+        SELECT * FROM apps 
+        WHERE scanId = :scanId 
+        AND (:onlyUser = 0 OR isSystem = 0)
+        AND (isServerVerified = 0 AND riskLevel = 'MEDIUM')
+        ORDER BY appName ASC
+    """)
+    fun getMediumRiskAppsByScanId(scanId: String, onlyUser: Boolean = false): Flow<List<AppInfo>>
+
+    @Query("""
+        SELECT * FROM apps 
+        WHERE scanId = :scanId 
+        AND (:onlyUser = 0 OR isSystem = 0)
+        AND (
+            (isServerVerified = 1 AND serverResult = 'SUSPICIOUS') OR 
+            (isServerVerified = 0 AND riskLevel = 'HIGH')
+        )
+        ORDER BY appName ASC
+    """)
+    fun getHighRiskAppsByScanId(scanId: String, onlyUser: Boolean = false): Flow<List<AppInfo>>
+
+    @Query("""
+        SELECT * FROM apps 
+        WHERE scanId = :scanId 
+        AND (:onlyUser = 0 OR isSystem = 0)
+        AND (
+            (isServerVerified = 1 AND serverResult = 'VIRUS') OR 
+            (isServerVerified = 0 AND riskLevel = 'CRITICAL')
+        )
+        ORDER BY appName ASC
+    """)
+    fun getCriticalAppsByScanId(scanId: String, onlyUser: Boolean = false): Flow<List<AppInfo>>
+
+    @Query("SELECT * FROM apps WHERE scanId = :scanId ORDER BY riskScore DESC")
+    fun getAppsByRiskByScanId(scanId: String): Flow<List<AppInfo>>
+
+    @Query("""
+        SELECT * FROM apps 
+        WHERE scanId = :scanId 
+        AND (:onlyUser = 0 OR isSystem = 0)
+        AND (
+            (isServerVerified = 1 AND serverResult = :riskLevel) OR 
+            (isServerVerified = 0 AND riskLevel = :riskLevel) OR
+            (isServerVerified = 1 AND :riskLevel = 'CRITICAL' AND serverResult = 'VIRUS') OR
+            (isServerVerified = 1 AND :riskLevel = 'HIGH' AND serverResult = 'SUSPICIOUS')
+        )
+    """)
+    fun getAppsByRiskAndScanId(onlyUser: Boolean = false, riskLevel: String, scanId: String): Flow<List<AppInfo>>
+
+    @Query("SELECT * FROM apps WHERE scanId = :scanId ORDER BY firstInstallTime DESC")
+    fun getNewestAppsByScanId(scanId: String): Flow<List<AppInfo>>
+
+    @Query("SELECT * FROM apps WHERE scanId = :scanId ORDER BY lastUpdateTime DESC")
+    fun getRecentlyUpdatedAppsByScanId(scanId: String): Flow<List<AppInfo>>
+
+    @Query("SELECT * FROM apps WHERE installer=:installer AND scanId = :scanId")
+    fun getAppsByInstallerByScanId(scanId: String, installer: String): Flow<List<AppInfo>>
+
+    @Query("SELECT * FROM apps WHERE isDebuggable=1 AND scanId = :scanId")
+    fun getDebuggableAppsByScanId(scanId: String): Flow<List<AppInfo>>
+
+    @Query("SELECT * FROM apps WHERE isEnabled=0 AND scanId = :scanId")
+    fun getDisabledAppsByScanId(scanId: String): Flow<List<AppInfo>>
+
+    @Query("SELECT * FROM apps WHERE targetSdk<30 AND scanId = :scanId")
+    fun getOldTargetSdkAppsByScanId(scanId: String): Flow<List<AppInfo>>
+
+    @Query("SELECT * FROM apps WHERE certificateSha256=:sha256 AND scanId = :scanId")
+    fun getByCertificateSha256ByScanId(scanId: String, sha256: String): Flow<List<AppInfo>>
+
+    @Query("""
+        SELECT * FROM apps 
+        WHERE (packageName LIKE '%' || :keyword || '%' OR appName LIKE '%' || :keyword || '%') 
+        AND scanId = :scanId 
+        AND (:onlyUser = 0 OR isSystem = 0)
+        ORDER BY appName ASC
+    """)
+    fun searchAppsByScanId(scanId: String, keyword: String, onlyUser: Boolean = false): Flow<List<AppInfo>>
+
+    @Query("SELECT * FROM apps WHERE scanId = :scanId ORDER BY apkSize DESC")
+    fun getLargestAppsByScanId(scanId: String): Flow<List<AppInfo>>
+
+    @Query("SELECT * FROM apps WHERE scanId = :scanId ORDER BY apkSize ASC")
+    fun getSmallestAppsByScanId(scanId: String): Flow<List<AppInfo>>
+
+    @Query("""
+        UPDATE apps 
+        SET apkUploaded = 1, 
+            uploadDate = :date 
+        WHERE sha256 = :hash
+    """)
+    suspend fun markApkUploadedByHash(
+        hash: String,
         date: String
     )
+
+    @Query("UPDATE apps SET isDeleted = 1 WHERE packageName = :pkg AND scanId = :scanId")
+    suspend fun markAsDeleted(pkg: String, scanId: String)
+
+    @Query("""
+        UPDATE apps 
+        SET isServerVerified = 1, 
+            serverResult = :result, 
+            serverAction = :action
+        WHERE packageName = :pkg AND scanId = :scanId AND (isServerVerified = 0 OR serverResult != :result OR serverAction != :action)
+    """)
+    suspend fun updateAppVerdict(
+        pkg: String,
+        scanId: String, 
+        result: String, 
+        action: String
+    )
+
+    @androidx.room.Transaction
+    suspend fun promoteAppsToServerStatus(scanId: String, apiAppResults: List<ApiAppResult>) {
+        apiAppResults.forEach { apiApp ->
+            updateAppVerdict(
+                pkg = apiApp.packageName,
+                scanId = scanId,
+                result = apiApp.result,
+                action = apiApp.action
+            )
+        }
+    }
 
     // ---------- Upload Recommendation ----------
 
     @Query("""
-        SELECT * FROM apps
-        WHERE recommendUpload = 1
+        SELECT * FROM apps 
+        WHERE recommendUpload = 1 
+        AND scanId = :scanId
         ORDER BY riskScore DESC
     """)
-    suspend fun getRecommendedForUpload(): List<AppInfo>
+    fun getRecommendedForUploadByScanId(scanId: String): Flow<List<AppInfo>>
 
     @Query("""
-        SELECT COUNT(*)
-        FROM apps
+        SELECT COUNT(*) 
+        FROM apps 
         WHERE recommendUpload = 1
+        AND scanId = :scanId
     """)
-    suspend fun countRecommendedUploads(): Int
+    fun countRecommendedUploadsByScanId(scanId: String): Flow<Int>
 
     @Query("""
-        SELECT * FROM apps
-        WHERE recommendUpload = 1
-        AND suspicious = 1
+        SELECT * FROM apps 
+        WHERE recommendUpload = 1 
+        AND suspicious = 1 
+        AND scanId = :scanId
         ORDER BY riskScore DESC
     """)
-    suspend fun getRecommendedSuspiciousApps(): List<AppInfo>
+    fun getRecommendedSuspiciousAppsByScanId(scanId: String): Flow<List<AppInfo>>
 
     // ---------- Statistics ----------
 
-    @Query("SELECT COUNT(*) FROM apps WHERE isSystem=1")
-    suspend fun countSystemApps(): Int
+    @Query("SELECT COUNT(*) FROM apps WHERE isSystem=1 AND scanId = :scanId")
+    fun countSystemAppsByScanId(scanId: String): Flow<Int>
 
-    @Query("SELECT COUNT(*) FROM apps WHERE isSystem=0")
-    suspend fun countUserApps(): Int
+    @Query("SELECT COUNT(*) FROM apps WHERE isSystem=0 AND scanId = :scanId")
+    fun countUserAppsByScanId(scanId: String): Flow<Int>
 
-    @Query("SELECT COUNT(*) FROM apps WHERE suspicious=1")
-    suspend fun countSuspiciousApps(): Int
+    @Query("SELECT COUNT(*) FROM apps WHERE suspicious=1 AND scanId = :scanId")
+    fun countSuspiciousAppsByScanId(scanId: String): Flow<Int>
 
-    @Query("SELECT COUNT(*) FROM apps WHERE riskLevel='SAFE' AND (:onlyUser = 0 OR isSystem = 0)")
-    suspend fun countSafeApps(onlyUser: Boolean = false): Int
+    @Query("""
+        SELECT COUNT(*) FROM apps 
+        WHERE scanId = :scanId 
+        AND (:onlyUser = 0 OR isSystem = 0)
+        AND (
+            (isServerVerified = 1 AND serverResult = 'SAFE') OR 
+            (isServerVerified = 0 AND riskLevel = 'SAFE')
+        )
+    """)
+    fun countSafeAppsByScanId(scanId: String, onlyUser: Boolean = false): Flow<Int>
 
-    @Query("SELECT COUNT(*) FROM apps WHERE riskLevel='LOW' AND (:onlyUser = 0 OR isSystem = 0)")
-    suspend fun countLowRiskApps(onlyUser: Boolean = false): Int
+    @Query("""
+        SELECT COUNT(*) FROM apps 
+        WHERE scanId = :scanId 
+        AND (:onlyUser = 0 OR isSystem = 0)
+        AND (
+            (isServerVerified = 1 AND serverResult = 'LOW') OR 
+            (isServerVerified = 0 AND riskLevel = 'LOW')
+        )
+    """)
+    fun countLowRiskAppsByScanId(scanId: String, onlyUser: Boolean = false): Flow<Int>
 
-    @Query("SELECT COUNT(*) FROM apps WHERE riskLevel='MEDIUM' AND (:onlyUser = 0 OR isSystem = 0)")
-    suspend fun countMediumRiskApps(onlyUser: Boolean = false): Int
+    @Query("""
+        SELECT COUNT(*) FROM apps 
+        WHERE scanId = :scanId 
+        AND (:onlyUser = 0 OR isSystem = 0)
+        AND (
+            (isServerVerified = 1 AND serverResult = 'MEDIUM') OR 
+            (isServerVerified = 0 AND riskLevel = 'MEDIUM')
+        )
+    """)
+    fun countMediumRiskAppsByScanId(scanId: String, onlyUser: Boolean = false): Flow<Int>
 
-    @Query("SELECT COUNT(*) FROM apps WHERE riskLevel='HIGH' AND (:onlyUser = 0 OR isSystem = 0)")
-    suspend fun countHighRiskApps(onlyUser: Boolean = false): Int
+    @Query("""
+        SELECT COUNT(*) FROM apps 
+        WHERE scanId = :scanId 
+        AND (:onlyUser = 0 OR isSystem = 0)
+        AND (
+            (isServerVerified = 1 AND serverResult = 'SUSPICIOUS') OR 
+            (isServerVerified = 0 AND riskLevel = 'HIGH')
+        )
+    """)
+    fun countHighRiskAppsByScanId(scanId: String, onlyUser: Boolean = false): Flow<Int>
 
-    @Query("SELECT COUNT(*) FROM apps WHERE riskLevel='CRITICAL' AND (:onlyUser = 0 OR isSystem = 0)")
-    suspend fun countCriticalApps(onlyUser: Boolean = false): Int
+    @Query("""
+        SELECT COUNT(*) FROM apps 
+        WHERE scanId = :scanId 
+        AND (:onlyUser = 0 OR isSystem = 0)
+        AND (
+            (isServerVerified = 1 AND serverResult = 'VIRUS') OR 
+            (isServerVerified = 0 AND riskLevel = 'CRITICAL')
+        )
+    """)
+    fun countCriticalAppsByScanId(scanId: String, onlyUser: Boolean = false): Flow<Int>
 
 }

@@ -5,14 +5,14 @@ object Constants {
 
     const val APP_DB_NAME = "app_hash_scanner"
 
-    val REPORT_BASE_URL = UrlObfuscator.getReportBaseUrl()
-    val APK_BASE_URL = UrlObfuscator.getApkBaseUrl()
+    val BASE_URL = UrlObfuscator.getBaseUrl()
 
     const val DATASTORE_NAME = "hash_scanner_datastore"
 
 
-    const val UUID_DATASTORE_ID = "uuid_id"
-    var UUID = ""
+    const val DEVICE_ID_DATASTORE_ID = "deviceId_id"
+    const val IS_ACTIVATED_DATASTORE_ID = "is_activated"
+    var DEVICE_ID = ""
 
     // Installers
     const val INSTALLER_UNKNOWN = "Unknown"
@@ -98,4 +98,10 @@ object Constants {
 
     const val BALE_BOT_URL = "https://ble.ir/App_scanner_bot"
 
+    const val NOTIFICATION_CHANNEL_ID = "scan_results_channel"
+    const val EXTRA_SCAN_ID = "EXTRA_SCAN_ID"
+    const val WORK_TAG_SCAN_RESULT = "scan_result_check"
+
+    // Log Tags
+    const val TAG = "TAG"
 }

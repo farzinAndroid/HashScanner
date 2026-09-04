@@ -1,9 +1,8 @@
 package com.example.hashscanner.data.scanner
 
-import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
-import com.example.hashscanner.data.model.CertificateInfo
+import com.example.hashscanner.data.model.other.CertificateInfo
 import java.io.ByteArrayInputStream
 import java.security.cert.CertificateFactory
 import java.security.cert.X509Certificate

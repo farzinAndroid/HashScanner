@@ -5,6 +5,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.example.hashscanner.data.model.db_entities.PermissionInfo
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface PermissionDao {
@@ -16,7 +17,7 @@ interface PermissionDao {
     suspend fun insertAll(list: List<PermissionInfo>)
 
     @Query("SELECT * FROM permissions WHERE packageName=:pkg")
-    suspend fun getPermissions(pkg:String): List<PermissionInfo>
+    fun getPermissions(pkg:String): Flow<List<PermissionInfo>>
 
     @Query("DELETE FROM permissions")
     suspend fun deleteAll()

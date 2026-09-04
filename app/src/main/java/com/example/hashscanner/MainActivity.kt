@@ -1,227 +1,247 @@
 package com.example.hashscanner
 
+import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Context
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.rememberNavController
+import com.example.hashscanner.ui.components.PermissionDialog
 import com.example.hashscanner.ui.navigation.NavGraph
+import com.example.hashscanner.ui.navigation.Screens
 import com.example.hashscanner.ui.theme.BackgroundColor
 import com.example.hashscanner.ui.theme.HashScannerTheme
 import com.example.hashscanner.ui.ui_utils.ChangeStatusBarAndNavigationBarColor
+import com.example.hashscanner.ui.ui_utils.PermissionStep
+import com.example.hashscanner.utils.PermissionUtils
+import com.example.hashscanner.utils.PermissionUtils.requestIgnoreBatteryOptimizations
+import com.example.hashscanner.utils.Constants
+import com.example.hashscanner.utils.PermissionUtils.checkNotificationPermission
+import com.example.hashscanner.utils.PermissionUtils.performPermissionCheck
+import com.example.hashscanner.viewmodel.AppDatabaseViewModel
+import com.example.hashscanner.viewmodel.AppViewModel
+import com.example.hashscanner.viewmodel.ScannerViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
+    private val appViewModel: AppViewModel by viewModels()
+    private val scannerViewModel: ScannerViewModel by viewModels()
+    private val appDatabaseViewModel: AppDatabaseViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
-//        enableEdgeToEdge()
+
+        splashScreen.setKeepOnScreenCondition {
+            !appViewModel.isReady.value
+        }
         setContent {
             HashScannerTheme {
                 val navController = rememberNavController()
+                val isReady by appViewModel.isReady.collectAsStateWithLifecycle()
+                val startDestination by appViewModel.startDestination.collectAsStateWithLifecycle()
+                val isChecking by appViewModel.isChecking.collectAsStateWithLifecycle()
 
+                val context = LocalContext.current
+                val lifecycleOwner = LocalLifecycleOwner.current
 
                 ChangeStatusBarAndNavigationBarColor(
                     context = this,
                     isDarkMode = isSystemInDarkTheme()
                 )
 
-                CompositionLocalProvider(LocalLayoutDirection.provides(LayoutDirection.Rtl)){
-                    @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
-                    Scaffold(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .navigationBarsPadding()
-                            .statusBarsPadding(),
-                        containerColor = MaterialTheme.colorScheme.BackgroundColor
-                    ) { innerPadding ->
+                // --- Permission Handling State ---
+                var currentStep by rememberSaveable { mutableStateOf(PermissionStep.CHECKING) }
+                var batteryCheckInterrupted by rememberSaveable { mutableStateOf(false) }
 
-                        NavGraph(navController)
-
-                        /*Column(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(innerPadding)
-                        ) {
+                val requestPermissionLauncher = rememberLauncherForActivityResult(
+                    ActivityResultContracts.RequestPermission()
+                ) { isGranted: Boolean ->
+                    currentStep = PermissionStep.NONE
+                }
 
 
-                            Button(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(40.dp),
-                                enabled = isEnabled,
-                                onClick = {
-                                    isEnabled = false
-                                    status = "Scanning installed applications... This may take a while."
 
-                                    lifecycleScope.launch {
-                                        try {
-                                            // 1. Run the heavy lifting on the IO thread
-                                            val exports = withContext(Dispatchers.IO) {
+                LaunchedEffect(Unit) {
+                    performPermissionCheck(
+                        currentStep = currentStep,
+                        context = context,
+                        onStepChanged = { newStep ->
+                            currentStep = newStep
+                        }
+                    )
+                }
 
-                                                val errors = mutableListOf<String>()
-                                                var pdfFile: File? = null
-                                                var jsonFile: File? = null
-                                                var csvFile: File? = null
-                                                var dbFile: File? = null
-                                                var zipFile: File? = null
-
-                                                // Run the Master Scanner
-                                                try {
-                                                    val scanner = PackageScanner(this@MainActivity, db)
-                                                    scanner.startScan()
-                                                } catch (e: Exception) {
-                                                    errors.add("Scan failed: ${e.message}")
-                                                }
-
-                                                // Run individual exporters, catching errors so one failure doesn't crash the rest
-                                                try {
-                                                    pdfFile = PdfGenerator(
-                                                        this@MainActivity,
-                                                        db
-                                                    ).generatePdf()
-                                                } catch (e: Exception) {
-                                                    errors.add("PDF failed: ${e.message}")
-                                                }
-
-                                                try {
-                                                    jsonFile =
-                                                        JsonExporter(this@MainActivity, db).exportJson()
-                                                } catch (e: Exception) {
-                                                    errors.add("JSON failed: ${e.message}")
-                                                }
-
-                                                try {
-                                                    csvFile =
-                                                        CsvExporter(this@MainActivity, db).exportCsv()
-                                                } catch (e: Exception) {
-                                                    errors.add("CSV failed: ${e.message}")
-                                                }
-
-                                                try {
-                                                    dbFile =
-                                                        DatabaseExporter(this@MainActivity).exportDatabase()
-                                                } catch (e: Exception) {
-                                                    errors.add("Database export failed: ${e.message}")
-                                                }
-
-                                                // Bundle the successful files into a ZIP
-                                                try {
-                                                    // listOfNotNull will safely ignore any files that failed to generate
-                                                    val filesToZip = listOfNotNull(
-                                                        pdfFile,
-                                                        jsonFile,
-                                                        csvFile,
-                                                        dbFile
-                                                    )
-                                                    if (filesToZip.isNotEmpty()) {
-                                                        zipFile =
-                                                            ZipExporter(this@MainActivity).createZip(
-                                                                filesToZip
-                                                            )
-                                                    }
-                                                } catch (e: Exception) {
-                                                    errors.add("ZIP creation failed: ${e.message}")
-                                                }
-
-                                                // Finally, return the data class containing everything
-                                                ExportResult(
-                                                    pdfFile,
-                                                    jsonFile,
-                                                    csvFile,
-                                                    dbFile,
-                                                    zipFile,
-                                                    errors
-                                                )
-                                            }
-
-                                            // 2. Fetch the total app count
-                                            val totalApps = withContext(Dispatchers.IO) {
-                                                db.appDao()
-                                                    .count() // Assuming you have a count() function in your DAO
-                                            }
-
-                                            // 3. Update the UI
-                                            status = """
-                    Scan Completed Successfully
-
-                    Applications : $totalApps
-
-                    PDF :
-                    ${exports.pdf?.name ?: "-"}
-
-                    JSON :
-                    ${exports.json?.name ?: "-"}
-
-                    CSV :
-                    ${exports.csv?.name ?: "-"}
-
-                    Database :
-                    ${exports.database?.name ?: "-"}
-
-                    ZIP :
-                    ${exports.zip?.name ?: "-"}
-
-                    Saved In :
-                    ${getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS)?.absolutePath ?: "-"}
-
-                    Errors :
-                    ${if (exports.errors.isEmpty()) "None" else exports.errors.joinToString("\n")}
-                """.trimIndent()
-
-                                        } catch (e: Exception) {
-                                            e.printStackTrace()
-                                            status = """
-                    Critical Scan Failure
-
-                    ${e.message ?: "Unknown Error"}
-                """.trimIndent()
-                                        } finally {
-                                            isEnabled = true
+                // Re-check when returning to app (e.g., from settings)
+                DisposableEffect(lifecycleOwner) {
+                    val observer = LifecycleEventObserver { _, event ->
+                        if (event == Lifecycle.Event.ON_RESUME) {
+                            if (currentStep == PermissionStep.BATTERY || currentStep == PermissionStep.CHECKING) {
+                                performPermissionCheck(
+                                    currentStep = currentStep,
+                                    context = context,
+                                    onStepChanged = { newStep ->
+                                        // If we are still stuck on BATTERY after returning, 
+                                        // set a flag to allow manual skip
+                                        if (newStep == PermissionStep.BATTERY && currentStep == PermissionStep.BATTERY) {
+                                            batteryCheckInterrupted = true
                                         }
+                                        currentStep = newStep
                                     }
-                                },
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = Color.Red
-                                ),
-
-                                ) {
-                                Column(
-                                    modifier = Modifier.fillMaxSize(),
-                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                    verticalArrangement = Arrangement.Center
-                                ) {
-                                    Text(
-                                        text = button,
-                                    )
-                                }
-
+                                )
                             }
-
-                            Text(
-                                text = status,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .verticalScroll(rememberScrollState())
-                            )
-                        }*/
+                        }
+                    }
+                    lifecycleOwner.lifecycle.addObserver(observer)
+                    onDispose {
+                        lifecycleOwner.lifecycle.removeObserver(observer)
                     }
                 }
 
+                var initialScanId by remember {
+                    mutableStateOf(intent?.getStringExtra(Constants.EXTRA_SCAN_ID))
+                }
+
+                CompositionLocalProvider(LocalLayoutDirection.provides(LayoutDirection.Rtl)) {
+                    @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+                    Scaffold(
+                        modifier = Modifier
+                            .fillMaxSize(),
+                        containerColor = MaterialTheme.colorScheme.BackgroundColor
+                    ) { innerPadding ->
+
+                        if (isReady) {
+                            NavGraph(
+                                navController = navController,
+                                startDestination = startDestination,
+                                isChecking = isChecking,
+                                appViewModel = appViewModel,
+                                scannerViewModel = scannerViewModel,
+                                appDatabaseViewModel = appDatabaseViewModel,
+                                paddingValues = innerPadding,
+                                onRetry = {
+                                    appViewModel.retry()
+                                }
+                            )
+
+                            // Handle notification click navigation
+                            LaunchedEffect(initialScanId) {
+                                initialScanId?.let { scanId ->
+                                    navController.navigate(Screens.Landing)
+                                    initialScanId = null
+                                }
+                            }
+                        } else {
+                            // Loading state to avoid blank screen while isReady is false
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                CircularProgressIndicator(
+                                    color = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.size(48.dp)
+                                )
+                            }
+                        }
+
+                        // Dialogs moved inside RTL provider and layered on top of content
+                        when (currentStep) {
+                            PermissionStep.BATTERY -> {
+                                PermissionDialog(
+                                    icon = Icons.Default.Warning,
+                                    title = stringResource(R.string.permission_battery_title),
+                                    description = if (batteryCheckInterrupted && PermissionUtils.isXiaomi())
+                                        stringResource(R.string.permission_battery_xiaomi_desc)
+                                    else stringResource(R.string.permission_battery_desc),
+                                    grantButtonText = stringResource(R.string.button_grant_permission),
+                                    onGrant = {
+                                        if (batteryCheckInterrupted) {
+                                            // Force move to next step on Xiaomi/stuck cases
+                                            checkNotificationPermission(context) { needs ->
+                                                currentStep =
+                                                    if (needs) PermissionStep.NOTIFICATION else PermissionStep.NONE
+                                            }
+                                        } else {
+                                            requestIgnoreBatteryOptimizations(context)
+                                        }
+                                    },
+                                    onDismiss = {
+                                        checkNotificationPermission(context) { needs ->
+                                            currentStep =
+                                                if (needs) PermissionStep.NOTIFICATION else PermissionStep.NONE
+                                        }
+                                    }
+                                )
+                            }
+
+                            PermissionStep.NOTIFICATION -> {
+                                PermissionDialog(
+                                    icon = Icons.Default.Notifications,
+                                    title = stringResource(R.string.permission_notification_title),
+                                    description = stringResource(R.string.permission_notification_desc),
+                                    onGrant = {
+                                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                                            requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                                        } else {
+                                            currentStep = PermissionStep.NONE
+                                        }
+                                    },
+                                    onDismiss = {
+                                        currentStep = PermissionStep.NONE
+                                    }
+                                )
+                            }
+
+                            else -> {}
+                        }
+                    }
+                }
             }
         }
     }
 }
+
+

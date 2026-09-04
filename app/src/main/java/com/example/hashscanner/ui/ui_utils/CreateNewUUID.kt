@@ -2,24 +2,23 @@ package com.example.hashscanner.ui.ui_utils
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import com.example.hashscanner.viewmodel.DataStoreViewModel
+import com.example.hashscanner.viewmodel.AppViewModel
 import java.util.UUID
 
 @Composable
 fun CreateNewUUID(
-    dataStoreViewModel: DataStoreViewModel,
-    onUUIDCreated:(String)->Unit
+    appViewModel: AppViewModel,
+    onUUIDCreated: (String) -> Unit
 ) {
 
-    LaunchedEffect(true) {
-        if (dataStoreViewModel.getUUID() == null){
-            val uuid = UUID.randomUUID().toString()
-            dataStoreViewModel.saveUUID(uuid)
-            onUUIDCreated(uuid)
-        }else{
-            val uuid = dataStoreViewModel.getUUID()
-            onUUIDCreated(uuid!!)
+    LaunchedEffect(Unit) {
+        val existingUuid = appViewModel.getDeviceId()
+        if (existingUuid == null) {
+            val newUuid = UUID.randomUUID().toString()
+            appViewModel.saveDeviceId(newUuid)
+            onUUIDCreated(newUuid)
+        } else {
+            onUUIDCreated(existingUuid)
         }
     }
-
 }

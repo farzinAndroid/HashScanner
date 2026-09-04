@@ -7,6 +7,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import com.example.hashscanner.data.model.db_entities.SuspiciousApp
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface SuspiciousDao {
@@ -27,28 +28,28 @@ interface SuspiciousDao {
     suspend fun deleteAll()
 
     @Query("SELECT * FROM suspicious_apps ORDER BY riskScore DESC")
-    suspend fun getAll(): List<SuspiciousApp>
+    fun getAll(): Flow<List<SuspiciousApp>>
 
     @Query("SELECT * FROM suspicious_apps WHERE packageName=:pkg LIMIT 1")
-    suspend fun getByPackage(pkg: String): SuspiciousApp?
+    fun getByPackage(pkg: String): Flow<SuspiciousApp?>
 
     @Query("SELECT * FROM suspicious_apps WHERE sentToServer=0 ORDER BY riskScore DESC")
-    suspend fun getNotSent(): List<SuspiciousApp>
+    fun getNotSent(): Flow<List<SuspiciousApp>>
 
     @Query("SELECT * FROM suspicious_apps WHERE recommendUpload=1 ORDER BY riskScore DESC")
-    suspend fun getRecommended(): List<SuspiciousApp>
+    fun getRecommended(): Flow<List<SuspiciousApp>>
 
     @Query("SELECT COUNT(*) FROM suspicious_apps")
-    suspend fun count(): Int
+    fun count(): Flow<Int>
 
     @Query("SELECT COUNT(*) FROM suspicious_apps WHERE recommendUpload=1")
-    suspend fun countRecommended(): Int
+    fun countRecommended(): Flow<Int>
 
     @Query("SELECT COUNT(*) FROM suspicious_apps WHERE sentToServer=0")
-    suspend fun countNotSent(): Int
+    fun countNotSent(): Flow<Int>
 
     @Query("SELECT COUNT(*) FROM suspicious_apps WHERE sentToServer=1")
-    suspend fun countSent(): Int
+    fun countSent(): Flow<Int>
 
     @Query("""
         UPDATE suspicious_apps
@@ -65,10 +66,10 @@ interface SuspiciousDao {
         UPDATE suspicious_apps
         SET apkUploaded = 1,
             uploadDate = :date
-        WHERE packageName = :pkg
+        WHERE sha256 = :hash
     """)
-    suspend fun markApkUploaded(
-        pkg: String,
+    suspend fun markApkUploadedByHash(
+        hash: String,
         date: String
     )
 

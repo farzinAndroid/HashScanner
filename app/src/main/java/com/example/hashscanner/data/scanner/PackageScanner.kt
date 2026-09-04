@@ -1,6 +1,5 @@
 package com.example.hashscanner.data.scanner
 
-import android.Manifest
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
@@ -17,6 +16,7 @@ import com.example.hashscanner.data.model.db_entities.PermissionInfo
 import com.example.hashscanner.data.model.db_entities.SuspiciousApp
 import com.example.hashscanner.utils.DateTimeUtils
 import com.example.hashscanner.utils.IconConverter
+import kotlinx.coroutines.yield
 import java.io.File
 import javax.inject.Inject
 
@@ -32,6 +32,7 @@ class PackageScanner @Inject constructor(
 
 
     suspend fun startScan(
+        scanId: String,
         onProgress: (scanned: Int, total: Int, suspicious: Int, remaining: Int, appName: String, icon: Bitmap) -> Unit
     ) {
 
@@ -65,6 +66,8 @@ class PackageScanner @Inject constructor(
 
         for (pkg in packages) {
 
+            yield() // Check for coroutine cancellation at the start of every app scan
+
             val appName = pkg.applicationInfo?.let { pm.getApplicationLabel(it).toString() }
                 ?: pkg.packageName
 
@@ -78,7 +81,7 @@ class PackageScanner @Inject constructor(
                     null // If an app has a corrupted icon, we safely ignore it
                 }
 
-                val isSuspicious = scanPackage(pkg, iconBitmap)
+                val isSuspicious = scanPackage(pkg, scanId, iconBitmap)
 
                 scannedCount++
                 if (isSuspicious) suspiciousCount++
@@ -116,6 +119,7 @@ class PackageScanner @Inject constructor(
 
     private suspend fun scanPackage(
         pkg: PackageInfo,
+        scanId: String,
         icon: Bitmap? = null
     ): Boolean {
 
@@ -200,6 +204,8 @@ class PackageScanner @Inject constructor(
 
             packageName = packageName,
 
+            scanId = scanId,
+
             versionName = versionName,
 
             versionCode = versionCode,
@@ -235,10 +241,10 @@ class PackageScanner @Inject constructor(
                 certificate.algorithm,
 
             certificateValidFrom =
-                certificate.validFrom,
+                certificate.validFrom.toString(),
 
             certificateValidTo =
-                certificate.validTo,
+                certificate.validTo.toString(),
 
             installer = installer,
 
@@ -292,29 +298,29 @@ class PackageScanner @Inject constructor(
 
             val dangerous = when (permission) {
 
-                Manifest.permission.READ_SMS,
-                Manifest.permission.SEND_SMS,
-                Manifest.permission.RECEIVE_SMS,
+                android.Manifest.permission.READ_SMS,
+                android.Manifest.permission.SEND_SMS,
+                android.Manifest.permission.RECEIVE_SMS,
 
-                Manifest.permission.READ_CONTACTS,
-                Manifest.permission.WRITE_CONTACTS,
+                android.Manifest.permission.READ_CONTACTS,
+                android.Manifest.permission.WRITE_CONTACTS,
 
-                Manifest.permission.READ_CALL_LOG,
-                Manifest.permission.WRITE_CALL_LOG,
+                android.Manifest.permission.READ_CALL_LOG,
+                android.Manifest.permission.WRITE_CALL_LOG,
 
-                Manifest.permission.READ_PHONE_STATE,
+                android.Manifest.permission.READ_PHONE_STATE,
 
-                Manifest.permission.RECORD_AUDIO,
+                android.Manifest.permission.RECORD_AUDIO,
 
-                Manifest.permission.CAMERA,
+                android.Manifest.permission.CAMERA,
 
-                Manifest.permission.ACCESS_FINE_LOCATION,
+                android.Manifest.permission.ACCESS_FINE_LOCATION,
 
-                Manifest.permission.ACCESS_COARSE_LOCATION,
+                android.Manifest.permission.ACCESS_COARSE_LOCATION,
 
-                Manifest.permission.SYSTEM_ALERT_WINDOW,
+                android.Manifest.permission.SYSTEM_ALERT_WINDOW,
 
-                Manifest.permission.REQUEST_INSTALL_PACKAGES -> true
+                android.Manifest.permission.REQUEST_INSTALL_PACKAGES -> true
 
                 else -> false
 

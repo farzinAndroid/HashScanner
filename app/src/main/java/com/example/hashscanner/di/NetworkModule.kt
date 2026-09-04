@@ -1,16 +1,24 @@
 package com.example.hashscanner.di
 
 import android.content.Context
+import com.example.hashscanner.BuildConfig
+import com.example.hashscanner.data.network.ApiService
 import com.example.hashscanner.data.network.ConnectivityObserver
 import com.example.hashscanner.data.network.NetworkConnectivityObserver
 import com.example.hashscanner.utils.Constants
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
-import javax.inject.Named
+import okhttp3.internal.platform.Platform
+import okhttp3.logging.HttpLoggingInterceptor
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
 @Module
@@ -19,21 +27,62 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideOkHttpClient(): OkHttpClient {
+    fun provideGson(): Gson {
+        return GsonBuilder().create()
+    }
+
+    @Provides
+    @Singleton
+    fun provideLoggingInterceptor(): HttpLoggingInterceptor {
+        return HttpLoggingInterceptor { message ->
+            // Bypasses logging binary APK chunk lines if URL is upload_apk
+            if (!message.contains("api/upload_apk")) {
+                Platform.get().log(message)
+            }
+        }.apply {
+            level = if (BuildConfig.DEBUG) {
+                HttpLoggingInterceptor.Level.BODY
+            } else {
+                HttpLoggingInterceptor.Level.NONE
+            }
+        }
+    }
+
+    @Provides
+    @Singleton
+    fun provideOkHttpClient(loggingInterceptor: HttpLoggingInterceptor): OkHttpClient {
         return OkHttpClient.Builder()
+            .addInterceptor(loggingInterceptor)
+            .connectTimeout(60, TimeUnit.SECONDS)
+            .readTimeout(120, TimeUnit.SECONDS)
+            .writeTimeout(300, TimeUnit.SECONDS)
             .build()
     }
 
     @Provides
-    @Named("report_base_url")
     fun provideReportBaseUrl(): String {
-        return Constants.REPORT_BASE_URL
+        return Constants.BASE_URL
+    }
+
+
+    @Provides
+    @Singleton
+    fun provideReportRetrofit(
+        okHttpClient: OkHttpClient,
+        gson: Gson,
+        baseUrl: String
+    ): Retrofit {
+        return Retrofit.Builder()
+            .baseUrl(baseUrl)
+            .client(okHttpClient)
+            .addConverterFactory(GsonConverterFactory.create(gson))
+            .build()
     }
 
     @Provides
-    @Named("apk_base_url")
-    fun provideApkBaseUrl(): String {
-        return Constants.APK_BASE_URL
+    @Singleton
+    fun provideApiService(retrofit: Retrofit): ApiService {
+        return retrofit.create(ApiService::class.java)
     }
 
     @Provides

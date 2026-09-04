@@ -1,5 +1,6 @@
 package com.example.hashscanner.ui.screens.app_details
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -29,18 +30,22 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.hashscanner.R
-import com.example.hashscanner.ui.theme.GreenColor
-import com.example.hashscanner.ui.theme.RedColor
+import com.example.hashscanner.ui.theme.*
 import com.example.hashscanner.ui.theme.spacing
 
 @Composable
 fun AppDetailsBottomBar(
     isSystem: Boolean = false,
     isUploaded: Boolean = false,
-    isUploading: Boolean = false,
+    isServerVerified: Boolean = false,
+    isLoading: Boolean = false,
+    isDeleted: Boolean = false,
+    apiAction: String? = null,
     onUploadApkClicked: () -> Unit,
     onDeleteClicked: () -> Unit
 ) {
+    if (isDeleted) return 
+
     Surface(
         color = MaterialTheme.colorScheme.surface,
         tonalElevation = 2.dp,
@@ -53,32 +58,53 @@ fun AppDetailsBottomBar(
             horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.dp12),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            OutlinedButton(
-                onClick = onDeleteClicked,
-                modifier = Modifier.weight(1f),
-                enabled = !isUploading,
-                shape = RoundedCornerShape(MaterialTheme.spacing.dp16),
-                colors = ButtonDefaults.outlinedButtonColors(
-                    contentColor = MaterialTheme.colorScheme.RedColor
-                ),
-                border = androidx.compose.foundation.BorderStroke(
-                    1.dp,
-                    MaterialTheme.colorScheme.RedColor
-                )
-            ) {
-                Icon(
-                    if (isSystem) Icons.Default.Info else Icons.Default.Delete,
-                    contentDescription = null
-                )
-                Spacer(modifier = Modifier.width(MaterialTheme.spacing.dp8))
-                Text(
-                    text = stringResource(
-                        if (isSystem) R.string.button_app_info else R.string.button_uninstall_app
+            // UNINSTALL BUTTON
+            // We show this if it's a user app OR if the API specifically recommends DELETE
+            val showUninstall = !isSystem || apiAction == "DELETE"
+            
+            if (showUninstall) {
+                OutlinedButton(
+                    onClick = onDeleteClicked,
+                    modifier = Modifier.weight(1f),
+                    enabled = !isLoading,
+                    shape = RoundedCornerShape(MaterialTheme.spacing.dp16),
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        contentColor = MaterialTheme.colorScheme.RedColor
                     ),
-                    fontWeight = FontWeight.Bold
-                )
+                    border = BorderStroke(
+                        1.dp,
+                        if (apiAction == "DELETE") MaterialTheme.colorScheme.RedColor else MaterialTheme.colorScheme.RedColor.copy(alpha = 0.5f)
+                    )
+                ) {
+                    Icon(Icons.Default.Delete, contentDescription = null)
+                    Spacer(modifier = Modifier.width(MaterialTheme.spacing.dp8))
+                    Text(
+                        text = stringResource(R.string.button_uninstall_app),
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            } else if (isSystem) {
+                // For system apps with no specific delete recommendation, show Info button
+                OutlinedButton(
+                    onClick = onDeleteClicked,
+                    modifier = Modifier.weight(1f),
+                    enabled = !isLoading,
+                    shape = RoundedCornerShape(MaterialTheme.spacing.dp16),
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        contentColor = MaterialTheme.colorScheme.AccentPurpleColor
+                    ),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.AccentPurpleColor)
+                ) {
+                    Icon(Icons.Default.Info, contentDescription = null)
+                    Spacer(modifier = Modifier.width(MaterialTheme.spacing.dp8))
+                    Text(
+                        text = stringResource(R.string.button_app_info),
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
 
+            // UPLOAD BUTTON / STATUS
             if (isUploaded) {
                 Row(
                     modifier = Modifier.weight(1f),
@@ -86,15 +112,15 @@ fun AppDetailsBottomBar(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
-                        Icons.Default.CheckCircle,
+                        imageVector = if (isServerVerified) Icons.Default.CheckCircle else Icons.Default.Info,
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.GreenColor
+                        tint = if (isServerVerified) MaterialTheme.colorScheme.GreenColor else MaterialTheme.colorScheme.AccentPurpleColor
                     )
                     Spacer(modifier = Modifier.width(MaterialTheme.spacing.dp8))
                     Text(
                         text = stringResource(R.string.apk_already_uploaded),
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.GreenColor,
+                        color = if (isServerVerified) MaterialTheme.colorScheme.GreenColor else MaterialTheme.colorScheme.AccentPurpleColor,
                         fontWeight = FontWeight.Bold
                     )
                 }
@@ -102,14 +128,14 @@ fun AppDetailsBottomBar(
                 Button(
                     onClick = onUploadApkClicked,
                     modifier = Modifier.weight(1f),
-                    enabled = !isUploading,
+                    enabled = !isLoading,
                     shape = RoundedCornerShape(MaterialTheme.spacing.dp16),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.RedColor,
+                        containerColor = MaterialTheme.colorScheme.AccentPurpleColor,
                         contentColor = Color.White
                     )
                 ) {
-                    if (isUploading) {
+                    if (isLoading) {
                         CircularProgressIndicator(
                             modifier = Modifier.size(20.dp),
                             color = Color.White,
@@ -120,7 +146,8 @@ fun AppDetailsBottomBar(
                         Spacer(modifier = Modifier.width(MaterialTheme.spacing.dp8))
                         Text(
                             text = stringResource(R.string.button_send_apk_file),
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Bold,
+                            style = MaterialTheme.typography.labelMedium
                         )
                     }
                 }

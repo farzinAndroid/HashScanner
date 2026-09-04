@@ -1,6 +1,5 @@
 package com.example.hashscanner.data.scanner
 
-import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import java.security.MessageDigest

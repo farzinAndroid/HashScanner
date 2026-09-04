@@ -6,4 +6,10 @@
     </style>
 
     <style name="Theme.HashScanner" parent="Base.Theme.HashScanner" />
+
+    <style name="Theme.App.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">#3D5AFE</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash_logo</item>
+        <item name="postSplashScreenTheme">@style/Theme.HashScanner</item>
+    </style>
 </resources>

@@ -1,7 +1,6 @@
 package com.example.hashscanner.ui.screens.app_list
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -19,7 +18,6 @@ import com.example.hashscanner.ui.theme.GreenColor
 import com.example.hashscanner.ui.theme.HashScannerTheme
 import com.example.hashscanner.ui.theme.RedColor
 import com.example.hashscanner.ui.theme.StrongYellowColor
-import com.example.hashscanner.ui.theme.YellowColor
 import com.example.hashscanner.ui.theme.spacing
 import com.example.hashscanner.ui.ui_utils.BadgeData
 import com.example.hashscanner.ui.ui_utils.RiskLevelsUI
