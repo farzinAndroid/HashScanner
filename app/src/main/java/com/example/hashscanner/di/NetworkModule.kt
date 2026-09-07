@@ -13,8 +13,8 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import okhttp3.Interceptor
 import okhttp3.OkHttpClient
-import okhttp3.internal.platform.Platform
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -33,24 +33,31 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideLoggingInterceptor(): HttpLoggingInterceptor {
-        return HttpLoggingInterceptor { message ->
-            // Bypasses logging binary APK chunk lines if URL is upload_apk
-            if (!message.contains("api/upload_apk")) {
-                Platform.get().log(message)
-            }
-        }.apply {
-            level = if (BuildConfig.DEBUG) {
-                HttpLoggingInterceptor.Level.BODY
+    fun provideLoggingInterceptor(): Interceptor {
+        val bodyLogger = HttpLoggingInterceptor().apply {
+            level = HttpLoggingInterceptor.Level.BODY
+        }
+        val headersLogger = HttpLoggingInterceptor().apply {
+            level = HttpLoggingInterceptor.Level.HEADERS
+        }
+
+        return Interceptor { chain ->
+            if (!BuildConfig.DEBUG) {
+                chain.proceed(chain.request())
             } else {
-                HttpLoggingInterceptor.Level.NONE
+                val isUploadApk = chain.request().url.encodedPath.contains("upload_apk")
+                if (isUploadApk) {
+                    headersLogger.intercept(chain)
+                } else {
+                    bodyLogger.intercept(chain)
+                }
             }
         }
     }
 
     @Provides
     @Singleton
-    fun provideOkHttpClient(loggingInterceptor: HttpLoggingInterceptor): OkHttpClient {
+    fun provideOkHttpClient(loggingInterceptor: Interceptor): OkHttpClient {
         return OkHttpClient.Builder()
             .addInterceptor(loggingInterceptor)
             .connectTimeout(60, TimeUnit.SECONDS)
