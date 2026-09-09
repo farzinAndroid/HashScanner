@@ -21,6 +21,7 @@
 #-renamesourcefileattribute SourceFile
 
 -keep class com.hashscanner.hashscanner.data.model.** { *; }
+-keep class com.hashscanner.hashscanner.ui.ui_utils.** { *; }
 
 -keep class com.google.gson.reflect.TypeToken
 -keep class * extends com.google.gson.reflect.TypeToken
