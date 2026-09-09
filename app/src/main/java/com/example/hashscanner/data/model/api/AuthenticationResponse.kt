@@ -1,6 +1,0 @@
-package com.example.hashscanner.data.model.api
-
-data class AuthenticationResponse(
-    val message: String,
-    val success: Boolean
-)

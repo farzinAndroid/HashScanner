@@ -1,0 +1,176 @@
+package com.hashscanner.hashscanner.ui.screens.scan
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.hashscanner.hashscanner.R
+import com.hashscanner.hashscanner.ui.theme.BackgroundColor
+import com.hashscanner.hashscanner.ui.theme.WhitePurple
+import com.hashscanner.hashscanner.ui.theme.spacing
+import com.hashscanner.hashscanner.viewmodel.ScannerViewModel
+
+@Composable
+fun ScanningProgressSection(
+    paddingValues: PaddingValues,
+    scannerViewModel: ScannerViewModel
+) {
+    val totalCount by scannerViewModel.totalCount.collectAsStateWithLifecycle()
+    val suspiciousCount by scannerViewModel.suspiciousCount.collectAsStateWithLifecycle()
+    val scannedCount by scannerViewModel.scannedCount.collectAsStateWithLifecycle()
+    val remainingCount by scannerViewModel.remainingCount.collectAsStateWithLifecycle()
+    val appName by scannerViewModel.appName.collectAsStateWithLifecycle()
+    val icon by scannerViewModel.iconBitmap.collectAsStateWithLifecycle()
+    val scanState by scannerViewModel.isScanCompleted.collectAsStateWithLifecycle()
+
+    LaunchedEffect(Unit) {
+        if (scanState == ScanPageState.SCANNING) {
+            scannerViewModel.startScan()
+        }
+    }
+
+
+    DisposableEffect(Unit) {
+        onDispose {
+            scannerViewModel.cancelScanJob()
+        }
+    }
+
+
+    ScanningProgressSectionContent(
+        paddingValues = paddingValues,
+        totalCount = totalCount,
+        suspiciousCount = suspiciousCount,
+        scannedCount = scannedCount,
+        remainingCount = remainingCount,
+        appName = appName,
+        icon = icon,
+        scanState = scanState
+    )
+}
+
+@Composable
+fun ScanningProgressSectionContent(
+    paddingValues: PaddingValues,
+    totalCount: Int,
+    suspiciousCount: Int,
+    scannedCount: Int,
+    remainingCount: Int,
+    appName: String,
+    icon: android.graphics.Bitmap?,
+    scanState: ScanPageState
+) {
+    var progress by remember { mutableFloatStateOf(0f) }
+
+    val percentage by remember(scannedCount, totalCount) {
+        mutableIntStateOf(if (totalCount > 0) (scannedCount.toFloat() / totalCount.toFloat() * 100).toInt() else 0)
+    }
+
+    LaunchedEffect(scannedCount) {
+        progress = if (totalCount > 0) scannedCount.toFloat() / totalCount.toFloat() else 0f
+    }
+
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.BackgroundColor),
+        contentPadding = paddingValues,
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        item {
+            Spacer(Modifier.height(MaterialTheme.spacing.dp16))
+
+            Text(
+                text = if (scanState == ScanPageState.UPLOADING)
+                    stringResource(R.string.scan_progress_status_uploading)
+                else
+                    stringResource(R.string.scan_progress_status_scanning_installed_apps),
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.WhitePurple,
+                modifier = Modifier
+                    .fillMaxWidth(),
+                textAlign = TextAlign.Center,
+                fontWeight = FontWeight.Bold
+            )
+
+            Spacer(modifier = Modifier.height(MaterialTheme.spacing.dp8))
+        }
+
+        item {
+            ScanCircleProgress(
+                progress = if (scanState == ScanPageState.UPLOADING) 1f else progress,
+                percentage = if (scanState == ScanPageState.UPLOADING) 100 else percentage
+            )
+        }
+
+        item {
+            if (scanState == ScanPageState.SCANNING) {
+                Spacer(modifier = Modifier.height(MaterialTheme.spacing.dp16))
+
+                CurrentlyScanSection(
+                    appName = appName,
+                    icon = icon,
+                    progress = progress,
+                    scannedCount = scannedCount,
+                    totalCount = totalCount
+                )
+            }
+        }
+
+        item {
+            Spacer(modifier = Modifier.height(MaterialTheme.spacing.dp16))
+
+            ScanProgressionReportBox(
+                totalCount = totalCount,
+                scannedCount = scannedCount,
+                suspiciousCount = suspiciousCount,
+                remainingCount = remainingCount
+            )
+        }
+
+        item {
+            Spacer(modifier = Modifier.height(MaterialTheme.spacing.dp16))
+
+            ScanWarning()
+
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ScanningProgressSectionPreview() {
+    com.hashscanner.hashscanner.ui.theme.HashScannerTheme {
+        ScanningProgressSectionContent(
+            paddingValues = PaddingValues(),
+            totalCount = 100,
+            suspiciousCount = 5,
+            scannedCount = 45,
+            remainingCount = 55,
+            appName = "Sample App",
+            icon = null,
+            scanState = ScanPageState.SCANNING
+        )
+    }
+}
+

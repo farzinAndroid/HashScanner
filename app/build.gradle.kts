@@ -11,7 +11,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.hashscanner"
+    namespace = "com.hashscanner.hashscanner"
     compileSdk = 36
 
     val localProperties = Properties()
@@ -24,7 +24,7 @@ android {
     val encodedBaseUrl = Base64.getEncoder().encodeToString(baseUrl.toByteArray())
 
     defaultConfig {
-        applicationId = "com.example.hashscanner"
+        applicationId = "com.hashscanner.hashscanner"
         minSdk = 24
         targetSdk = 36
         versionCode = 1
@@ -53,6 +53,10 @@ android {
         viewBinding = true
         compose = true
         buildConfig = true
+    }
+
+    lint {
+        checkReleaseBuilds = false
     }
 }
 

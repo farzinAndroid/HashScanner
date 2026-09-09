@@ -1,0 +1,157 @@
+package com.hashscanner.hashscanner.ui.navigation
+
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.toRoute
+import com.hashscanner.hashscanner.ui.screens.app_details.AppDetailsScreen
+import com.hashscanner.hashscanner.ui.screens.app_list.AppListScreen
+import com.hashscanner.hashscanner.ui.screens.authentication.AuthenticationScreen
+import com.hashscanner.hashscanner.ui.screens.error.NoInternetScreen
+import com.hashscanner.hashscanner.ui.screens.scan_history.ScanHistoryScreen
+import com.hashscanner.hashscanner.ui.screens.scan_details.ScanDetailsScreen
+import com.hashscanner.hashscanner.ui.screens.landing.LandingPageScreen
+import com.hashscanner.hashscanner.ui.screens.risk_level_list.RiskLevelListScreen
+import com.hashscanner.hashscanner.ui.screens.scan.ScanScreen
+import com.hashscanner.hashscanner.viewmodel.AppDatabaseViewModel
+import com.hashscanner.hashscanner.viewmodel.AppViewModel
+import com.hashscanner.hashscanner.viewmodel.ScannerViewModel
+
+
+@Composable
+fun NavGraph(
+    navController: NavHostController,
+    startDestination: Screens,
+    isChecking: Boolean,
+    onRetry: () -> Unit,
+    appViewModel: AppViewModel,
+    scannerViewModel: ScannerViewModel,
+    appDatabaseViewModel: AppDatabaseViewModel,
+    paddingValues: PaddingValues
+) {
+
+
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
+
+
+    val isExcluded = listOf(
+        Screens.NoInternet::class.simpleName,
+        Screens.Authentication::class.simpleName,
+        Screens.Scan::class.simpleName,
+    ).any { currentRoute?.contains(it.toString()) == true }
+
+
+    LaunchedEffect(currentRoute) {
+        if (currentRoute != null && !isExcluded) {
+            val scanIdFromRoute = if (currentRoute.contains(Screens.ScanHistoryDetails::class.simpleName.toString())) {
+                navBackStackEntry?.toRoute<Screens.ScanHistoryDetails>()?.scanId
+            } else null
+            
+            scannerViewModel.getScanResult(scanIdFromRoute)
+        } else {
+            scannerViewModel.stopPolling()
+        }
+    }
+
+
+    Box(modifier = Modifier.fillMaxSize()) {
+
+        NavHost(
+            navController = navController,
+            startDestination = startDestination
+        ) {
+            composable<Screens.NoInternet> {
+                NoInternetScreen(isChecking = isChecking, onRetry = onRetry)
+            }
+
+            composable<Screens.Authentication> {
+                AuthenticationScreen(
+                    navController = navController,
+                    scannerViewModel = scannerViewModel,
+                    appViewModel = appViewModel
+                )
+            }
+
+            composable<Screens.Landing> {
+                LandingPageScreen(
+                    onScanClick = {
+                        scannerViewModel.resetScanState()
+                        navController.navigate(Screens.Scan)
+                    },
+                    onHistoryClick = { navController.navigate(Screens.ScanHistory) },
+                    appViewModel = appViewModel,
+                    databaseViewModel = appDatabaseViewModel,
+                    navController = navController
+                )
+            }
+
+            composable<Screens.ScanHistory> {
+                ScanHistoryScreen(
+                    onBackClick = { navController.popBackStack() },
+                    databaseViewModel = appDatabaseViewModel,
+                    navController = navController
+                )
+            }
+
+            composable<Screens.Scan> {
+                ScanScreen(
+                    navController = navController,
+                    scannerViewModel = scannerViewModel,
+                    appDatabaseViewModel = appDatabaseViewModel
+                )
+            }
+
+            composable<Screens.AppList> { backStackEntry ->
+                val appList = backStackEntry.toRoute<Screens.AppList>()
+                AppListScreen(
+                    navController = navController,
+                    riskLevel = appList.riskLevel,
+                    scanId = appList.scanId,
+                    showSystem = appList.showSystem,
+                    databaseViewModel = appDatabaseViewModel
+                )
+            }
+
+            composable<Screens.RiskLevelList> { backStackEntry ->
+                val riskLevelList = backStackEntry.toRoute<Screens.RiskLevelList>()
+                RiskLevelListScreen(
+                    navController = navController,
+                    scanId = riskLevelList.scanId,
+                    databaseViewModel = appDatabaseViewModel
+                )
+            }
+
+            composable<Screens.AppDetails> { backStackEntry ->
+                val appDetails = backStackEntry.toRoute<Screens.AppDetails>()
+                AppDetailsScreen(
+                    navController = navController,
+                    packageName = appDetails.packageName,
+                    scanId = appDetails.scanId,
+                    databaseViewModel = appDatabaseViewModel,
+                    scannerViewModel = scannerViewModel
+                )
+            }
+
+            composable<Screens.ScanHistoryDetails> { backStackEntry ->
+                val details = backStackEntry.toRoute<Screens.ScanHistoryDetails>()
+                ScanDetailsScreen(
+                    navController = navController,
+                    scanId = details.scanId,
+                    databaseViewModel = appDatabaseViewModel,
+                    scannerViewModel = scannerViewModel
+                )
+            }
+
+
+        }
+    }
+}

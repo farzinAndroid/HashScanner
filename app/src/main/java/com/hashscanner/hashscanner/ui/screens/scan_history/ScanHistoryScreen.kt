@@ -1,0 +1,201 @@
+package com.hashscanner.hashscanner.ui.screens.scan_history
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
+import com.hashscanner.hashscanner.R
+import com.hashscanner.hashscanner.data.model.db_entities.ScanHistory
+import com.hashscanner.hashscanner.ui.navigation.Screens
+import com.hashscanner.hashscanner.ui.theme.AccentPurpleColor
+import com.hashscanner.hashscanner.ui.theme.BackgroundColor
+import com.hashscanner.hashscanner.ui.theme.HashScannerTheme
+import com.hashscanner.hashscanner.ui.theme.spacing
+import com.hashscanner.hashscanner.ui.ui_utils.AppTopBar
+import com.hashscanner.hashscanner.ui.ui_utils.RecentScanCard
+import com.hashscanner.hashscanner.viewmodel.AppDatabaseViewModel
+
+@Composable
+fun ScanHistoryScreen(
+    onBackClick: () -> Unit,
+    databaseViewModel: AppDatabaseViewModel,
+    navController: NavController
+) {
+    val scanHistory by databaseViewModel.scanHistory.collectAsStateWithLifecycle(emptyList())
+
+
+
+    ScanHistoryContent(
+        scanHistory = scanHistory,
+        onBackClick = onBackClick,
+        onDeleteClicked = {
+            databaseViewModel.deleteScanHistory(it.id)
+        },
+        onRecentScanCardClicked = {
+            navController.navigate(Screens.ScanHistoryDetails(it.id))
+        }
+    )
+}
+
+@Composable
+fun ScanHistoryContent(
+    scanHistory: List<ScanHistory>,
+    onBackClick: () -> Unit,
+    onDeleteClicked: (ScanHistory) -> Unit,
+    onRecentScanCardClicked: (ScanHistory) -> Unit
+) {
+    var searchQuery by remember { mutableStateOf("") }
+
+    val filteredHistory = remember(scanHistory, searchQuery) {
+        if (searchQuery.isEmpty()) scanHistory
+        else scanHistory.filter {
+            it.scanDate.contains(searchQuery) || it.scanTime.contains(
+                searchQuery
+            )
+        }
+    }
+
+    Scaffold(
+        topBar = {
+            AppTopBar(
+                topBarText = stringResource(R.string.topbar_title_scan_history),
+                onClick = onBackClick
+            )
+        },
+        containerColor = MaterialTheme.colorScheme.BackgroundColor
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(horizontal = MaterialTheme.spacing.dp20)
+        ) {
+            // Search Bar
+            OutlinedTextField(
+                value = searchQuery,
+                onValueChange = { searchQuery = it },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = MaterialTheme.spacing.dp16),
+                placeholder = { Text(stringResource(R.string.history_search_placeholder)) },
+                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                shape = RoundedCornerShape(MaterialTheme.spacing.dp12),
+                colors = OutlinedTextFieldDefaults.colors(
+                    unfocusedBorderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f),
+                    focusedBorderColor = MaterialTheme.colorScheme.AccentPurpleColor
+                ),
+                singleLine = true
+            )
+
+            if (filteredHistory.isEmpty()) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = stringResource(R.string.history_empty_state),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
+                    )
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(bottom = MaterialTheme.spacing.dp24),
+                    verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.dp8)
+                ) {
+                    items(
+                        items = filteredHistory,
+                        key = { it.id }
+                    ) { scan ->
+                        RecentScanCard(
+                            scan = scan,
+                            onClick = { onRecentScanCardClicked(scan) },
+                            onDeleteClicked = { onDeleteClicked(scan) },
+                            modifier = Modifier.animateItem()
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ScanHistoryScreenPreview() {
+    HashScannerTheme {
+        ScanHistoryContent(
+            scanHistory = listOf(
+                ScanHistory(
+                    id = "1",
+                    scanDate = "2026-08-10",
+                    scanTime = "20:00",
+                    totalApps = 150,
+                    scannedApps = 150,
+                    safeApps = 140,
+                    lowRisk = 5,
+                    mediumRisk = 3,
+                    highRisk = 2,
+                    criticalRisk = 0,
+                    duration = 5400L,
+                    safeUserApps = 140,
+                    lowRiskUserApps = 5,
+                    mediumRiskUserApps = 3,
+                    highRiskUserApps = 2,
+                    criticalRiskUserApps = 0,
+                    systemApps = 10,
+                    userApps = 50
+                ),
+                ScanHistory(
+                    id = "2",
+                    scanDate = "2026-08-10",
+                    scanTime = "20:00",
+                    totalApps = 150,
+                    scannedApps = 150,
+                    safeApps = 140,
+                    lowRisk = 5,
+                    mediumRisk = 3,
+                    highRisk = 2,
+                    criticalRisk = 0,
+                    duration = 5400L,
+                    safeUserApps = 140,
+                    lowRiskUserApps = 5,
+                    mediumRiskUserApps = 3,
+                    highRiskUserApps = 2,
+                    criticalRiskUserApps = 0,
+                    systemApps = 10,
+                    userApps = 50
+                )
+            ),
+            onBackClick = {},
+            onDeleteClicked = {},
+            onRecentScanCardClicked = {}
+        )
+    }
+}

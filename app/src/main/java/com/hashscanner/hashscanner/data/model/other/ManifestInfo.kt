@@ -1,0 +1,21 @@
+package com.hashscanner.hashscanner.data.model.other
+
+data class ManifestInfo(
+
+    val activityCount: Int,
+
+    val serviceCount: Int,
+
+    val receiverCount: Int,
+
+    val providerCount: Int,
+
+    val exportedActivities: Int,
+
+    val exportedServices: Int,
+
+    val exportedReceivers: Int,
+
+    val exportedProviders: Int
+
+)
