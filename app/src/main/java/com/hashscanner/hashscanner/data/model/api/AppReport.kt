@@ -1,10 +1,14 @@
 package com.hashscanner.hashscanner.data.model.api
 
+import com.google.gson.annotations.SerializedName
 import com.hashscanner.hashscanner.data.model.db_entities.SuspiciousApp
 
 data class AppReport(
+    @SerializedName("apps")
     val apps: List<App>,
+    @SerializedName("deviceId")
     val deviceId: String,
+    @SerializedName("scanId")
     val scanId: String
 ) {
     companion object {
