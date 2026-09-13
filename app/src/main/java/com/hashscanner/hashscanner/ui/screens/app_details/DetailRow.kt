@@ -63,7 +63,12 @@ fun DetailRow(
         Spacer(modifier = Modifier.width(MaterialTheme.spacing.dp16))
 
         if (valueComposable != null) {
-            valueComposable()
+            Box(
+                modifier = Modifier.weight(1f, fill = false),
+                contentAlignment = Alignment.CenterEnd
+            ) {
+                valueComposable()
+            }
         } else {
             Text(
                 text = value.orEmpty(),

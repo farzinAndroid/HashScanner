@@ -113,6 +113,7 @@ fun AppDetailsScreen(
                     if (currentScanId != null) {
                         databaseViewModel.updateAnalysisStatus(currentScanId, AnalysisStatus.PENDING.name)
                         databaseViewModel.updateLastNotifiedStage(currentScanId, NotificationStage.INITIAL_READY.name)
+                        scannerViewModel.getScanResult(currentScanId)
                     }
 
                     Toast.makeText(

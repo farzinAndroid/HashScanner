@@ -41,16 +41,16 @@ object NetworkModule {
             level = HttpLoggingInterceptor.Level.HEADERS
         }
 
-        /*return Interceptor { chain ->
+        return Interceptor { chain ->
             val isUploadApk = chain.request().url.encodedPath.contains("upload_apk")
             if (isUploadApk) {
                 headersLogger.intercept(chain)
             } else {
                 bodyLogger.intercept(chain)
             }
-        }*/
+        }
 
-        return Interceptor { chain ->
+        /*return Interceptor { chain ->
             if (!BuildConfig.DEBUG) {
                 chain.proceed(chain.request())
             } else {
@@ -61,7 +61,7 @@ object NetworkModule {
                     bodyLogger.intercept(chain)
                 }
             }
-        }
+        }*/
     }
 
     @Provides

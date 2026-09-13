@@ -23,6 +23,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hashscanner.hashscanner.R
@@ -30,6 +32,7 @@ import com.hashscanner.hashscanner.data.model.db_entities.AppInfo
 import com.hashscanner.hashscanner.ui.theme.BlueColor
 import com.hashscanner.hashscanner.ui.theme.BoxGrayColor
 import com.hashscanner.hashscanner.ui.theme.GreenColor
+import com.hashscanner.hashscanner.ui.theme.HashScannerTheme
 import com.hashscanner.hashscanner.ui.theme.RedColor
 import com.hashscanner.hashscanner.ui.theme.StrongYellowColor
 import com.hashscanner.hashscanner.ui.theme.spacing
@@ -179,7 +182,7 @@ fun TechnicalDetailsCard(
             }
 
 
-            val actions = when (apiAction) {
+            val displayMsg = apiMessage.takeIf { !it.isNullOrBlank() } ?: when (apiAction) {
                 "NONE" -> stringResource(R.string.api_msg_safe)
                 "DELETE" -> stringResource(R.string.api_msg_virus)
                 "UPLOAD_APK" -> stringResource(R.string.api_msg_suspicious)
@@ -191,12 +194,12 @@ fun TechnicalDetailsCard(
                 icon = { Icon(actionIcon, contentDescription = null, tint = actionColor) },
                 label = actionLabel,
                 valueComposable = {
-
                     Text(
-                        text = actions,
+                        text = displayMsg,
                         color = actionColor,
                         style = MaterialTheme.typography.bodySmall,
                         fontWeight = FontWeight.SemiBold,
+                        textAlign = TextAlign.End,
                         lineHeight = 18.sp
                     )
                 }
@@ -204,3 +207,69 @@ fun TechnicalDetailsCard(
         }
     }
 }
+
+private val mockAppInfo = AppInfo(
+    appName = "Telegram",
+    iconData = null,
+    packageName = "org.telegram.messenger",
+    scanId = "scan_123",
+    versionName = "10.8.1",
+    versionCode = 10000,
+    apkName = "telegram.apk",
+    apkPath = "/data/app/telegram.apk",
+    apkSize = 45000000L,
+    md5 = "md5_hash",
+    sha1 = "sha1_hash",
+    sha256 = "sha256_hash",
+    certificateSha1 = "cert_sha1",
+    certificateSha256 = "cert_sha256",
+    certificateIssuer = "Android",
+    certificateSubject = "Android",
+    certificateSerial = "123456",
+    certificateAlgorithm = "SHA256withRSA",
+    certificateValidFrom = "2020-01-01",
+    certificateValidTo = "2040-01-01",
+    installer = "Google Play Store",
+    firstInstallTime = 1600000000000L,
+    lastUpdateTime = 1700000000000L,
+    targetSdk = 34,
+    minSdk = 24,
+    isSystem = false,
+    isDebuggable = false,
+    isEnabled = true,
+    riskScore = 65,
+    riskLevel = "HIGH",
+    suspicious = true,
+    riskReasons = "Overlay Permission, Can Install APK",
+    recommendUpload = true,
+    recommendation = "Upload APK",
+    vtChecked = false,
+    vtResult = "",
+    scanDate = "1403/06/12",
+    scanTime = "14:30"
+)
+
+@Preview(showBackground = true, name = "1. Upload APK Action Preview")
+@Composable
+fun TechnicalDetailsCardUploadApkPreview() {
+    HashScannerTheme {
+        TechnicalDetailsCard(
+            appInfo = mockAppInfo,
+            apiAction = "UPLOAD_APK",
+            apiMessage = "این برنامه مشکوک است. لطفاً فایل APK را برای بررسی بیشتر ارسال کنید."
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "2. Safe Verified Preview")
+@Composable
+fun TechnicalDetailsCardSafePreview() {
+    HashScannerTheme {
+        TechnicalDetailsCard(
+            appInfo = mockAppInfo,
+            apiAction = "NONE",
+            apiMessage = "این برنامه توسط ادمین بررسی شد و سالم است."
+        )
+    }
+}
+
