@@ -296,6 +296,8 @@ fun ScanDetailsContent(
     }
 
 
+    val localUploadedCount = remember(allAppsFromDB) { allAppsFromDB.count { it.apkUploaded } }
+
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
         modifier = Modifier
@@ -327,10 +329,11 @@ fun ScanDetailsContent(
                     val finalReport = data.finalReport
 
                     // Show Final Summary if Complete, otherwise Initial
-                    if (isComplete && finalReport?.complete == true) {
+                    if (isComplete && (finalReport == null || finalReport.complete)) {
                         ApiSummaryCard(
-                            result = if (finalReport.summary.virus > 0) "VIRUS" else "CLEAN",
-                            message = finalReport.message
+                            result = if ((finalReport?.summary?.virus ?: initialReport?.summary?.virus ?: 0) > 0) "VIRUS" else "CLEAN",
+                            message = finalReport?.message
+                                ?: data.message
                                 ?: stringResource(R.string.notification_analysis_complete_generic)
                         )
                     } else if (initialReport != null) {
@@ -363,15 +366,20 @@ fun ScanDetailsContent(
         }
 
         // --- Uploaded APKs Progress (Conditional Layer) ---
-        data?.uploadedApks?.let { uploaded ->
-            if (!uploaded.summary.complete && (uploaded.summary.total > 0)) {
-                item(span = { GridItemSpan(2) }) {
-                    UploadedApkProgressCard(
-                        total = uploaded.summary.total,
-                        checked = uploaded.summary.checked,
-                        pending = uploaded.summary.pending
-                    )
-                }
+        val uploadedApksSummary = data?.uploadedApks?.summary
+        val effectiveUploadedTotal = if ((uploadedApksSummary?.total ?: 0) > 0) uploadedApksSummary?.total ?: 0 else localUploadedCount
+
+        if (effectiveUploadedTotal > 0) {
+            val total = effectiveUploadedTotal
+            val pending = uploadedApksSummary?.pending ?: if (isComplete) 0 else total
+            val checked = uploadedApksSummary?.checked ?: (total - pending)
+
+            item(span = { GridItemSpan(2) }) {
+                UploadedApkProgressCard(
+                    total = total,
+                    checked = checked,
+                    pending = pending
+                )
             }
         }
 
