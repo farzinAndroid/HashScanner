@@ -17,8 +17,9 @@
 
 <div align="center">
 
-<img src="docs/screenshots/screenshot_1.png" width="48%" alt="App screens 1" />
-<img src="docs/screenshots/screenshot_2.png" width="48%" alt="App screens 2" />
+<img width="960" height="1280" alt="photo_2_2026-10-16_11-06-01" src="https://github.com/user-attachments/assets/dfed8227-1d12-4941-8c78-284d837ab358" />
+
+<img width="960" height="1280" alt="photo_1_2026-10-16_11-06-01" src="https://github.com/user-attachments/assets/c174c215-5504-4f76-ab34-408c3e710245" />
 
 </div>
 
@@ -43,22 +44,6 @@ Layered **MVVM**: `data` (scanners, analyzer, network, database) → `repository
 
 ---
 
-## 🚀 Getting Started
-
-1. Clone the repo
-   ```bash
-   git clone https://github.com/farzinAndroid/HashScanner.git
-   ```
-2. Add your backend URL to `local.properties`:
-   ```properties
-   BASE_URL="https://your-backend.example.com/"
-   ```
-3. Open in Android Studio (JDK 21), sync Gradle, and run.
-
 **Requirements:** Android 7.0+ (API 24), Android SDK 36.
 
 ---
-
-## 📄 License
-
-No license specified yet.
