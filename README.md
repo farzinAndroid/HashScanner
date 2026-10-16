@@ -17,9 +17,9 @@
 
 <div align="center">
 
-<img width="960" height="1200" alt="photo_2_2026-10-16_11-06-01" src="https://github.com/user-attachments/assets/dfed8227-1d12-4941-8c78-284d837ab358" />
+<img width="960" height="1280" alt="photo_2_2026-10-16_11-06-01" src="https://github.com/user-attachments/assets/dfed8227-1d12-4941-8c78-284d837ab358" />
 
-<img width="960" height="1200" alt="photo_1_2026-10-16_11-06-01" src="https://github.com/user-attachments/assets/c174c215-5504-4f76-ab34-408c3e710245" />
+<img width="960" height="1280" alt="photo_1_2026-10-16_11-06-01" src="https://github.com/user-attachments/assets/c174c215-5504-4f76-ab34-408c3e710245" />
 
 </div>
 
