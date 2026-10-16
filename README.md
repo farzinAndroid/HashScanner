@@ -7,7 +7,7 @@
 ![Kotlin](https://img.shields.io/badge/Kotlin-2.0.21-7F52FF?logo=kotlin&logoColor=white)
 ![Jetpack Compose](https://img.shields.io/badge/UI-Jetpack%20Compose-4285F4?logo=jetpackcompose&logoColor=white)
 ![minSdk](https://img.shields.io/badge/minSdk-24-blue)
-![Status](https://img.shields.io/badge/Status-In%20Development-orange)
+![Status](https://img.shields.io/badge/Status-Done-brightgreen)
 
 </div>
 
