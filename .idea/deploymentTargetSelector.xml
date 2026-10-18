@@ -26,6 +26,30 @@
           </targets>
         </DialogSelection>
       </SelectionState>
+      <SelectionState runConfigName="1. Local State - LocalStatePreview">
+        <option name="selectionMode" value="DROPDOWN" />
+        <DropdownSelection timestamp="2026-09-09T17:44:41.563588200Z">
+          <Target type="DEFAULT_BOOT">
+            <handle>
+              <DeviceId pluginId="LocalEmulator" identifier="path=S:\Android Studio\SDK\Android_SDK_Home\avd\.android\avd\Android_16_SDK_36.avd" />
+            </handle>
+          </Target>
+        </DropdownSelection>
+        <DialogSelection>
+          <targets>
+            <Target type="DEFAULT_BOOT">
+              <handle>
+                <DeviceId pluginId="PhysicalDevice" identifier="serial=7e6a1d9d" />
+              </handle>
+            </Target>
+            <Target type="DEFAULT_BOOT">
+              <handle>
+                <DeviceId pluginId="LocalEmulator" identifier="path=S:\Android Studio\SDK\Android_SDK_Home\avd\.android\avd\Android_16_SDK_36.avd" />
+              </handle>
+            </Target>
+          </targets>
+        </DialogSelection>
+      </SelectionState>
     </selectionStates>
   </component>
 </project>

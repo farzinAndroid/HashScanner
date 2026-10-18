@@ -1,4 +1,4 @@
-package com.hashscanner.hashscanner.data.crypto
+package com.hashscanner.hashscanner.data.hash
 
 import java.io.File
 import java.io.FileInputStream

@@ -7,7 +7,7 @@ import android.graphics.Bitmap
 import android.os.Build
 import androidx.core.graphics.drawable.toBitmap
 import com.hashscanner.hashscanner.data.analyzer.RiskAnalyzer
-import com.hashscanner.hashscanner.data.crypto.HashUtil
+import com.hashscanner.hashscanner.data.hash.HashUtil
 import com.hashscanner.hashscanner.data.database.dao.AppDao
 import com.hashscanner.hashscanner.data.database.dao.PermissionDao
 import com.hashscanner.hashscanner.data.database.dao.SuspiciousDao
